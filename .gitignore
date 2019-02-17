@@ -1,0 +1,7 @@
+# Ignore compiled SourceMod plugins
+
+*.smx
+
+# Ignore packaged release builds
+
+*.zip
