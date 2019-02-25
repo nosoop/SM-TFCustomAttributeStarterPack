@@ -1,0 +1,36 @@
+"Games"
+{
+	"tf"
+	{
+		"Functions"
+		{
+			"CObjectSentrygun::SentryThink()"
+			{
+				"signature"		"CObjectSentrygun::SentryThink()"
+				"callconv"		"thiscall"
+				"return"		"void"
+				"this"			"entity"
+			}
+		}
+		
+		"Signatures"
+		{
+			"CObjectSentrygun::SentryThink()"
+			{
+				// contains unique string "mult_sentry_range"
+				"library"	"server"
+				"linux"		"@_ZN16CObjectSentrygun11SentryThinkEv"
+				"windows"	"\x55\x8B\xEC\x51\x56\x8B\xF1\x57\x80\xBE\x2A\x2A\x00\x00\x00\xC7\x86\x2A\x2A\x00\x00\x00\x80\x89\x44"
+			}
+		}
+		
+		"Offsets"
+		{
+			"CBaseObject::ChangeTeam()"
+			{
+				"windows"	"91"
+				"linux"		"92"
+			}
+		}
+	}
+}
