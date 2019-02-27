@@ -1,0 +1,27 @@
+"Games"
+{
+	"tf"
+	{
+		"Signatures"
+		{
+			"CTFPlayerShared::Heal()"
+			{
+				// ??
+				"library"	"server"
+				"linux"		"@_ZN15CTFPlayerShared4HealEP11CBaseEntityfffbP9CTFPlayer"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x28\x53\x56\x8B\x75\x08\x0F\x57\xC0\x57\x56\x8B\xF9"
+			}
+			"CTFPlayerShared::StopHealing()"
+			{
+				// ??
+				"library"	"server"
+				"linux"		"@_ZN15CTFPlayerShared11StopHealingEP11CBaseEntity"
+			}
+			"CGlobalEntityList::FindEntityInSphere()"
+			{
+				"library"	"server"
+				"linux"		"@_ZN17CGlobalEntityList18FindEntityInSphereEP11CBaseEntityRK6Vectorf"
+			}
+		}
+	}
+}
