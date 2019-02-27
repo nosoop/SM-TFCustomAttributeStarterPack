@@ -34,6 +34,8 @@ ArrayList g_ConvertedBuildings;
 static int offs_hBuilder, offs_hOwner;
 
 Handle g_SDKChangeObjectTeam;
+Handle g_SDKBuildingSpawnControlPanels, g_SDKBuildingDestroyScreens,
+		g_SDKBuildingSetScreenActive;
 
 public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.ca_sapper_reprograms_buildings");
@@ -44,6 +46,22 @@ public void OnPluginStart() {
 	Handle dtSentryFire = DHookCreateFromConf(hGameConf, "CObjectSentrygun::SentryThink()");
 	DHookEnableDetour(dtSentryFire, false, OnSentryGunThinkPre);
 	DHookEnableDetour(dtSentryFire, true, OnSentryGunThinkPost);
+	
+	// TODO hook detonate and show message to engineer that a spy owns their stuff
+	
+	StartPrepSDKCall(SDKCall_Entity);
+	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CBaseObject::SpawnControlPanels()");
+	g_SDKBuildingSpawnControlPanels = EndPrepSDKCall();
+	
+	StartPrepSDKCall(SDKCall_Entity);
+	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CBaseObject::DestroyScreens()");
+	g_SDKBuildingDestroyScreens = EndPrepSDKCall();
+	
+	StartPrepSDKCall(SDKCall_Entity);
+	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature,
+			"CBaseObject::SetControlPanelsActive()");
+	PrepSDKCall_AddParameter(SDKType_Bool, SDKPass_Plain);
+	g_SDKBuildingSetScreenActive = EndPrepSDKCall();
 	
 	StartPrepSDKCall(SDKCall_Entity);
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual, "CBaseObject::ChangeTeam()");
@@ -110,7 +128,6 @@ public void OnObjectSapped(Event event, const char[] name, bool dontBroadcast) {
 		return;
 	}
 	
-	// TODO create proper attribute handling for sap time and self-destruct time
 	int sapper = GetPlayerWeaponSlot(attacker, view_as<int>(TF2ItemSlot_Sapper));
 	
 	KeyValues attr = TF2CustAttr_GetAttributeKeyValues(sapper);
@@ -166,6 +183,7 @@ public Action OnReprogramComplete(Handle timer, DataPack data) {
 	 * care as they proceed to get shidded on
 	 */
 	ChangeBuildingTeam(building, attackerTeam);
+	RespawnBuildingScreens(building);
 	
 	SetEntProp(building, Prop_Send, "m_nSkin", attackerTeam == TFTeam_Red? 0 : 1);
 	
@@ -231,4 +249,17 @@ int GetModifiedBuildingOwner(int building) {
  */
 void ChangeBuildingTeam(int building, TFTeam team) {
 	SDKCall(g_SDKChangeObjectTeam, building, team);
+}
+
+/**
+ * Rebuilds the VGUI screen entities for the specified building and makes them active.
+ * This handles Dispenser screens.
+ */
+void RespawnBuildingScreens(int building) {
+	if (g_SDKBuildingSpawnControlPanels && g_SDKBuildingDestroyScreens
+			&& g_SDKBuildingSetScreenActive) {
+		SDKCall(g_SDKBuildingDestroyScreens, building);
+		SDKCall(g_SDKBuildingSpawnControlPanels, building);
+		SDKCall(g_SDKBuildingSetScreenActive, building, true);
+	}
 }

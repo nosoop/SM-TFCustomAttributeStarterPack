@@ -22,6 +22,31 @@
 				"linux"		"@_ZN16CObjectSentrygun11SentryThinkEv"
 				"windows"	"\x55\x8B\xEC\x51\x56\x8B\xF1\x57\x80\xBE\x2A\x2A\x00\x00\x00\xC7\x86\x2A\x2A\x00\x00\x00\x80\x89\x44"
 			}
+			"CBaseObject::SpawnControlPanels()"
+			{
+				// contains unique string "bp%d_controlpanel%%d_ll"
+				"library"	"server"
+				"linux"		"@_ZN11CBaseObject18SpawnControlPanelsEv"
+				"windows"	"\x55\x8B\xEC\x81\xEC\x5C\x01\x00\x00\x53\x56\x57\x8B\xF9"
+			}
+			"CBaseObject::DestroyScreens()"
+			{
+				// get to CBaseObject::MakeCarriedObject() through string "player_carryobject"
+				// ... to CBaseObject::DestroyScreens() is two calls above the string in that block
+				"library"	"server"
+				"linux"		"@_ZN11CBaseObject14DestroyScreensEv"
+				"windows"	"\x56\x57\x8B\xF9\x8B\xB7\xC0\x09\x00\x00"
+			}
+			"CBaseObject::SetControlPanelsActive()"
+			{
+				// get to CObjectSapper::FinishedBuilding() through string "player_sapped_object"
+				// ... to CBaseObject::FinishedBuilding() as first call in previous function
+				// ... to CBaseObject::SetControlPanelsActive() as first call in previous function
+				"library"	"server"
+				"linux"		"@_ZN11CBaseObject22SetControlPanelsActiveEb"
+				"windows"	"\x55\x8B\xEC\x53\x8B\xD9\x56\x8B\xB3\xC0\x09\x00\x00"
+			}
+			
 		}
 		
 		"Offsets"
