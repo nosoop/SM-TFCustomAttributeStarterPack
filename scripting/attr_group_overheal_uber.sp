@@ -11,6 +11,7 @@
 #pragma newdecls required
 
 #include <stocksoup/var_strings>
+#include <stocksoup/tf/tempents_stocks>
 
 #define PLUGIN_VERSION "0.0.0"
 public Plugin myinfo = {
@@ -26,6 +27,8 @@ public Plugin myinfo = {
 Handle g_SDKCallFindEntityInSphere, g_SDKCallPlayerSharedStartHealing,
 		g_SDKCallPlayerSharedStopHealing;
 ArrayList g_RadiusHealRecipients[MAXPLAYERS + 1];
+
+float g_flLastHealthParticleDisplayTime[MAXPLAYERS + 1];
 
 public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.ca_group_overheal");
@@ -75,6 +78,7 @@ public void OnMapStart() {
 }
 
 public void OnClientPutInServer(int client) {
+	g_flLastHealthParticleDisplayTime[client] = 0.0;
 	SDKHook(client, SDKHook_PostThinkPost, OnPlayerPostThinkPost);
 }
 
@@ -111,7 +115,7 @@ public void OnPlayerPostThinkPost(int client) {
 	int target = -1;
 	while ((target = FindEntityInSphere(target, vecOrigin, flHealRange)) != -1) {
 		// TODO check for disguised players
-		if (target > 0 && target <= MaxClients && TF2_GetClientTeam(target) == team) {
+		if (target > 0 && target <= MaxClients && TF2_GetClientVisibleTeam(target) == team) {
 			bInGroupOverhealRange[target] = true;
 		}
 	}
@@ -125,6 +129,18 @@ public void OnPlayerPostThinkPost(int client) {
 				g_RadiusHealRecipients[client].FindValue(GetClientSerial(i));
 		bool bIsKnownHealRecipient = iHealRecipientIndex != -1;
 		
+		if (bInGroupOverhealRange[i] && g_flLastHealthParticleDisplayTime[i] < GetGameTime()) {
+			float vecParticleOrigin[3];
+			GetClientEyePosition(i, vecParticleOrigin);
+			vecParticleOrigin[2] += 32.0;
+			
+			TE_SetupTFParticleEffect(TF2_GetClientVisibleTeam(i) == TFTeam_Red?
+					"healthgained_red_giant" : "healthgained_blu_giant", vecParticleOrigin,
+					.entity = i, .attachType = PATTACH_CUSTOMORIGIN);
+			TE_SendToAll();
+			g_flLastHealthParticleDisplayTime[i] = GetGameTime() + 0.5;
+		}
+		
 		// not a new state
 		if (bInGroupOverhealRange[i] == bIsKnownHealRecipient) {
 			continue;
@@ -134,20 +150,22 @@ public void OnPlayerPostThinkPost(int client) {
 			case true: {
 				// in range now, add healer
 				g_RadiusHealRecipients[client].Push(GetClientSerial(i));
-				
-				// what do the numbers mean?????
 				StartHealing(i, hActiveWeapon, client, flHealRate, flOverhealRatio,
 						flOverhealTimeScale, bFixedHealRate);
 			}
 			case false: {
 				// not in range anymore, remove healer
 				g_RadiusHealRecipients[client].Erase(iHealRecipientIndex);
-				
-				// TODO i->m_Shared->StopHealing(client);
 				StopHealing(i, hActiveWeapon);
 			}
 		}
 	}
+}
+
+TFTeam TF2_GetClientVisibleTeam(int client) {
+	return TF2_IsPlayerInCondition(client, TFCond_Disguised)?
+			view_as<TFTeam>(GetEntProp(client, Prop_Send, "m_nDisguiseTeam"))
+			: TF2_GetClientTeam(client);
 }
 
 bool IsUberchargeDeployed(int weapon) {
