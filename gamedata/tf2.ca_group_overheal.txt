@@ -2,25 +2,51 @@
 {
 	"tf"
 	{
+		"Functions"
+		{
+			"CTFPlayer::GetChargeEffectBeingProvided()"
+			{
+				"signature"		"CTFPlayer::GetChargeEffectBeingProvided()"
+				"callconv"		"thiscall"
+				"return"		"int"
+				"this"			"entity"
+			}
+		}
+		
 		"Signatures"
 		{
 			"CTFPlayerShared::Heal()"
 			{
-				// ??
+				// via CTFHolidayEntity::Teleport() with xref "spawn_loot_%s"
+				// ... CTFPlayerShared::Heal() is below with multiple vcalls that receive (0, n, 3E8)
 				"library"	"server"
 				"linux"		"@_ZN15CTFPlayerShared4HealEP11CBaseEntityfffbP9CTFPlayer"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x28\x53\x56\x8B\x75\x08\x0F\x57\xC0\x57\x56\x8B\xF9"
 			}
 			"CTFPlayerShared::StopHealing()"
 			{
-				// ??
+				// first call in block with xref "healtarget:alive"
 				"library"	"server"
 				"linux"		"@_ZN15CTFPlayerShared11StopHealingEP11CBaseEntity"
+				"windows"	"\x55\x8B\xEC\x51\x56\xFF\x75\x08\x8B\xF1\xE8\x2A\x2A\x2A\x2A\x8B\xC8"
 			}
 			"CGlobalEntityList::FindEntityInSphere()"
 			{
+				// xref "NULL entity in global entity list!\n"
+				// process of elimination -- three arguments that branch to a mov+10004h
+				// two arguments is FindEntityByModel
 				"library"	"server"
 				"linux"		"@_ZN17CGlobalEntityList18FindEntityInSphereEP11CBaseEntityRK6Vectorf"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x0C\x53\x56\x57\x8B\xF9\x8B\x4D\x08"
+			}
+			
+			"CTFPlayer::GetChargeEffectBeingProvided()"
+			{
+				// via CTFPlayer::OnBurnOther() contains xref "PlayerIgnitedInv"
+				// ... CTFPlayer::GetChargeEffectBeingProvided() called in previous block
+				"library"	"server"
+				"linux"		"@_ZN9CTFPlayer28GetChargeEffectBeingProvidedEv"
+				"windows"	"\x55\x8B\xEC\x51\x56\x8B\xF1\x8D\x86\xFC\x20\x00\x00"
 			}
 		}
 	}

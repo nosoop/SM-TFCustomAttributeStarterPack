@@ -7,6 +7,7 @@
 #include <sdkhooks>
 #include <tf2_stocks>
 #include <tf_custom_attributes>
+#include <dhooks>
 
 #pragma newdecls required
 
@@ -60,6 +61,10 @@ public void OnPluginStart() {
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CTFPlayerShared::StopHealing()");
 	PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer);
 	g_SDKCallPlayerSharedStopHealing = EndPrepSDKCall();
+	
+	Handle dtGetChargeType = DHookCreateFromConf(hGameConf,
+			"CTFPlayer::GetChargeEffectBeingProvided()");
+	DHookEnableDetour(dtGetChargeType, false, OnGetPlayerProvidedCharge);
 	
 	delete hGameConf;
 }
@@ -160,6 +165,15 @@ public void OnPlayerPostThinkPost(int client) {
 			}
 		}
 	}
+}
+
+public MRESReturn OnGetPlayerProvidedCharge(int client, Handle hReturn) {
+	int hActiveWeapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
+	if (IsUberchargeDeployed(hActiveWeapon) && IsGroupOverhealMedigun(hActiveWeapon)) {
+		DHookSetReturn(hReturn, -1);
+		return MRES_Supercede;
+	}
+	return MRES_Ignored;
 }
 
 TFTeam TF2_GetClientVisibleTeam(int client) {
