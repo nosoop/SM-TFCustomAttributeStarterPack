@@ -13,6 +13,7 @@
 #include <stocksoup/datapack>
 #include <stocksoup/var_strings>
 #include <stocksoup/tf/tempents_stocks>
+#include <stocksoup/tf/hud_notify>
 
 #include <tf_custom_attributes>
 #include <tf2_morestocks>
@@ -36,6 +37,7 @@ static int offs_hBuilder, offs_hOwner;
 Handle g_SDKChangeObjectTeam;
 Handle g_SDKBuildingSpawnControlPanels, g_SDKBuildingDestroyScreens,
 		g_SDKBuildingSetScreenActive;
+Handle g_SDKPlayerGetObjectOfType;
 
 public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.ca_sapper_reprograms_buildings");
@@ -48,6 +50,13 @@ public void OnPluginStart() {
 	DHookEnableDetour(dtSentryFire, true, OnSentryGunThinkPost);
 	
 	// TODO hook detonate and show message to engineer that a spy owns their stuff
+	
+	StartPrepSDKCall(SDKCall_Player);
+	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CTFPlayer::GetObjectOfType()");
+	PrepSDKCall_SetReturnInfo(SDKType_CBaseEntity, SDKPass_Pointer);
+	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+	g_SDKPlayerGetObjectOfType = EndPrepSDKCall();
 	
 	StartPrepSDKCall(SDKCall_Entity);
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CBaseObject::SpawnControlPanels()");
@@ -67,6 +76,10 @@ public void OnPluginStart() {
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual, "CBaseObject::ChangeTeam()");
 	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
 	g_SDKChangeObjectTeam = EndPrepSDKCall();
+	
+	Handle dtDetonateObjectOfType = DHookCreateFromConf(hGameConf,
+			"CTFPlayer::DetonateObjectOfType()");
+	DHookEnableDetour(dtDetonateObjectOfType, false, OnPlayerDetonateBuildingPre);
 	
 	delete hGameConf;
 	
@@ -213,6 +226,29 @@ public Action OnReprogrammedBuildingSelfDestruct(Handle timer, int buildingref) 
 	SDKHooks_TakeDamage(building, 0, attacker, 5000.0);
 	
 	return Plugin_Handled;
+}
+
+public MRESReturn OnPlayerDetonateBuildingPre(int client, Handle hParams) {
+	int a = DHookGetParam(hParams, 1);
+	int b = DHookGetParam(hParams, 2);
+	bool bForceRemoval = DHookGetParam(hParams, 3);
+	
+	if (bForceRemoval) {
+		return MRES_Ignored;
+	}
+	
+	int building = SDKCall(g_SDKPlayerGetObjectOfType, client, a, b);
+	if (!IsValidEntity(building)) {
+		return MRES_Ignored;
+	}
+	
+	if (client == GetModifiedBuildingOwner(building)) {
+		return MRES_Ignored;
+	}
+	
+	TF_HudNotifyCustom(client, "obj_status_sapper", TF2_GetClientTeam(client),
+			"Cannot destroy reprogrammed building!");
+	return MRES_Supercede;
 }
 
 /**

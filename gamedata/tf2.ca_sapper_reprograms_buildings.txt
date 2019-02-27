@@ -11,6 +11,29 @@
 				"return"		"void"
 				"this"			"entity"
 			}
+			"CTFPlayer::DetonateObjectOfType()"
+			{
+				"signature"		"CTFPlayer::DetonateObjectOfType()"
+				"callconv"		"thiscall"
+				"return"		"void"
+				"this"			"entity"
+				"arguments"
+				{
+					"int_a"
+					{
+						"type"	"int"
+					}
+					"int_b"
+					{
+						"type"	"int"
+					}
+					"force_removal"
+					{
+						// this skips the sapper / plasma disabled checks
+						"type"	"bool"
+					}
+				}
+			}
 		}
 		
 		"Signatures"
@@ -47,6 +70,20 @@
 				"windows"	"\x55\x8B\xEC\x53\x8B\xD9\x56\x8B\xB3\xC0\x09\x00\x00"
 			}
 			
+			"CTFPlayer::DetonateObjectOfType()"
+			{
+				// contains unique string "pda_engineer"
+				"library"	"server"
+				"linux"		"@_ZN9CTFPlayer20DetonateObjectOfTypeEiib"
+				"windows"	"\x55\x8B\xEC\x51\x53\x57\xFF\x75\x0C\x8B\xD9\xFF\x75\x08\x89\x5D\xFC\xE8\x2A\x2A\x2A\x2A\x8B\xF8"
+			}
+			"CTFPlayer::GetObjectOfType()"
+			{
+				// first call in "CTFPlayer::DetonateObjectOfType()"
+				"library"	"server"
+				"linux"		"@_ZNK9CTFPlayer15GetObjectOfTypeEii"
+				"windows"	"\x55\x8B\xEC\x51\x53\x8B\xC1\x56\x57\x33\xFF\x89\x45\xFC\x8B\x98\x7C\x21\x00\x00"
+			}
 		}
 		
 		"Offsets"
