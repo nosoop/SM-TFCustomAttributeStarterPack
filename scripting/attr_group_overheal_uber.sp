@@ -12,7 +12,9 @@
 #pragma newdecls required
 
 #include <stocksoup/var_strings>
+#include <stocksoup/tf/client>
 #include <stocksoup/tf/tempents_stocks>
+#include <stocksoup/tf/econ>
 
 #define PLUGIN_VERSION "0.0.0"
 public Plugin myinfo = {
@@ -95,6 +97,7 @@ public void OnPlayerPostThinkPost(int client) {
 			int target = GetClientFromSerial(g_RadiusHealRecipients[client].Get(0));
 			if (target) {
 				StopHealing(target, GetPlayerWeaponSlot(client, 1));
+				SetClientScreenOverlay(target, "");
 			}
 			g_RadiusHealRecipients[client].Erase(0);
 		}
@@ -143,10 +146,11 @@ public void OnPlayerPostThinkPost(int client) {
 					"healthgained_red_giant" : "healthgained_blu_giant", vecParticleOrigin,
 					.entity = i, .attachType = PATTACH_CUSTOMORIGIN);
 			TE_SendToAll();
+			
 			g_flLastHealthParticleDisplayTime[i] = GetGameTime() + 0.5;
 		}
 		
-		// not a new state
+		// not a new state, don't add / remove healing
 		if (bInGroupOverhealRange[i] == bIsKnownHealRecipient) {
 			continue;
 		}
@@ -157,11 +161,18 @@ public void OnPlayerPostThinkPost(int client) {
 				g_RadiusHealRecipients[client].Push(GetClientSerial(i));
 				StartHealing(i, hActiveWeapon, client, flHealRate, flOverhealRatio,
 						flOverhealTimeScale, bFixedHealRate);
+				
+				TF2_SetClientUberchargeOverlay(i);
+				
+				if (i == client) {
+					EmitGameSoundToAll("Halloween.spell_overheal", .entity = i);
+				}
 			}
 			case false: {
 				// not in range anymore, remove healer
 				g_RadiusHealRecipients[client].Erase(iHealRecipientIndex);
 				StopHealing(i, hActiveWeapon);
+				SetClientScreenOverlay(i, "");
 			}
 		}
 	}
@@ -224,6 +235,7 @@ int FindEntityInSphere(int startEntity, const float vecPosition[3], float flRadi
  * 
  * @param target				The client that is receiving healing.
  * @param inflictor				The entity providing the healing (e.g., Dispenser, Medigun).
+ * 								If this entity is removed, the healing stops.
  * @param healer				The client that is providing healing.
  * @param flHealRate			Base amount of healing per second.
  * @param flOverhealRatio		Determines the multiplier of maximum health that this heal is
