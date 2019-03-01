@@ -2,6 +2,10 @@
  * [TF2CA] Sapper Reprograms Buildings
  * 
  * Note:  This is unfit for production use.  Not all building team switch cases are covered.
+ * 
+ * In particular, what's been reported:  Engineer can't shoot their reprogrammed buildings, Spy
+ * teammates can't use reprogrammed teleporters, and reprogrammed teleporters don't have
+ * teleport recharge (i.e., they recharge instantly).
  */
 #pragma semicolon 1
 #include <sourcemod>
