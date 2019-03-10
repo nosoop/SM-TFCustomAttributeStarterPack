@@ -55,7 +55,7 @@ public MRESReturn OnActivateRageBuffPre(Address pPlayerShared, Handle hParams) {
 	int hPrimary = GetPlayerWeaponSlot(client, 0);
 	
 	// check if weapon contains rage effect, skip if not
-	if (!WeaponContainsHuntMode(hPrimary)) {
+	if (!IsValidEntity(hPrimary) || !TF2CustAttr_GetInt(hPrimary, "rage smokes out spies")) {
 		return MRES_Ignored;
 	}
 	
@@ -120,16 +120,4 @@ public void OnHuntThinkPost(int client) {
 				.attachPoint = 0, .attachType = PATTACH_ROOTBONE_FOLLOW);
 		TE_SendToClient(client);
 	}
-}
-
-bool WeaponContainsHuntMode(int weapon) {
-	KeyValues attributes = TF2CustAttr_GetAttributeKeyValues(weapon);
-	if (!attributes) {
-		return false;
-	}
-	
-	bool bIsHuntMode = !!attributes.GetNum("rage smokes out spies", 0);
-	delete attributes;
-	
-	return bIsHuntMode;
 }

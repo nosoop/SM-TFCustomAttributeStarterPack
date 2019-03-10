@@ -61,16 +61,9 @@ public void OnPlayerHurt(Event event, const char[] name, bool dontBroadcast) {
 }
 
 float GetHeadshotRageIncrase(int weapon) {
-	KeyValues attributes = TF2CustAttr_GetAttributeKeyValues(weapon);
-	if (!attributes) {
-		return 0.0;
-	}
-	
 	// custom varstring has keys `amount` and `add_while_draining`
 	char attr[64];
-	attributes.GetString("rage on headshot", attr, sizeof(attr));
-	
-	if (!attr[0]) {
+	if (!TF2CustAttr_GetString(weapon, "rage on headshot", attr, sizeof(attr))) {
 		return 0.0;
 	}
 	
@@ -82,8 +75,5 @@ float GetHeadshotRageIncrase(int weapon) {
 		}
 	}
 	
-	float flRageOnHeadshot = ReadFloatVar(attr, "amount");
-	delete attributes;
-	
-	return flRageOnHeadshot;
+	return ReadFloatVar(attr, "amount");
 }

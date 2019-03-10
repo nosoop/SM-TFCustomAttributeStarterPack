@@ -51,24 +51,9 @@ public MRESReturn OnPlayerShouldGib(int client, Handle hReturn, Handle hParams) 
 	SetTakeDamageInfoContext(hParams, 1);
 	
 	int weapon = GetDamageInfoHandle(TakeDamageInfo_Weapon);
-	if (IsAlwaysGibWeapon(weapon)) {
+	if (TF2CustAttr_GetInt(weapon, "weapon always gibs on kill")) {
 		DHookSetReturn(hReturn, true);
 		return MRES_Supercede;
 	}
 	return MRES_Ignored;
-}
-
-static bool IsAlwaysGibWeapon(int weapon) {
-	if (!IsValidEntity(weapon)) {
-		return false;
-	}
-	
-	KeyValues attributes = TF2CustAttr_GetAttributeKeyValues(weapon);
-	if (!attributes) {
-		return false;
-	}
-	
-	bool alwaysGib = !!attributes.GetNum("weapon always gibs on kill", false);
-	delete attributes;
-	return alwaysGib;
 }

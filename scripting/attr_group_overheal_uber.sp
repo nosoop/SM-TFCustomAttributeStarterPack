@@ -205,16 +205,10 @@ bool IsUberchargeDeployed(int weapon) {
 bool IsGroupOverhealMedigun(int weapon, float &flHealRate = 0.0, float &flOverhealRatio = 0.0,
 		float &flOverhealTimeScale = 0.0, bool &bFixedHealing = false,
 		float &flHealRange = 0.0) {
-	KeyValues attributes = TF2CustAttr_GetAttributeKeyValues(weapon);
-	if (!attributes) {
-		return false;
-	}
-	
 	char attr[256];
-	attributes.GetString("medigun charge is group overheal", attr, sizeof(attr));
-	delete attributes;
 	
-	if (!attr[0]) {
+	if (!TF2CustAttr_GetString(weapon, "medigun charge is group overheal",
+			attr, sizeof(attr))) {
 		return false;
 	}
 	

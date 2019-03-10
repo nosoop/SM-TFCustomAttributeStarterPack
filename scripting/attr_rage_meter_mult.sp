@@ -63,14 +63,7 @@ public MRESReturn OnModifyRagePre(Address pPlayerShared, Handle hParams) {
 		return MRES_Ignored;
 	}
 	
-	KeyValues attributes = TF2CustAttr_GetAttributeKeyValues(hSecondary);
-	if (!attributes) {
-		return MRES_Ignored;
-	}
-	
-	float flMultiplier = attributes.GetFloat("banner rage fill multiplier", 1.0);
-	delete attributes;
-	
+	float flMultiplier = TF2CustAttr_GetFloat(hSecondary, "banner rage fill multiplier", 1.0);
 	if (flMultiplier == 1.0) {
 		return MRES_Ignored;
 	}

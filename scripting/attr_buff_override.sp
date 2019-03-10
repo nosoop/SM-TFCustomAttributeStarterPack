@@ -55,17 +55,10 @@ public MRESReturn OnPulseRageBuffPre(Address pPlayerShared, Handle hParams) {
 		return MRES_Ignored;
 	}
 	
-	KeyValues attributes = TF2CustAttr_GetAttributeKeyValues(hSecondary);
-	if (!attributes) {
-		return MRES_Ignored;
-	}
-	
-	int customBuffType = attributes.GetNum("custom soldier buff type", 0);
-	delete attributes;
+	int customBuffType = TF2CustAttr_GetInt(hSecondary, "custom soldier buff type", 0);
 	
 	// TODO allow plugins to implement buff types with a private forward instead
 	if (!customBuffType || customBuffType != 666) {
-		LogError("incorrect custom buff type (%d)", customBuffType);
 		return MRES_Ignored;
 	}
 	

@@ -81,15 +81,7 @@ public void OnObjectSapped(Event event, const char[] name, bool dontBroadcast) {
 	
 	int sapper = GetPlayerWeaponSlot(attacker, view_as<int>(TF2ItemSlot_Sapper));
 	
-	KeyValues attr = TF2CustAttr_GetAttributeKeyValues(sapper);
-	if (!attr) {
-		// no custom attributes
-		return;
-	}
-	
-	float flRechargeTime = attr.GetFloat("sapper recharge time", 0.0);
-	delete attr;
-	
+	float flRechargeTime = TF2CustAttr_GetFloat(sapper, "sapper recharge time", 0.0);
 	if (flRechargeTime <= 0.0) {
 		return;
 	}
