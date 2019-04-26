@@ -1,0 +1,27 @@
+"Games"
+{
+	"tf"
+	{
+		"Functions"
+		{
+			"CTFPlayer::RegenThink()"
+			{
+				"signature"		"CTFPlayer::RegenThink()"
+				"callconv"		"thiscall"
+				"return"		"void"
+				"this"			"entity"
+			}
+		}
+		
+		"Signatures"
+		{
+			"CTFPlayer::RegenThink()"
+			{
+				// contsins string "RegenThink" in block after first jump
+				"library"		"server"
+				"linux"			"@_ZN9CTFPlayer10RegenThinkEv"
+				"windows"		"\x55\x8B\xEC\x83\xEC\x74\x57\x8B\xF9\x8B\x07"
+			}
+		}
+	}
+}
