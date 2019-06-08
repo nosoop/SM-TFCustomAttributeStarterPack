@@ -31,11 +31,13 @@
 Handle g_SDKCallInitGrenade;
 Handle g_SDKCallFindEntityInSphere;
 
+ArrayList g_OilPuddleWorldRefs;
 ArrayList g_OilPuddleIgniteRefs;
 
 int offs_CTFMinigun_flNextFireRingTime;
 
 ConVar g_OilSpillLifetime;
+ConVar g_OilSpillPlayerMaxActive;
 
 public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
@@ -77,10 +79,25 @@ public void OnPluginStart() {
 	
 	delete hGameConf;
 	
+	g_OilPuddleWorldRefs = new ArrayList();
 	g_OilPuddleIgniteRefs = new ArrayList();
 	
 	g_OilSpillLifetime = CreateConVar("cattr_flamethrower_oil_lifetime", "15.0",
 			"Number of seconds that oil puddles will be live.");
+	
+	g_OilSpillPlayerMaxActive = CreateConVar("cattr_flamethrower_oil_max_active", "8",
+			"Maximum number of oil puddles active per player.");
+}
+
+public void OnPluginEnd() {
+	// clean up all existing oil entities
+	while (g_OilPuddleWorldRefs.Length) {
+		int oilpuddle = EntRefToEntIndex(g_OilPuddleWorldRefs.Get(0));
+		if (IsValidEntity(oilpuddle)) {
+			RemoveEntity(oilpuddle);
+		}
+		g_OilPuddleWorldRefs.Erase(0);
+	}
 }
 
 public void OnMapStart() {
@@ -99,6 +116,7 @@ public void OnGameFrame() {
 		return;
 	}
 	
+	// run logic on ignited oil entities
 	if (g_OilPuddleIgniteRefs.Length) {
 		for (int i; i < g_OilPuddleIgniteRefs.Length;) {
 			int oilpuddle = EntRefToEntIndex(g_OilPuddleIgniteRefs.Get(i));
@@ -111,6 +129,20 @@ public void OnGameFrame() {
 			
 			i++;
 		}
+	}
+	
+	// clean up expired oil references (they should expire in insertion order)
+	while (g_OilPuddleWorldRefs.Length) {
+		int oilpuddle = EntRefToEntIndex(g_OilPuddleWorldRefs.Get(0));
+		if (IsValidEntity(oilpuddle) && GetEntityCount() < GetMaxEntities() - 128) {
+			break;
+		}
+		
+		if (IsValidEntity(oilpuddle)) {
+			RemoveEntity(oilpuddle);
+		}
+		
+		g_OilPuddleWorldRefs.Erase(0);
 	}
 	
 	// iterate over oil triggers and ignite on nearby burning players
@@ -157,6 +189,21 @@ public MRESReturn OnFlamethrowerSecondaryAttack(int weapon) {
 			+ (1.0 * GetAirblastRefireScale(weapon)));
 	
 	LeakOil(weapon);
+	
+	int owner = GetEntPropEnt(weapon, Prop_Send, "m_hOwnerEntity");
+	
+	int nOwnedOilEntities, nMaxOilEntities = g_OilSpillPlayerMaxActive.IntValue;
+	for (int i = g_OilPuddleWorldRefs.Length - 1; i >= 0; i--) {
+		int oilpuddle = EntRefToEntIndex(g_OilPuddleWorldRefs.Get(i));
+		if (!IsValidEntity(oilpuddle)) {
+			continue;
+		}
+		
+		int puddleowner = GetEntPropEnt(oilpuddle, Prop_Send, "m_hOwnerEntity");
+		if (owner == puddleowner && nOwnedOilEntities++ >= nMaxOilEntities - 1) {
+			RemoveEntity(oilpuddle);
+		}
+	}
 	
 	return MRES_Supercede;
 }
@@ -266,6 +313,8 @@ void CreateOilPuddle(int owner, const float vecOrigin[3]) {
 	SetEntityRenderColor(damagetrigger, .a = 0);
 	
 	SDKHook(damagetrigger, SDKHook_OnTakeDamage, OnOilTriggerTakeDamage);
+	
+	g_OilPuddleWorldRefs.Push(EntIndexToEntRef(puddle));
 }
 
 /**
