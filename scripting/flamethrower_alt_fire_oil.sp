@@ -26,6 +26,9 @@
 
 #define HUO_LONG_IGNITE_RADIUS 135.0
 
+#define OIL_PUDDLE_BASE_SIZE 42.0
+#define OIL_PUDDLE_SCALE 1.0
+
 // NOTE: make sure "airblast disabled" is set on the weapon so client doesn't predict airblast
 
 Handle g_SDKCallInitGrenade;
@@ -282,6 +285,7 @@ void CreateOilPuddle(int owner, const float vecOrigin[3]) {
 	
 	SetEntPropEnt(puddle, Prop_Send, "m_hOwnerEntity", owner);
 	SetEntityModel(puddle, OIL_PUDDLE_MODEL);
+	DispatchKeyValueFloat(puddle, "modelscale", OIL_PUDDLE_SCALE);
 	DispatchSpawn(puddle);
 	
 	TeleportEntity(puddle, vecOilPuddleOrigin, NULL_VECTOR, NULL_VECTOR);
@@ -297,7 +301,10 @@ void CreateOilPuddle(int owner, const float vecOrigin[3]) {
 	DispatchKeyValueFloat(damagetrigger, "radius", 0.0);
 	DispatchKeyValue(damagetrigger, "health", "1");
 	SetEntityModel(damagetrigger, OIL_PUDDLE_TRIGGER_MODEL);
-	DispatchKeyValueFloat(damagetrigger, "modelscale", 0.5);
+	
+	// the control point model we use is about half the size of the hay pile model
+	DispatchKeyValueFloat(damagetrigger, "modelscale", 0.5 * OIL_PUDDLE_SCALE);
+	
 	DispatchKeyValue(damagetrigger, "targetname", OIL_DAMAGE_TRIGGER_NAME);
 	
 	AcceptEntityInput(damagetrigger, "DisableShadow");
@@ -365,7 +372,8 @@ void OilPuddleIgniteThink(int oilpuddle) {
 	GetEntPropVector(oilpuddle, Prop_Data, "m_vecAbsOrigin", vecOrigin);
 	
 	int entity = -1;
-	while ((entity = FindEntityInSphere(entity, vecOrigin, 42.0)) != -1) {
+	while ((entity = FindEntityInSphere(entity, vecOrigin,
+			OIL_PUDDLE_BASE_SIZE * OIL_PUDDLE_SCALE)) != -1) {
 		// TODO deal damage to players
 		if (entity > 0 && entity <= MaxClients) {
 			int owner = GetEntPropEnt(oilpuddle, Prop_Data, "m_hOwnerEntity");
