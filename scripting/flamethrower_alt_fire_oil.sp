@@ -7,11 +7,13 @@
 #include <sdkhooks>
 #include <tf2_stocks>
 #include <dhooks>
+#include <tf2attributes>
 
 #pragma newdecls required
 
 #include <stocksoup/entity_tools>
 #include <stocksoup/tf/tempents_stocks>
+#include <stocksoup/tf/weapon>
 #include <tf_custom_attributes>
 
 #define OIL_PROJECTILE_MODEL "models/props_2fort/coffeepot.mdl"
@@ -121,10 +123,18 @@ public MRESReturn OnFlamethrowerSecondaryAttack(int weapon) {
 	// if (!TF2CustAttr_GetString(weapon, "oil replaces airblast", buffer, sizeof(buffer))) {
 	// 	return MRES_Ignored;
 	// }
+	int iAmmoUse = RoundFloat(
+			FindConVar("tf_flamethrower_burstammo").IntValue
+			* GetAirblastCostMultiplier(weapon));
 	
-	// TODO update secondary attack time cooldown
-	// TODO use airblast refire time attribute as scalar for delay
-	SetEntPropFloat(weapon, Prop_Data, "m_flNextSecondaryAttack", GetGameTime() + 0.33);
+	int iAmmoCount = TF2_GetWeaponAmmo(weapon);
+	if (iAmmoUse > iAmmoCount) {
+		return MRES_Supercede;
+	}
+	TF2_SetWeaponAmmo(weapon, iAmmoCount - iAmmoUse);
+	
+	SetEntPropFloat(weapon, Prop_Data, "m_flNextSecondaryAttack", GetGameTime()
+			+ (1.0 * GetAirblastRefireScale(weapon)));
 	
 	LeakOil(weapon);
 	
@@ -396,4 +406,44 @@ void GetProjectileDynamics(int client, float vecSpawnOrigin[3], float vecSpawnAn
 
 int FindEntityInSphere(int startEntity, const float vecPosition[3], float flRadius) {
 	return SDKCall(g_SDKCallFindEntityInSphere, startEntity, vecPosition, flRadius);
+}
+
+float GetAirblastCostMultiplier(int weapon) {
+	float flResultValue = 1.0;
+	Address pAttribute;
+	
+	pAttribute = TF2Attrib_GetByName(weapon, "airblast cost increased");
+	if (pAttribute) {
+		flResultValue *= TF2Attrib_GetValue(pAttribute);
+	}
+	
+	pAttribute = TF2Attrib_GetByName(weapon, "airblast cost decreased");
+	if (pAttribute) {
+		flResultValue *= TF2Attrib_GetValue(pAttribute);
+	}
+	
+	pAttribute = TF2Attrib_GetByName(weapon, "airblast cost scale hidden");
+	if (pAttribute) {
+		flResultValue *= TF2Attrib_GetValue(pAttribute);
+	}
+	
+	return flResultValue;
+}
+
+float GetAirblastRefireScale(int weapon) {
+	Address pAttribute = TF2Attrib_GetByName(weapon, "mult airblast refire time");
+	if (pAttribute) {
+		return TF2Attrib_GetValue(pAttribute);
+	}
+	return 1.0;
+}
+
+stock int TF2_GetWeaponAmmo(int weapon) {
+	int ammoType = GetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType");
+	int client = GetEntPropEnt(weapon, Prop_Send, "m_hOwner");
+	
+	if (client > 0 && client <= MaxClients && ammoType != -1) {
+		return GetEntProp(client, Prop_Send, "m_iAmmo", 4, ammoType);
+	}
+	return 0;
 }
