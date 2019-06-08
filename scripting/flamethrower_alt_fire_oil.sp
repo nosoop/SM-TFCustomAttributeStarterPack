@@ -116,13 +116,14 @@ public void OnGameFrame() {
 }
 
 public MRESReturn OnFlamethrowerSecondaryAttack(int weapon) {
+	if (!TF2CustAttr_GetInt(weapon, "oil replaces airblast")) {
+		return MRES_Ignored;
+	}
+	
 	if (GetEntPropFloat(weapon, Prop_Data, "m_flNextSecondaryAttack") > GetGameTime()) {
 		return MRES_Supercede;
 	}
 	
-	// if (!TF2CustAttr_GetString(weapon, "oil replaces airblast", buffer, sizeof(buffer))) {
-	// 	return MRES_Ignored;
-	// }
 	int iAmmoUse = RoundFloat(
 			FindConVar("tf_flamethrower_burstammo").IntValue
 			* GetAirblastCostMultiplier(weapon));
