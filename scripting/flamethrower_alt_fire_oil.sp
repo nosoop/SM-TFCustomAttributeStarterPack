@@ -16,10 +16,7 @@
 #include <stocksoup/tf/weapon>
 #include <tf_custom_attributes>
 
-#define OIL_PROJECTILE_MODEL "models/props_2fort/coffeepot.mdl"
-
 #define OIL_PUDDLE_MODEL "models/props_farm/haypile001.mdl"
-#define OIL_PUDDLE_MATERIAL "materials/swamp/overlays/mudpuddle001"
 
 #define OIL_PUDDLE_TRIGGER_MODEL "models/props_gameplay/cap_point_base.mdl"
 
@@ -83,9 +80,6 @@ public void OnPluginStart() {
 
 public void OnMapStart() {
 	// TODO precache shart
-	PrecacheGeneric(OIL_PUDDLE_MATERIAL ... ".vtf");
-	PrecacheGeneric(OIL_PUDDLE_MATERIAL ... ".vmt");
-	PrecacheModel(OIL_PROJECTILE_MODEL);
 	PrecacheModel(OIL_PUDDLE_MODEL);
 	PrecacheModel(OIL_PUDDLE_TRIGGER_MODEL);
 	
