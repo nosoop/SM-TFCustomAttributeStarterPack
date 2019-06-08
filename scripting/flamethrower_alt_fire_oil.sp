@@ -25,12 +25,16 @@
 
 #define COLLISION_GROUP_PUSHAWAY 0x11
 
+#define HUO_LONG_IGNITE_RADIUS 135.0
+
 // NOTE: make sure "airblast disabled" is set on the weapon so client doesn't predict airblast
 
 Handle g_SDKCallInitGrenade;
 Handle g_SDKCallFindEntityInSphere;
 
 ArrayList g_OilPuddleIgniteRefs;
+
+int offs_CTFMinigun_flNextFireRingTime;
 
 public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
@@ -41,6 +45,11 @@ public void OnPluginStart() {
 	Handle dtFlamethrowerSecondary = DHookCreateFromConf(hGameConf,
 			"CTFFlameThrower::SecondaryAttack()");
 	DHookEnableDetour(dtFlamethrowerSecondary, false, OnFlamethrowerSecondaryAttack);
+	
+	Handle dtRingOfFireAttack = DHookCreateFromConf(hGameConf,
+			"CTFMinigun::RingOfFireAttack()");
+	DHookEnableDetour(dtRingOfFireAttack, false, OnMinigunRingOfFirePre);
+	
 	
 	StartPrepSDKCall(SDKCall_Entity);
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual,
@@ -61,6 +70,9 @@ public void OnPluginStart() {
 	PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef);
 	PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
 	g_SDKCallFindEntityInSphere = EndPrepSDKCall();
+	
+	offs_CTFMinigun_flNextFireRingTime = GameConfGetOffset(hGameConf,
+			"CTFMinigun::m_flNextFireRingTime");
 	
 	delete hGameConf;
 	
@@ -264,6 +276,8 @@ public void OnOilTriggerIgnite(const char[] output, int caller, int activator, f
 			NULL_VECTOR, .entity = oilpuddle);
 	TE_SendToAll();
 	
+	EmitGameSoundToAll("Fire.Engulf", .entity = oilpuddle);
+	
 	g_OilPuddleIgniteRefs.Push(EntIndexToEntRef(oilpuddle));
 }
 
@@ -296,6 +310,33 @@ void OilPuddleIgniteThink(int oilpuddle) {
 			AcceptEntityInput(entity, "Detonate");
 		}
 	}
+}
+
+/** 
+ * Burn any oil puddles near Huo-Long Heater heavies.
+ */
+public MRESReturn OnMinigunRingOfFirePre(int minigun, Handle hParams) {
+	float flNextFireRingTime = GetEntDataFloat(minigun, offs_CTFMinigun_flNextFireRingTime);
+	if (flNextFireRingTime > GetGameTime()) {
+		return MRES_Ignored;
+	}
+	
+	int owner = GetEntPropEnt(minigun, Prop_Send, "m_hOwnerEntity");
+	if (!IsValidEntity(owner)) {
+		return MRES_Ignored;
+	}
+	
+	float vecOrigin[3];
+	GetEntPropVector(owner, Prop_Data, "m_vecAbsOrigin", vecOrigin);
+	
+	int entity = -1;
+	while ((entity = FindEntityInSphere(entity, vecOrigin, HUO_LONG_IGNITE_RADIUS)) != -1) {
+		if (IsEntityOilTrigger(entity)) {
+			AcceptEntityInput(entity, "Detonate");
+		}
+	}
+	
+	return MRES_Ignored;
 }
 
 bool IsEntityOilTrigger(int entity) {
