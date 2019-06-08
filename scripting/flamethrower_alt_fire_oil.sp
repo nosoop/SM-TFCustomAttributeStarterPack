@@ -35,6 +35,8 @@ ArrayList g_OilPuddleIgniteRefs;
 
 int offs_CTFMinigun_flNextFireRingTime;
 
+ConVar g_OilSpillLifetime;
+
 public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
@@ -76,6 +78,9 @@ public void OnPluginStart() {
 	delete hGameConf;
 	
 	g_OilPuddleIgniteRefs = new ArrayList();
+	
+	g_OilSpillLifetime = CreateConVar("cattr_flamethrower_oil_lifetime", "15.0",
+			"Number of seconds that oil puddles will be live.");
 }
 
 public void OnMapStart() {
@@ -216,7 +221,7 @@ void CreateOilPuddle(int owner, const float vecOrigin[3]) {
 	
 	SetEntityRenderColor(puddle, 0, 0, 0);
 	
-	RemoveEntityDelayed(puddle, 15.0);
+	RemoveEntityDelayed(puddle, g_OilSpillLifetime.FloatValue);
 	
 	// create oil damage trigger -- tf_generic_bomb is affected by every weapon
 	int damagetrigger = CreateEntityByName("tf_generic_bomb");
