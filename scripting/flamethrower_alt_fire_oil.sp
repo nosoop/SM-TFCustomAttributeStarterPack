@@ -1,0 +1,358 @@
+/**
+ * Sourcemod 1.7 Plugin Template
+ */
+#pragma semicolon 1
+#include <sourcemod>
+
+#include <sdkhooks>
+#include <tf2_stocks>
+#include <dhooks>
+
+#pragma newdecls required
+
+#include <stocksoup/entity_tools>
+#include <stocksoup/tf/tempents_stocks>
+#include <tf_custom_attributes>
+
+#define OIL_PROJECTILE_MODEL "models/props_2fort/coffeepot.mdl"
+
+#define OIL_PUDDLE_MODEL "models/props_farm/haypile001.mdl"
+#define OIL_PUDDLE_MATERIAL "materials/swamp/overlays/mudpuddle001"
+
+#define OIL_PUDDLE_TRIGGER_MODEL "models/props_gameplay/cap_point_base.mdl"
+
+#define OIL_DAMAGE_TRIGGER_NAME "cattr_oil_trigger"
+
+#define COLLISION_GROUP_PUSHAWAY 0x11
+
+// NOTE: make sure "airblast disabled" is set on the weapon so client doesn't predict airblast
+
+Handle g_SDKCallInitGrenade;
+Handle g_SDKCallFindEntityInSphere;
+
+ArrayList g_OilPuddleIgniteRefs;
+
+public void OnPluginStart() {
+	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
+	if (!hGameConf) {
+		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
+	}
+	
+	Handle dtFlamethrowerSecondary = DHookCreateFromConf(hGameConf,
+			"CTFFlameThrower::SecondaryAttack()");
+	DHookEnableDetour(dtFlamethrowerSecondary, false, OnFlamethrowerSecondaryAttack);
+	
+	StartPrepSDKCall(SDKCall_Entity);
+	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual,
+			"CTFWeaponBaseGrenadeProj::InitGrenade(int float)");
+	PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_Pointer);
+	PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_Pointer);
+	PrepSDKCall_AddParameter(SDKType_CBasePlayer, SDKPass_Pointer);
+	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+	PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
+	g_SDKCallInitGrenade = EndPrepSDKCall();
+	
+	StartPrepSDKCall(SDKCall_EntityList);
+	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature,
+			"CGlobalEntityList::FindEntityInSphere()");
+	PrepSDKCall_SetReturnInfo(SDKType_CBaseEntity, SDKPass_Pointer);
+	PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer,
+			VDECODE_FLAG_ALLOWNULL | VDECODE_FLAG_ALLOWWORLD);
+	PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef);
+	PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
+	g_SDKCallFindEntityInSphere = EndPrepSDKCall();
+	
+	delete hGameConf;
+	
+	g_OilPuddleIgniteRefs = new ArrayList();
+}
+
+public void OnMapStart() {
+	// TODO precache shart
+	PrecacheGeneric(OIL_PUDDLE_MATERIAL ... ".vtf");
+	PrecacheGeneric(OIL_PUDDLE_MATERIAL ... ".vmt");
+	PrecacheModel(OIL_PROJECTILE_MODEL);
+	PrecacheModel(OIL_PUDDLE_MODEL);
+	PrecacheModel(OIL_PUDDLE_TRIGGER_MODEL);
+	
+	PrecacheSound("physics/flesh/flesh_bloody_impact_hard1.wav");
+}
+
+/**
+ * Process ignited oil patches.
+ */
+public void OnGameFrame() {
+	if (GetGameTickCount() % 6 || !g_OilPuddleIgniteRefs.Length) {
+		return;
+	}
+	
+	for (int i; i < g_OilPuddleIgniteRefs.Length;) {
+		int oilpuddle = EntRefToEntIndex(g_OilPuddleIgniteRefs.Get(i));
+		if (!IsValidEntity(oilpuddle)) {
+			g_OilPuddleIgniteRefs.Erase(i);
+			continue;
+		}
+		
+		OilPuddleIgniteThink(oilpuddle);
+		
+		i++;
+	}
+	
+	// TODO iterate over oil triggers and ignite on nearby burning players
+}
+
+public MRESReturn OnFlamethrowerSecondaryAttack(int weapon) {
+	if (GetEntPropFloat(weapon, Prop_Data, "m_flNextSecondaryAttack") > GetGameTime()) {
+		return MRES_Supercede;
+	}
+	
+	// if (!TF2CustAttr_GetString(weapon, "oil replaces airblast", buffer, sizeof(buffer))) {
+	// 	return MRES_Ignored;
+	// }
+	
+	// TODO update secondary attack time cooldown
+	// TODO use airblast refire time attribute as scalar for delay
+	SetEntPropFloat(weapon, Prop_Data, "m_flNextSecondaryAttack", GetGameTime() + 0.33);
+	
+	LeakOil(weapon);
+	
+	return MRES_Supercede;
+}
+
+/**
+ * Shoots an "oil" projectile.
+ */
+void LeakOil(int weapon) {
+	// EmitGameSoundToAll("Physics.WaterSplash", weapon);
+	EmitSoundToAll("physics/flesh/flesh_bloody_impact_hard1.wav", .entity = weapon);
+	
+	int oilprojectile = CreateEntityByName("tf_projectile_stun_ball");
+	if (!IsValidEntity(oilprojectile)) {
+		return;
+	}
+	
+	// TODO setup physics and effect
+	int owner = GetEntPropEnt(weapon, Prop_Send, "m_hOwnerEntity");
+	
+	TFTeam ownerTeam = TF2_GetClientTeam(owner);
+	for (int i; i < 7; i++) {
+		TE_SetupTFParticleEffect(
+				ownerTeam == TFTeam_Red? "peejar_trail_red" : "peejar_trail_blu",
+				NULL_VECTOR, .entity = oilprojectile, .attachType = PATTACH_ROOTBONE_FOLLOW);
+		TE_SendToAll();
+	}
+	
+	/* */
+	float vecSpawnOrigin[3], vecSpawnAngles[3], vecVelocity[3], vecUnknown2[3];
+	GetProjectileDynamics(owner, vecSpawnOrigin, vecSpawnAngles, vecVelocity, vecUnknown2);
+	
+	SetEntPropEnt(oilprojectile, Prop_Data, "m_hThrower", owner);
+	
+	DispatchSpawn(oilprojectile);
+	
+	// I don't think we need initgrenade, but we'll leave it for now just in case
+	TeleportEntity(oilprojectile, vecSpawnOrigin, vecSpawnAngles, NULL_VECTOR);
+	SDKCall(g_SDKCallInitGrenade, oilprojectile, vecVelocity, vecUnknown2, owner, 0, 5.0);
+	
+	// stick to ground
+	SetEntProp(oilprojectile, Prop_Send, "m_iType", 2);
+	
+	SDKHook(oilprojectile, SDKHook_VPhysicsUpdatePost, OnOilProjectileUpdate);
+	
+	// hide baseball
+	SetEntPropFloat(oilprojectile, Prop_Send, "m_flModelScale", 0.01);
+	
+	RemoveEntityDelayed(oilprojectile, 5.0);
+}
+
+#include <stocksoup/log_server>
+
+public void OnOilProjectileUpdate(int oilEntity) {
+	if (!GetEntProp(oilEntity, Prop_Send, "m_bTouched")) {
+		return;
+	}
+	
+	float vecOrigin[3];
+	GetEntPropVector(oilEntity, Prop_Data, "m_vecAbsOrigin", vecOrigin);
+	
+	int owner = GetEntPropEnt(oilEntity, Prop_Send, "m_hThrower");
+	CreateOilPuddle(owner, vecOrigin);
+	
+	RemoveEntity(oilEntity);
+}
+
+void CreateOilPuddle(int owner, const float vecOrigin[3]) {
+	float vecOilPuddleOrigin[3];
+	vecOilPuddleOrigin = vecOrigin;
+	vecOilPuddleOrigin[2] -= 16.0;
+	
+	int puddle = CreateEntityByName("prop_dynamic_override");
+	if (!IsValidEntity(puddle)) {
+		return;
+	}
+	
+	SetEntPropEnt(puddle, Prop_Send, "m_hOwnerEntity", owner);
+	SetEntityModel(puddle, OIL_PUDDLE_MODEL);
+	DispatchSpawn(puddle);
+	
+	TeleportEntity(puddle, vecOilPuddleOrigin, NULL_VECTOR, NULL_VECTOR);
+	
+	SetEntityRenderColor(puddle, 0, 0, 0);
+	
+	RemoveEntityDelayed(puddle, 15.0);
+	
+	// create oil damage trigger -- tf_generic_bomb is affected by every weapon
+	int damagetrigger = CreateEntityByName("tf_generic_bomb");
+	DispatchKeyValueVector(damagetrigger, "origin", vecOrigin);
+	DispatchKeyValueFloat(damagetrigger, "damage", 0.0);
+	DispatchKeyValueFloat(damagetrigger, "radius", 0.0);
+	DispatchKeyValue(damagetrigger, "health", "1");
+	SetEntityModel(damagetrigger, OIL_PUDDLE_TRIGGER_MODEL);
+	DispatchKeyValueFloat(damagetrigger, "modelscale", 0.5);
+	DispatchKeyValue(damagetrigger, "targetname", OIL_DAMAGE_TRIGGER_NAME);
+	
+	AcceptEntityInput(damagetrigger, "DisableShadow");
+	
+	DispatchSpawn(damagetrigger);
+	
+	ParentEntity(puddle, damagetrigger);
+	
+	HookSingleEntityOutput(damagetrigger, "OnDetonate", OnOilTriggerIgnite);
+	
+	SetEntProp(damagetrigger, Prop_Send, "m_CollisionGroup", COLLISION_GROUP_PUSHAWAY);
+	SetEntityRenderMode(damagetrigger, RENDER_TRANSALPHA);
+	SetEntityRenderColor(damagetrigger, .a = 0);
+	
+	SDKHook(damagetrigger, SDKHook_OnTakeDamage, OnOilTriggerTakeDamage);
+}
+
+/**
+ * Called when the oil spill's damage trigger entity is hit with a weapon.  Only accept fire
+ * damage (includes flares).
+ * 
+ * The Huo-Long Heater's spin-up effect does not affect this.
+ */
+public Action OnOilTriggerTakeDamage(int victim, int &attacker, int &inflictor, float &damage,
+		int &damagetype) {
+	int oilpuddle = GetEntPropEnt(victim, Prop_Data, "m_hParent");
+	if (!IsValidEntity(oilpuddle)) {
+		return Plugin_Continue;
+	}
+	
+	int owner = GetEntPropEnt(oilpuddle, Prop_Data, "m_hOwnerEntity");
+	if (!(damagetype & DMG_PLASMA)) {
+		return Plugin_Stop;
+	}
+	
+	return Plugin_Continue;
+}
+
+public void OnOilTriggerIgnite(const char[] output, int caller, int activator, float delay) {
+	int oilpuddle = GetEntPropEnt(caller, Prop_Data, "m_hParent");
+	if (!IsValidEntity(oilpuddle)) {
+		return;
+	}
+	
+	int owner = GetEntPropEnt(oilpuddle, Prop_Data, "m_hOwnerEntity");
+	if (!IsValidEntity(owner)) {
+		RemoveEntity(oilpuddle);
+		return;
+	}
+	
+	TE_SetupTFParticleEffect(
+			TF2_GetClientTeam(owner) == TFTeam_Red? "burningplayer_red" : "burningplayer_blue",
+			NULL_VECTOR, .entity = oilpuddle);
+	TE_SendToAll();
+	
+	g_OilPuddleIgniteRefs.Push(EntIndexToEntRef(oilpuddle));
+}
+
+void OilPuddleIgniteThink(int oilpuddle) {
+	float vecOrigin[3];
+	GetEntPropVector(oilpuddle, Prop_Data, "m_vecAbsOrigin", vecOrigin);
+	
+	int entity = -1;
+	while ((entity = FindEntityInSphere(entity, vecOrigin, 42.0)) != -1) {
+		// TODO deal damage to players
+		if (entity > 0 && entity <= MaxClients) {
+			int owner = GetEntPropEnt(oilpuddle, Prop_Data, "m_hOwnerEntity");
+			
+			// don't ignite friendly players
+			if (owner != entity && TF2_GetClientTeam(owner) == TF2_GetClientTeam(entity)) {
+				continue;
+			}
+			
+			SDKHooks_TakeDamage(entity, oilpuddle, owner, 4.0, DMG_BURN | DMG_PREVENT_PHYSICS_FORCE);
+			
+			if (!TF2_IsPlayerInCondition(entity, TFCond_OnFire)) {
+				TF2_IgnitePlayer(entity, owner);
+			}
+			
+			continue;
+		}
+		
+		// ignite nearby puddles
+		if (IsEntityOilTrigger(entity)) {
+			AcceptEntityInput(entity, "Detonate");
+		}
+	}
+}
+
+bool IsEntityOilTrigger(int entity) {
+	char targetName[64];
+	GetEntityTargetName(entity, targetName, sizeof(targetName));
+	return StrEqual(targetName, OIL_DAMAGE_TRIGGER_NAME);
+}
+
+void RemoveEntityDelayed(int entity, float flTime) {
+	CreateTimer(flTime, RemoveEntityDelayedFinished, EntIndexToEntRef(entity));
+}
+
+Action RemoveEntityDelayedFinished(Handle timer, int oilref) {
+	int oilEntity = EntRefToEntIndex(oilref);
+	if (IsValidEntity(oilEntity)) {
+		RemoveEntity(oilEntity);
+	}
+}
+
+/** 
+ * This is the reversed logic for CTFBat_Wood::GetBallDynamics(), which determines the spawning
+ * parameters for the baseball.
+ */
+void GetProjectileDynamics(int client, float vecSpawnOrigin[3], float vecSpawnAngles[3],
+		float vecVelocity[3], float vecUnknown2[3]) {
+	float vecEyeAngles[3], vecEyeForward[3], vecEyeUp[3];
+	GetClientEyeAngles(client, vecEyeAngles);
+	GetAngleVectors(vecEyeAngles, vecEyeForward, NULL_VECTOR, vecEyeUp);
+	
+	// spawn height from origin
+	// CopyVector(vecEyeForward, vecSpawnOrigin);
+	vecSpawnOrigin = vecEyeForward;
+	
+	float flModelScale = GetEntPropFloat(client, Prop_Send, "m_flModelScale");
+	ScaleVector(vecSpawnOrigin, 32.0 * flModelScale);
+	
+	float vecOrigin[3];
+	GetClientAbsOrigin(client, vecOrigin);
+	AddVectors(vecOrigin, vecSpawnOrigin, vecSpawnOrigin);
+	vecSpawnOrigin[2] += 50.0 * flModelScale;
+	
+	GetEntPropVector(client, Prop_Data, "m_angAbsRotation", vecSpawnAngles);
+	
+	float vecEyeForwardScale[3];
+	vecEyeForwardScale = vecEyeForward;
+	ScaleVector(vecEyeForwardScale, 10.0);
+	
+	AddVectors(vecEyeForwardScale, vecEyeUp, vecEyeUp);
+	NormalizeVector(vecEyeUp, vecEyeUp);
+	
+	ScaleVector(vecEyeUp, 250.0);
+	vecVelocity = vecEyeUp;
+	
+	vecUnknown2[1] = GetRandomFloat(0.0, 100.0);
+	return;
+}
+
+int FindEntityInSphere(int startEntity, const float vecPosition[3], float flRadius) {
+	return SDKCall(g_SDKCallFindEntityInSphere, startEntity, vecPosition, flRadius);
+}
