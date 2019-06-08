@@ -95,23 +95,43 @@ public void OnMapStart() {
  * Process ignited oil patches.
  */
 public void OnGameFrame() {
-	if (GetGameTickCount() % 6 || !g_OilPuddleIgniteRefs.Length) {
+	if (GetGameTickCount() % 6) {
 		return;
 	}
 	
-	for (int i; i < g_OilPuddleIgniteRefs.Length;) {
-		int oilpuddle = EntRefToEntIndex(g_OilPuddleIgniteRefs.Get(i));
-		if (!IsValidEntity(oilpuddle)) {
-			g_OilPuddleIgniteRefs.Erase(i);
-			continue;
+	if (g_OilPuddleIgniteRefs.Length) {
+		for (int i; i < g_OilPuddleIgniteRefs.Length;) {
+			int oilpuddle = EntRefToEntIndex(g_OilPuddleIgniteRefs.Get(i));
+			if (!IsValidEntity(oilpuddle)) {
+				g_OilPuddleIgniteRefs.Erase(i);
+				continue;
+			}
+			
+			OilPuddleIgniteThink(oilpuddle);
+			
+			i++;
 		}
-		
-		OilPuddleIgniteThink(oilpuddle);
-		
-		i++;
 	}
 	
-	// TODO iterate over oil triggers and ignite on nearby burning players
+	// iterate over oil triggers and ignite on nearby burning players
+	int oiltrigger = -1;
+	while ((oiltrigger = FindEntityByTargetName(
+			oiltrigger, OIL_DAMAGE_TRIGGER_NAME, "tf_generic_bomb")) != -1) {
+		float vecOrigin[3];
+		GetEntPropVector(oiltrigger, Prop_Data, "m_vecAbsOrigin", vecOrigin);
+		
+		int entity = -1;
+		while ((entity = FindEntityInSphere(entity, vecOrigin, 42.0)) != -1) {
+			if (entity < 1 || entity > MaxClients) {
+				continue;
+			}
+			
+			if (TF2_IsPlayerInCondition(entity, TFCond_OnFire)) {
+				AcceptEntityInput(oiltrigger, "Detonate");
+			}
+		}
+	}
+	
 }
 
 public MRESReturn OnFlamethrowerSecondaryAttack(int weapon) {
