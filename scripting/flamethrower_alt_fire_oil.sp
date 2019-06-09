@@ -1,6 +1,3 @@
-/**
- * Sourcemod 1.7 Plugin Template
- */
 #pragma semicolon 1
 #include <sourcemod>
 
@@ -135,6 +132,7 @@ public void OnGameFrame() {
 	}
 	
 	// clean up expired oil references (they should expire in insertion order)
+	// also clean up oil references if we're approaching the entity limit
 	while (g_OilPuddleWorldRefs.Length) {
 		int oilpuddle = EntRefToEntIndex(g_OilPuddleWorldRefs.Get(0));
 		if (IsValidEntity(oilpuddle) && GetEntityCount() < GetMaxEntities() - 128) {
@@ -156,7 +154,8 @@ public void OnGameFrame() {
 		GetEntPropVector(oiltrigger, Prop_Data, "m_vecAbsOrigin", vecOrigin);
 		
 		int entity = -1;
-		while ((entity = FindEntityInSphere(entity, vecOrigin, 42.0)) != -1) {
+		while ((entity = FindEntityInSphere(entity, vecOrigin,
+				OIL_PUDDLE_BASE_SIZE * OIL_PUDDLE_SCALE)) != -1) {
 			if (entity < 1 || entity > MaxClients) {
 				continue;
 			}
@@ -169,6 +168,9 @@ public void OnGameFrame() {
 	
 }
 
+/**
+ * Overwrites the standard airblast behavior, shooting oil instead.
+ */
 public MRESReturn OnFlamethrowerSecondaryAttack(int weapon) {
 	if (!TF2CustAttr_GetInt(weapon, "oil replaces airblast")) {
 		return MRES_Ignored;
@@ -257,8 +259,9 @@ void LeakOil(int weapon) {
 	RemoveEntityDelayed(oilprojectile, 5.0);
 }
 
-#include <stocksoup/log_server>
-
+/** 
+ * Checks if the oil projectile has made contact with the world, creating an oil puddle if so.
+ */
 public void OnOilProjectileUpdate(int oilEntity) {
 	if (!GetEntProp(oilEntity, Prop_Send, "m_bTouched")) {
 		return;
@@ -273,6 +276,9 @@ public void OnOilProjectileUpdate(int oilEntity) {
 	RemoveEntity(oilEntity);
 }
 
+/**
+ * Spawns an oil puddle at the given position.
+ */
 void CreateOilPuddle(int owner, const float vecOrigin[3]) {
 	float vecOilPuddleOrigin[3];
 	vecOilPuddleOrigin = vecOrigin;
@@ -345,6 +351,12 @@ public Action OnOilTriggerTakeDamage(int victim, int &attacker, int &inflictor, 
 	return Plugin_Continue;
 }
 
+/**
+ * Called when the hit detection entity has been detonated (hit with flame or other conditions
+ * that fired its "Detonate" input).
+ * 
+ * Adds the oil puddle to the plugin's "burning oil puddle" list for damage checks.
+ */
 public void OnOilTriggerIgnite(const char[] output, int caller, int activator, float delay) {
 	int oilpuddle = GetEntPropEnt(caller, Prop_Data, "m_hParent");
 	if (!IsValidEntity(oilpuddle)) {
@@ -374,11 +386,9 @@ void OilPuddleIgniteThink(int oilpuddle) {
 	int entity = -1;
 	while ((entity = FindEntityInSphere(entity, vecOrigin,
 			OIL_PUDDLE_BASE_SIZE * OIL_PUDDLE_SCALE)) != -1) {
-		// TODO deal damage to players
+		// damage players
 		if (entity > 0 && entity <= MaxClients) {
 			int owner = GetEntPropEnt(oilpuddle, Prop_Data, "m_hOwnerEntity");
-			
-			// don't ignite friendly players
 			if (owner != entity && TF2_GetClientTeam(owner) == TF2_GetClientTeam(entity)) {
 				continue;
 			}
