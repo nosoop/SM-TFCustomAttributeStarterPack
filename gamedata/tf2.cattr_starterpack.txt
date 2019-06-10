@@ -1,0 +1,64 @@
+"Games"
+{
+	"tf"
+	{
+		"Functions"
+		{
+			"CTFFlameThrower::SecondaryAttack()"
+			{
+				"signature"		"CTFFlameThrower::SecondaryAttack()"
+				"callconv"		"thiscall"
+				"return"		"void"
+				"this"			"entity"
+			}
+			"CTFMinigun::RingOfFireAttack()"
+			{
+				"signature"		"CTFMinigun::RingOfFireAttack()"
+				"callconv"		"thiscall"
+				"return"		"void"
+				"this"			"entity"
+				"arguments"
+				{
+					"int_value"
+					{
+						"type"	"int"
+					}
+				}
+			}
+		}
+		
+		"Signatures"
+		{
+			"CGlobalEntityList::FindEntityInSphere()"
+			{
+				"library"	"server"
+				"linux"		"@_ZN17CGlobalEntityList18FindEntityInSphereEP11CBaseEntityRK6Vectorf"
+			}
+			"CTFFlameThrower::SecondaryAttack()"
+			{
+				"library"	"server"
+				"linux"		"@_ZN15CTFFlameThrower15SecondaryAttackEv"
+			}
+			"CTFMinigun::RingOfFireAttack()"
+			{
+				"library"	"server"
+				"linux"		"@_ZN10CTFMinigun16RingOfFireAttackEi"
+			}
+		}
+		
+		"Offsets"
+		{
+			"CTFWeaponBaseGrenadeProj::InitGrenade(int float)"
+			{
+				"windows"	"236"
+				"linux"		"238"
+			}
+			
+			"CTFMinigun::m_flNextFireRingTime"
+			{
+				"windows"	"2204"
+				"linux"		"2204"
+			}
+		}
+	}
+}
