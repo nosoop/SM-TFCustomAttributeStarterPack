@@ -5,12 +5,14 @@
 #include <tf2_stocks>
 #include <dhooks>
 #include <tf2attributes>
+#include <tf_econ_data>
 
 #pragma newdecls required
 
 #include <stocksoup/entity_tools>
 #include <stocksoup/tf/tempents_stocks>
 #include <stocksoup/tf/weapon>
+#include <stocksoup/tf/econ>
 #include <tf_custom_attributes>
 
 #define OIL_PUDDLE_MODEL "models/props_farm/haypile001.mdl"
@@ -35,6 +37,8 @@ ArrayList g_OilPuddleWorldRefs;
 ArrayList g_OilPuddleIgniteRefs;
 
 int offs_CTFMinigun_flNextFireRingTime;
+
+int g_AttrIDSetDamageIgnite;
 
 ConVar g_OilSpillLifetime;
 ConVar g_OilSpillPlayerMaxActive;
@@ -98,6 +102,11 @@ public void OnPluginEnd() {
 		}
 		g_OilPuddleWorldRefs.Erase(0);
 	}
+}
+
+public void OnAllPluginsLoaded() {
+	g_AttrIDSetDamageIgnite =
+			TF2Econ_TranslateAttributeNameToDefinitionIndex("Set DamageType Ignite");
 }
 
 public void OnMapStart() {
@@ -331,24 +340,20 @@ void CreateOilPuddle(int owner, const float vecOrigin[3]) {
 }
 
 /**
- * Called when the oil spill's damage trigger entity is hit with a weapon.  Only accept fire
- * damage (includes flares).
- * 
+ * Called when the oil spill's damage trigger entity is hit.
  * The Huo-Long Heater's spin-up effect does not affect this.
  */
 public Action OnOilTriggerTakeDamage(int victim, int &attacker, int &inflictor, float &damage,
-		int &damagetype) {
+		int &damagetype, int &weapon, float damageForce[3], float damagePosition[3]) {
 	int oilpuddle = GetEntPropEnt(victim, Prop_Data, "m_hParent");
 	if (!IsValidEntity(oilpuddle)) {
 		return Plugin_Continue;
 	}
 	
-	int owner = GetEntPropEnt(oilpuddle, Prop_Data, "m_hOwnerEntity");
-	if (!(damagetype & DMG_PLASMA)) {
-		return Plugin_Stop;
-	}
-	
-	return Plugin_Continue;
+	// TODO should we only negate all damage and do a detonation check in OnTakeDamagePost?
+	// that would allow plugins to hook OTD on bombs and modify their damagetype
+	return ShouldActivateOilTrigger(weapon, inflictor, damagetype)?
+			Plugin_Continue : Plugin_Stop;
 }
 
 /**
@@ -393,7 +398,8 @@ void OilPuddleIgniteThink(int oilpuddle) {
 				continue;
 			}
 			
-			SDKHooks_TakeDamage(entity, oilpuddle, owner, 4.0, DMG_BURN | DMG_PREVENT_PHYSICS_FORCE);
+			SDKHooks_TakeDamage(entity, oilpuddle, owner, 4.0,
+					DMG_BURN | DMG_PREVENT_PHYSICS_FORCE);
 			
 			if (!TF2_IsPlayerInCondition(entity, TFCond_OnFire)) {
 				TF2_IgnitePlayer(entity, owner);
@@ -440,6 +446,56 @@ bool IsEntityOilTrigger(int entity) {
 	char targetName[64];
 	GetEntityTargetName(entity, targetName, sizeof(targetName));
 	return StrEqual(targetName, OIL_DAMAGE_TRIGGER_NAME);
+}
+
+/**
+ * Return true the oil trigger can be activated by the given `weapon`, `inflictor`, or
+ * `damagetype`.
+ */
+bool ShouldActivateOilTrigger(int weapon, int inflictor, int damagetype) {
+	// contact fire damage (flamethrower, flares)
+	if (damagetype & DMG_PLASMA) {
+		return true;
+	}
+	
+	if (HasAttributeByID(weapon, g_AttrIDSetDamageIgnite)) {
+		return true;
+	}
+	
+	// Huntsman arrows
+	if (HasEntProp(inflictor, Prop_Send, "m_bArrowAlight")
+			&& !!GetEntProp(inflictor, Prop_Send, "m_bArrowAlight")) {
+		return true;
+	}
+	
+	return false;
+}
+
+bool HasAttributeByID(int weapon, int attribid) {
+	if (!IsValidEntity(weapon)) {
+		return false;
+	}
+	
+	Address pAttrib = TF2Attrib_GetByDefIndex(weapon, attribid);
+	if (pAttrib) {
+		// runtime attribute supercedes static
+		if (TF2Attrib_GetValue(pAttrib) != 0.0) {
+			return true;
+		}
+	} else {
+		ArrayList staticAttributes =
+				TF2Econ_GetItemStaticAttributes(TF2_GetItemDefinitionIndexSafe(weapon));
+		if (staticAttributes) {
+			bool bHasIgniteDamage = staticAttributes.FindValue(attribid) != -1;
+			
+			delete staticAttributes;
+			
+			if (bHasIgniteDamage) {
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 void RemoveEntityDelayed(int entity, float flTime) {
