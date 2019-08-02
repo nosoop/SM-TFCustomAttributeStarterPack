@@ -13,8 +13,9 @@
 
 #include <stocksoup/var_strings>
 #include <stocksoup/tf/client>
-#include <stocksoup/tf/tempents_stocks>
 #include <stocksoup/tf/econ>
+#include <stocksoup/tf/entity_prop_stocks>
+#include <stocksoup/tf/tempents_stocks>
 
 #define PLUGIN_VERSION "0.0.0"
 public Plugin myinfo = {
@@ -122,8 +123,8 @@ public void OnPlayerPostThinkPost(int client) {
 	bool bInGroupOverhealRange[MAXPLAYERS + 1];
 	int target = -1;
 	while ((target = FindEntityInSphere(target, vecOrigin, flHealRange)) != -1) {
-		// TODO check for disguised players
-		if (target > 0 && target <= MaxClients && TF2_GetClientVisibleTeam(target) == team) {
+		if (target > 0 && target <= MaxClients
+				&& TF2_GetClientTeamFromClient(target, client) == team) {
 			bInGroupOverhealRange[target] = true;
 		}
 	}
@@ -142,7 +143,7 @@ public void OnPlayerPostThinkPost(int client) {
 			GetClientEyePosition(i, vecParticleOrigin);
 			vecParticleOrigin[2] += 32.0;
 			
-			TE_SetupTFParticleEffect(TF2_GetClientVisibleTeam(i) == TFTeam_Red?
+			TE_SetupTFParticleEffect(TF2_GetClientTeamFromClient(i, client) == TFTeam_Red?
 					"healthgained_red_giant" : "healthgained_blu_giant", vecParticleOrigin,
 					.entity = i, .attachType = PATTACH_CUSTOMORIGIN);
 			TE_SendToAll();
@@ -185,12 +186,6 @@ public MRESReturn OnGetPlayerProvidedCharge(int client, Handle hReturn) {
 		return MRES_Supercede;
 	}
 	return MRES_Ignored;
-}
-
-TFTeam TF2_GetClientVisibleTeam(int client) {
-	return TF2_IsPlayerInCondition(client, TFCond_Disguised)?
-			view_as<TFTeam>(GetEntProp(client, Prop_Send, "m_nDisguiseTeam"))
-			: TF2_GetClientTeam(client);
 }
 
 bool IsUberchargeDeployed(int weapon) {

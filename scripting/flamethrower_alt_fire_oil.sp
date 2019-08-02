@@ -580,13 +580,3 @@ float GetAirblastRefireScale(int weapon) {
 	}
 	return 1.0;
 }
-
-stock int TF2_GetWeaponAmmo(int weapon) {
-	int ammoType = GetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType");
-	int client = GetEntPropEnt(weapon, Prop_Send, "m_hOwner");
-	
-	if (client > 0 && client <= MaxClients && ammoType != -1) {
-		return GetEntProp(client, Prop_Send, "m_iAmmo", 4, ammoType);
-	}
-	return 0;
-}
