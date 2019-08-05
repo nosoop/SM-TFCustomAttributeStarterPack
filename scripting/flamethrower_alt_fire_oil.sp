@@ -30,6 +30,8 @@
 
 // NOTE: make sure "airblast disabled" is set on the weapon so client doesn't predict airblast
 
+Handle g_DHookRocketTouch;
+
 Handle g_SDKCallInitGrenade;
 Handle g_SDKCallFindEntityInSphere;
 
@@ -57,7 +59,6 @@ public void OnPluginStart() {
 			"CTFMinigun::RingOfFireAttack()");
 	DHookEnableDetour(dtRingOfFireAttack, false, OnMinigunRingOfFirePre);
 	
-	
 	StartPrepSDKCall(SDKCall_Entity);
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual,
 			"CTFWeaponBaseGrenadeProj::InitGrenade(int float)");
@@ -77,6 +78,8 @@ public void OnPluginStart() {
 	PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef);
 	PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
 	g_SDKCallFindEntityInSphere = EndPrepSDKCall();
+	
+	g_DHookRocketTouch = DHookCreateFromConf(hGameConf, "CTFBaseRocket::RocketTouch()");
 	
 	offs_CTFMinigun_flNextFireRingTime = GameConfGetOffset(hGameConf,
 			"CTFMinigun::m_flNextFireRingTime");
@@ -115,6 +118,13 @@ public void OnMapStart() {
 	PrecacheModel(OIL_PUDDLE_TRIGGER_MODEL);
 	
 	PrecacheSound("physics/flesh/flesh_bloody_impact_hard1.wav");
+}
+
+public void OnEntityCreated(int entity, const char[] className) {
+	if (StrEqual(className, "tf_projectile_balloffire")) {
+		PrintToServer("hooked ball");
+		DHookEntity(g_DHookRocketTouch, false, entity, .callback = OnBallOfFireTouchPre);
+	}
 }
 
 /**
@@ -219,6 +229,29 @@ public MRESReturn OnFlamethrowerSecondaryAttack(int weapon) {
 		}
 	}
 	
+	return MRES_Supercede;
+}
+
+/**
+ * Always detonate oil spills that are hit by Dragon's Fury projectiles.
+ * See https://github.com/nosoop/SM-TFCustomAttributeStarterPack/issues/2
+ * 
+ * We skip the burn call, as that causes issues with the burning particle effect.
+ */
+public MRESReturn OnBallOfFireTouchPre(int fireball, Handle hParams) {
+	int target = DHookGetParam(hParams, 1);
+	if (!target || !IsValidEntity(target)) {
+		return MRES_Ignored;
+	}
+	
+	char targetName[64];
+	GetEntityTargetName(target, targetName, sizeof(targetName));
+	
+	if (!StrEqual(targetName, OIL_DAMAGE_TRIGGER_NAME)) {
+		return MRES_Ignored;
+	}
+	AcceptEntityInput(target, "Detonate");
+	RemoveEntity(fireball);
 	return MRES_Supercede;
 }
 

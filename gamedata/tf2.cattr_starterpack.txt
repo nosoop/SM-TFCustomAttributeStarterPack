@@ -25,6 +25,20 @@
 					}
 				}
 			}
+			"CTFBaseRocket::RocketTouch()"
+			{
+				"offset"		"CTFBaseRocket::RocketTouch()"
+				"hooktype"		"entity"
+				"return"		"void"
+				"this"			"entity"
+				"arguments"
+				{
+					"target"
+					{
+						"type"	"cbaseentity"
+					}
+				}
+			}
 		}
 		
 		"Signatures"
@@ -61,6 +75,12 @@
 			{
 				"windows"	"236"
 				"linux"		"238"
+			}
+			
+			"CTFBaseRocket::RocketTouch()"
+			{
+				"windows"	"231"
+				"linux"		"232"
 			}
 			
 			"CTFMinigun::m_flNextFireRingTime"
