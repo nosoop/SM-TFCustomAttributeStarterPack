@@ -122,7 +122,6 @@ public void OnMapStart() {
 
 public void OnEntityCreated(int entity, const char[] className) {
 	if (StrEqual(className, "tf_projectile_balloffire")) {
-		PrintToServer("hooked ball");
 		DHookEntity(g_DHookRocketTouch, false, entity, .callback = OnBallOfFireTouchPre);
 	}
 }
