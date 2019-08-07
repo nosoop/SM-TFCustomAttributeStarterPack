@@ -17,6 +17,10 @@
 float g_flBonusDamageDecayStartTime[MAXPLAYERS + 1][3];
 float g_flBonusDamage[MAXPLAYERS + 1][3];
 
+public void OnPluginStart() {
+	HookEvent("player_spawn", OnPlayerSpawn);
+}
+
 public void OnMapStart() {
 	for (int i = 1; i <= MaxClients; i++) {
 		if (IsClientInGame(i)) {
@@ -29,6 +33,17 @@ public void OnClientPutInServer(int client) {
 	SDKHook(client, SDKHook_OnTakeDamageAlive, OnTakeDamageAlive);
 	SDKHook(client, SDKHook_OnTakeDamageAlivePost, OnTakeDamageAlivePost);
 	SDKHook(client, SDKHook_PostThinkPost, OnClientPostThinkPost);
+}
+
+public void OnPlayerSpawn(Event event, const char[] name, bool dontBroadcast) {
+	int client = GetClientOfUserId(event.GetInt("userid"));
+	if (!client) {
+		return;
+	}
+	
+	for (int i; i < sizeof(g_flBonusDamageDecayStartTime[]); i++) {
+		g_flBonusDamageDecayStartTime[client][i] = 0.0;
+	}
 }
 
 public Action OnTakeDamageAlive(int victim, int& attacker, int& inflictor, float& damage,
@@ -46,7 +61,7 @@ public Action OnTakeDamageAlive(int victim, int& attacker, int& inflictor, float
 	if (!flBonusDamage) {
 		return Plugin_Continue;
 	}
-	damage += flBonusDamage;
+	damage *= 1.0 + flBonusDamage;
 	return Plugin_Changed;
 }
 
@@ -64,7 +79,7 @@ public void OnTakeDamageAlivePost(int victim, int attacker, int inflictor, float
 	}
 	
 	char buffer[256];
-	if (!TF2CustAttr_GetString(weapon, "damage increase on hit", buffer, sizeof(buffer))) {
+	if (!TF2CustAttr_GetString(weapon, "damage increase mult on hit", buffer, sizeof(buffer))) {
 		return;
 	}
 	
@@ -156,7 +171,7 @@ public Action OnCustomStatusHUDUpdate(int client, StringMap entries) {
 	}
 	
 	char buffer[64];
-	Format(buffer, sizeof(buffer), "Damage: %.2f", GetBonusDamage(activeWeapon));
+	Format(buffer, sizeof(buffer), "Damage: %.0f%%", GetBonusDamage(activeWeapon) * 100);
 	entries.SetString("damage_on_hit_buff", buffer);
 	return Plugin_Changed;
 }
