@@ -165,7 +165,7 @@ public Action OnCustomStatusHUDUpdate(int client, StringMap entries) {
 	}
 	
 	char attrBuffer[256];
-	if (!TF2CustAttr_GetString(activeWeapon, "damage increase on hit",
+	if (!TF2CustAttr_GetString(activeWeapon, "damage increase mult on hit",
 			attrBuffer, sizeof(attrBuffer)) || !ReadIntVar(attrBuffer, "show_on_hud", true)) {
 		return Plugin_Continue;
 	}
