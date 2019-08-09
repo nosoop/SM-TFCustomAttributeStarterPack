@@ -434,6 +434,7 @@ void OilPuddleIgniteThink(int oilpuddle) {
 					DMG_BURN | DMG_PREVENT_PHYSICS_FORCE);
 			
 			if (!TF2_IsPlayerInCondition(entity, TFCond_OnFire)) {
+				TF2_AddCondition(entity, TFCond_BurningPyro);
 				TF2_IgnitePlayer(entity, owner);
 			}
 			
