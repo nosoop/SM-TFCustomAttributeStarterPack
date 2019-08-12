@@ -426,6 +426,10 @@ void OilPuddleIgniteThink(int oilpuddle) {
 		// damage players
 		if (entity > 0 && entity <= MaxClients) {
 			int owner = GetEntPropEnt(oilpuddle, Prop_Data, "m_hOwnerEntity");
+			if (owner < 1 || owner > MaxClients) {
+				continue;
+			}
+			
 			if (owner != entity && TF2_GetClientTeam(owner) == TF2_GetClientTeam(entity)) {
 				continue;
 			}
