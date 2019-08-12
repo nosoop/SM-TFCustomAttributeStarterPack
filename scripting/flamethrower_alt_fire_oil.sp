@@ -434,11 +434,17 @@ void OilPuddleIgniteThink(int oilpuddle) {
 				continue;
 			}
 			
+			int weapon = GetPlayerWeaponSlot(owner, TFWeaponSlot_Primary);
+			if (!IsValidEntity(weapon)
+					|| !TF2CustAttr_GetInt(weapon, "oil replaces airblast")) {
+				continue;
+			}
+			
 			SDKHooks_TakeDamage(entity, oilpuddle, owner, 4.0,
-					DMG_BURN | DMG_PREVENT_PHYSICS_FORCE);
+					DMG_PLASMA | DMG_PREVENT_PHYSICS_FORCE, weapon);
 			
 			if (!TF2_IsPlayerInCondition(entity, TFCond_OnFire)) {
-				TF2_AddCondition(entity, TFCond_BurningPyro);
+				TF2_AddCondition(entity, TFCond_BurningPyro, .inflictor = owner);
 				TF2_IgnitePlayer(entity, owner);
 			}
 			
