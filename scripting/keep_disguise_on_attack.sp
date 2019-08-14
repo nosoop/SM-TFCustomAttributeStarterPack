@@ -9,9 +9,9 @@
 #include <tf_custom_attributes>
 
 public void OnPluginStart() {
-	Handle hGameConf = LoadGameConfigFile("tf2.ctf2w_attribute_set");
+	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
-		SetFailState("Failed to load gamedata (tf2.ctf2w_attribute_set).");
+		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
 	}
 	
 	Handle dtRemoveDisguise = DHookCreateFromConf(hGameConf,
