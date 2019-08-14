@@ -44,6 +44,7 @@ int g_AttrIDSetDamageIgnite;
 
 ConVar g_OilSpillLifetime;
 ConVar g_OilSpillPlayerMaxActive;
+ConVar g_OilSpillDamagePerTick;
 
 public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
@@ -89,11 +90,14 @@ public void OnPluginStart() {
 	g_OilPuddleWorldRefs = new ArrayList();
 	g_OilPuddleIgniteRefs = new ArrayList();
 	
-	g_OilSpillLifetime = CreateConVar("cattr_flamethrower_oil_lifetime", "15.0",
+	g_OilSpillLifetime = CreateConVar("cattr_flamethrower_oil_lifetime", "10.0",
 			"Number of seconds that oil puddles will be live.");
 	
-	g_OilSpillPlayerMaxActive = CreateConVar("cattr_flamethrower_oil_max_active", "8",
+	g_OilSpillPlayerMaxActive = CreateConVar("cattr_flamethrower_oil_max_active", "5",
 			"Maximum number of oil puddles active per player.");
+	
+	g_OilSpillDamagePerTick = CreateConVar("cattr_flamethrower_oil_dmg_per_tick", "3.0",
+			"Amount of damage oil deals per oil think (1/11th sec.).");
 }
 
 public void OnPluginEnd() {
@@ -440,7 +444,7 @@ void OilPuddleIgniteThink(int oilpuddle) {
 				continue;
 			}
 			
-			SDKHooks_TakeDamage(entity, oilpuddle, owner, 4.0,
+			SDKHooks_TakeDamage(entity, oilpuddle, owner, g_OilSpillDamagePerTick.FloatValue,
 					DMG_PLASMA | DMG_PREVENT_PHYSICS_FORCE, weapon);
 			
 			if (!TF2_IsPlayerInCondition(entity, TFCond_OnFire)) {
