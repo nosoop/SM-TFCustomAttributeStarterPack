@@ -22,10 +22,20 @@ public Plugin myinfo = {
 // taken from game code
 #define SOLDIER_BUFF_RADIUS 450.0
 
+#define CUSTOM_SOLDIER_BUFF_MAX_NAME_LENGTH 64
+
 Handle g_SDKCallGetBaseEntity;
 Handle g_DHookOnModifyRage;
 
 static Address g_offset_CTFPlayerShared_pOuter;
+
+StringMap g_BuffForwards; // <callback>
+
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) {
+	RegPluginLibrary("cattr-buff-override");
+	
+	CreateNative("TF2CustomAttrRageBuff_Register", RegisterCustomBuff);
+}
 
 public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.ca_buff_override");
@@ -43,11 +53,27 @@ public void OnPluginStart() {
 			view_as<Address>(GameConfGetOffset(hGameConf, "CTFPlayerShared::m_pOuter"));
 	
 	delete hGameConf;
+	
+	g_BuffForwards = new StringMap();
+}
+
+public int RegisterCustomBuff(Handle plugin, int argc) {
+	char buffName[CUSTOM_SOLDIER_BUFF_MAX_NAME_LENGTH];
+	GetNativeString(1, buffName, sizeof(buffName));
+	if (!buffName[0]) {
+		ThrowNativeError(1, "Cannot have an empty buff name.");
+	}
+	
+	Handle hFwd;
+	if (!g_BuffForwards.GetValue(buffName, hFwd)) {
+		hFwd = CreateForward(ET_Ignore, Param_Cell, Param_Cell, Param_String);
+		g_BuffForwards.SetValue(buffName, hFwd);
+	}
+	AddToForward(hFwd, plugin, GetNativeFunction(2));
 }
 
 public MRESReturn OnPulseRageBuffPre(Address pPlayerShared, Handle hParams) {
 	int client = GetClientFromPlayerShared(pPlayerShared);
-	TFTeam buffTeam = TF2_GetClientTeam(client);
 	
 	// check for buff banner-like
 	int hSecondary = GetPlayerWeaponSlot(client, 1);
@@ -55,31 +81,26 @@ public MRESReturn OnPulseRageBuffPre(Address pPlayerShared, Handle hParams) {
 		return MRES_Ignored;
 	}
 	
-	int customBuffType = TF2CustAttr_GetInt(hSecondary, "custom soldier buff type", 0);
-	
-	// TODO allow plugins to implement buff types with a private forward instead
-	if (!customBuffType || customBuffType != 666) {
+	char buffName[CUSTOM_SOLDIER_BUFF_MAX_NAME_LENGTH];
+	if (!TF2CustAttr_GetString(hSecondary, "custom soldier buff type",
+			buffName, sizeof(buffName))) {
 		return MRES_Ignored;
 	}
 	
+	Handle hFwd;
+	if (!g_BuffForwards.GetValue(buffName, hFwd) || !GetForwardFunctionCount(hFwd)) {
+		LogError("Buff type '%s' is not associated with a plugin", buffName);
+		return MRES_Supercede;
+	}
+	
 	float flRadiusSq = Pow(SOLDIER_BUFF_RADIUS, 2.0);
-	// TODO there is a mod_soldier_buff_range attribute but it's not present in items_game
+	// TODO there is a mod_soldier_buff_range attribute class but it's not present in items_game
 	
 	float vecBuffOrigin[3];
 	GetClientAbsOrigin(client, vecBuffOrigin);
 	
 	for (int i = 1; i <= MaxClients; i++) {
-		if (!IsClientConnected(i) || !IsPlayerAlive(i) || TF2_GetClientTeam(i) != buffTeam) {
-			continue;
-		}
-		
-		if (TF2_IsPlayerInCondition(i, TFCond_Disguised)
-				&& TF2_GetDisguiseTeam(i) != buffTeam) {
-			continue;
-		}
-		
-		if (TF2_IsPlayerInCondition(i, TFCond_Cloaked)
-				|| TF2_IsPlayerInCondition(i, TFCond_Stealthed)) {
+		if (!IsClientConnected(i) || !IsPlayerAlive(i)) {
 			continue;
 		}
 		
@@ -89,23 +110,16 @@ public MRESReturn OnPulseRageBuffPre(Address pPlayerShared, Handle hParams) {
 			continue;
 		}
 		
-		/** 
-		 * TODO maybe split this off into a custom buff handler in the future, but we'll worry
-		 * about that if I have to do more of these
-		 */
-		
-		// the game internally does this
-		TF2_AddCondition(i, TFCond_MarkedForDeath, 1.2, client);
-		TF2_AddCondition(i, TFCond_Kritzkrieged, 1.2, client);
+		Call_StartForward(hFwd);
+		Call_PushCell(client);
+		Call_PushCell(i);
+		Call_PushString(buffName);
+		Call_Finish();
 		
 		// there is a player_buff event we could implement but it shouldn't really matter
 	}
 	
 	return MRES_Supercede;
-}
-
-TFTeam TF2_GetDisguiseTeam(int client) {
-	return view_as<TFTeam>(GetEntProp(client, Prop_Send, "m_nDisguiseTeam"));
 }
 
 static int GetClientFromPlayerShared(Address pPlayerShared) {
