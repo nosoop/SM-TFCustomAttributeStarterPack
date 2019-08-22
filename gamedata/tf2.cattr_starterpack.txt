@@ -91,6 +91,11 @@
 				"linux"		"238"
 			}
 			
+			"CTFBaseProjectile::ProjectileTouch()"
+			{
+				"windows"	"232"
+				"linux"		"235"
+			}
 			"CTFBaseRocket::RocketTouch()"
 			{
 				"windows"	"231"
