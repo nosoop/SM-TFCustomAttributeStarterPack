@@ -46,6 +46,8 @@ ConVar g_OilSpillLifetime;
 ConVar g_OilSpillPlayerMaxActive;
 ConVar g_OilSpillDamagePerTick;
 
+int g_OilFlamethrowerRef[MAXPLAYERS + 1];
+
 public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
@@ -218,6 +220,7 @@ public MRESReturn OnFlamethrowerSecondaryAttack(int weapon) {
 	LeakOil(weapon);
 	
 	int owner = GetEntPropEnt(weapon, Prop_Send, "m_hOwnerEntity");
+	g_OilFlamethrowerRef[owner] = EntIndexToEntRef(weapon);
 	
 	int nOwnedOilEntities, nMaxOilEntities = g_OilSpillPlayerMaxActive.IntValue;
 	for (int i = g_OilPuddleWorldRefs.Length - 1; i >= 0; i--) {
@@ -424,23 +427,25 @@ void OilPuddleIgniteThink(int oilpuddle) {
 	float vecOrigin[3];
 	GetEntPropVector(oilpuddle, Prop_Data, "m_vecAbsOrigin", vecOrigin);
 	
+	int owner = GetEntPropEnt(oilpuddle, Prop_Data, "m_hOwnerEntity");
+	if (owner < 1 || owner > MaxClients) {
+		RemoveEntity(oilpuddle);
+		return;
+	}
+	
+	int weapon = GetPlayerWeaponSlot(owner, TFWeaponSlot_Primary);
+	if (!IsValidEntity(weapon)
+			|| EntRefToEntIndex(g_OilFlamethrowerRef[owner]) != weapon) {
+		RemoveEntity(oilpuddle);
+		return;
+	}
+	
 	int entity = -1;
 	while ((entity = FindEntityInSphere(entity, vecOrigin,
 			OIL_PUDDLE_BASE_SIZE * OIL_PUDDLE_SCALE)) != -1) {
 		// damage players
 		if (entity > 0 && entity <= MaxClients) {
-			int owner = GetEntPropEnt(oilpuddle, Prop_Data, "m_hOwnerEntity");
-			if (owner < 1 || owner > MaxClients) {
-				continue;
-			}
-			
 			if (owner != entity && TF2_GetClientTeam(owner) == TF2_GetClientTeam(entity)) {
-				continue;
-			}
-			
-			int weapon = GetPlayerWeaponSlot(owner, TFWeaponSlot_Primary);
-			if (!IsValidEntity(weapon)
-					|| !TF2CustAttr_GetInt(weapon, "oil replaces airblast")) {
 				continue;
 			}
 			
