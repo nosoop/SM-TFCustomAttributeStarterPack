@@ -39,12 +39,39 @@
 					}
 				}
 			}
+			"CTFPlayerShared::UpdateCloakMeter()"
+			{
+				"signature"		"CTFPlayerShared::UpdateCloakMeter()"
+				"callconv"		"thiscall"
+				"return"		"void"
+				"this"			"address"
+			}
 			"CTFWeaponBaseGun::ShouldRemoveDisguiseOnPrimaryAttack()"
 			{
 				"signature"		"CTFWeaponBaseGun::ShouldRemoveDisguiseOnPrimaryAttack()"
 				"callconv"		"thiscall"
 				"return"		"bool"
 				"this"			"entity"
+			}
+		}
+		
+		"MemPatches"
+		{
+			"CTFPlayerShared::UpdateCloakMeter()::ModifyDebuffReduction"
+			{
+				"signature"		"CTFPlayerShared::UpdateCloakMeter()"
+				"linux"
+				{
+					"offset"		"13Bh"
+					"verify"		"\xF3\x0F\x10\x1D\x2A\x2A\x2A\x2A"
+					"patch"			"\xF3\x0F\x10\x1D\x00\x00\x00\x00"
+				}
+				"windows"
+				{
+					"offset"		"2FBh"
+					"verify"		"\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A"
+					"patch"			"\xF3\x0F\x59\x05\x00\x00\x00\x00"
+				}
 			}
 		}
 		
@@ -73,6 +100,13 @@
 				"library"	"server"
 				"linux"		"@_ZN10CTFMinigun16RingOfFireAttackEi"
 				"windows"	"\x55\x8B\xEC\x81\xEC\x2A\x2A\x00\x00\x53\x8B\xD9\x56\x57\xF3\x0F\x10\x83"
+			}
+			"CTFPlayerShared::UpdateCloakMeter()"
+			{
+				// find raw contents of g_aDebuffConditions and jump to xref function with most references
+				"library"		"server"
+				"linux"			"@_ZN15CTFPlayerShared16UpdateCloakMeterEv"
+				"windows"		"\x55\x8B\xEC\x83\xEC\x18\x56\x8B\xF1\x6A\x08"
 			}
 			"CTFWeaponBaseGun::ShouldRemoveDisguiseOnPrimaryAttack()"
 			{
@@ -107,6 +141,12 @@
 				// updated at the end of CTFMinigun::RingOfFireAttack()
 				"windows"	"2200"
 				"linux"		"2204"
+			}
+			
+			"CTFPlayerShared::m_pOuter"
+			{
+				"linux"		"400"
+				"windows"	"400"
 			}
 		}
 	}
