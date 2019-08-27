@@ -39,6 +39,13 @@
 					}
 				}
 			}
+			"CTFLunchBox::SecondaryAttack()"
+			{
+				"signature"		"CTFLunchBox::SecondaryAttack()"
+				"callconv"		"thiscall"
+				"return"		"void"
+				"this"			"entity"
+			}
 			"CTFPlayerShared::UpdateCloakMeter()"
 			{
 				"signature"		"CTFPlayerShared::UpdateCloakMeter()"
@@ -57,6 +64,23 @@
 		
 		"MemPatches"
 		{
+			"CTFLunchBox::SecondaryAttack()::OverwriteDroppedEntityClass"
+			{
+				// patch and unconditonally jump past the string pointer logic
+				"signature" "CTFLunchBox::SecondaryAttack()"
+				"linux"
+				{
+					"offset"		"25Bh"
+					
+					// mov eax, "item_healthammokit"; cmp ecx, 5; jz +0x14
+					"verify"		"\xB8\x2A\x2A\x2A\x2A\x83\xF9\x05\x74\x14"
+					
+					// mov eax, pszOverride; nop; nop; nop; jmp +0x14
+					"patch"			"\xB8\x00\x00\x00\x00\x90\x90\x90\xEB\x14"
+				}
+				// windows handles things differently enough that it'll need a second patch
+				// will need to update the extension to report operating system
+			}
 			"CTFPlayerShared::UpdateCloakMeter()::ModifyDebuffReduction"
 			{
 				"signature"		"CTFPlayerShared::UpdateCloakMeter()"
@@ -92,6 +116,12 @@
 				"library"	"server"
 				"linux"		"@_ZN15CTFFlameThrower15SecondaryAttackEv"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x0C\x56\x57\x8B\xF9\xE8\x2A\x2A\x2A\x2A\x8B\xF0\x85\xF6\x0F\x84\x2A\x2A\x2A\x2A\xF3\x0F\x10\x87\xF0\x07\x00\x00"
+			}
+			"CTFLunchBox::SecondaryAttack()"
+			{
+				// xref semi-unique string "models/items/plate_robo_sandwich.mdl"
+				"library"	"server"
+				"linux"		"@_ZN11CTFLunchBox15SecondaryAttackEv"
 			}
 			"CTFMinigun::RingOfFireAttack()"
 			{
