@@ -28,9 +28,9 @@ float g_flNailgunSpeedRatio[MAXPLAYERS + 1];
 Handle g_SDKCallUpdatePlayerSpeed;
 
 public void OnPluginStart() {
-	Handle hGameConf = LoadGameConfigFile("tf2.ca_update_speed");
+	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
-		SetFailState("Failed to load gamedata (tf2.ca_update_speed).");
+		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
 	}
 	
 	StartPrepSDKCall(SDKCall_Player);

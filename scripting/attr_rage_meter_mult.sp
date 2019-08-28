@@ -26,7 +26,7 @@ Handle g_DHookOnModifyRage;
 static Address g_offset_CTFPlayerShared_pOuter;
 
 public void OnPluginStart() {
-	Handle hGameConf = LoadGameConfigFile("tf2.ca_rage_meter_mult");
+	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	
 	g_DHookOnModifyRage = DHookCreateFromConf(hGameConf, "CTFPlayerShared::ModifyRage()");
 	

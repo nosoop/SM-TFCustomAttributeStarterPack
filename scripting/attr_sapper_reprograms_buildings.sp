@@ -44,16 +44,14 @@ Handle g_SDKBuildingSpawnControlPanels, g_SDKBuildingDestroyScreens,
 Handle g_SDKPlayerGetObjectOfType;
 
 public void OnPluginStart() {
-	Handle hGameConf = LoadGameConfigFile("tf2.ca_sapper_reprograms_buildings");
+	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
-		SetFailState("Failed to load gamedata (tf2.ca_sapper_reprograms_buildings).");
+		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
 	}
 	
 	Handle dtSentryFire = DHookCreateFromConf(hGameConf, "CObjectSentrygun::SentryThink()");
 	DHookEnableDetour(dtSentryFire, false, OnSentryGunThinkPre);
 	DHookEnableDetour(dtSentryFire, true, OnSentryGunThinkPost);
-	
-	// TODO hook detonate and show message to engineer that a spy owns their stuff
 	
 	StartPrepSDKCall(SDKCall_Player);
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CTFPlayer::GetObjectOfType()");

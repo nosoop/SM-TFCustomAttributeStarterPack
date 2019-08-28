@@ -9,9 +9,9 @@
 #pragma newdecls required
 
 public void OnPluginStart() {
-	Handle hGameConf = LoadGameConfigFile("tf2.ca_medic_disable_regen");
+	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
-		SetFailState("Failed to load gamedata (tf2.ca_medic_disable_regen).");
+		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
 	}
 	
 	Handle dtRegenThink = DHookCreateFromConf(hGameConf, "CTFPlayer::RegenThink()");

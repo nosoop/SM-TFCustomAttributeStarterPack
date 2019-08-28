@@ -38,7 +38,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 }
 
 public void OnPluginStart() {
-	Handle hGameConf = LoadGameConfigFile("tf2.ca_buff_override");
+	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	
 	g_DHookOnModifyRage = DHookCreateFromConf(hGameConf, "CTFPlayerShared::PulseRageBuff()");
 	

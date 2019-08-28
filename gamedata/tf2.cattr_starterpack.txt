@@ -4,6 +4,13 @@
 	{
 		"Functions"
 		{
+			"CObjectSentrygun::SentryThink()"
+			{
+				"signature"		"CObjectSentrygun::SentryThink()"
+				"callconv"		"thiscall"
+				"return"		"void"
+				"this"			"entity"
+			}
 			"CTFFlameThrower::SecondaryAttack()"
 			{
 				"signature"		"CTFFlameThrower::SecondaryAttack()"
@@ -45,6 +52,103 @@
 				"callconv"		"thiscall"
 				"return"		"void"
 				"this"			"entity"
+			}
+			"CTFPlayer::DetonateObjectOfType()"
+			{
+				"signature"		"CTFPlayer::DetonateObjectOfType()"
+				"callconv"		"thiscall"
+				"return"		"void"
+				"this"			"entity"
+				"arguments"
+				{
+					"int_a"
+					{
+						"type"	"int"
+					}
+					"int_b"
+					{
+						"type"	"int"
+					}
+					"force_removal"
+					{
+						// this skips the sapper / plasma disabled checks
+						"type"	"bool"
+					}
+				}
+			}
+			"CTFPlayer::GetChargeEffectBeingProvided()"
+			{
+				"signature"		"CTFPlayer::GetChargeEffectBeingProvided()"
+				"callconv"		"thiscall"
+				"return"		"int"
+				"this"			"entity"
+			}
+			"CTFPlayer::RegenThink()"
+			{
+				"signature"		"CTFPlayer::RegenThink()"
+				"callconv"		"thiscall"
+				"return"		"void"
+				"this"			"entity"
+			}
+			"CTFPlayer::ShouldGib()"
+			{
+				"offset"		"CTFPlayer::ShouldGib()"
+				"hooktype"		"entity"
+				"return"		"bool"
+				"this"			"entity"
+				"arguments"
+				{
+					"damageinfo"
+					{
+						"type"	"objectptr"
+					}
+				}
+			}
+			"CTFPlayerShared::ActivateRageBuff()"
+			{
+				"signature"		"CTFPlayerShared::ActivateRageBuff()"
+				"callconv"		"thiscall"
+				"return"		"void"
+				"this"			"address"
+				"arguments"
+				{
+					"inflictor"
+					{
+						"type"	"cbaseentity"
+					}
+					"buff_type"
+					{
+						"type"	"int"
+					}
+				}
+			}
+			"CTFPlayerShared::ModifyRage()"
+			{
+				"signature"		"CTFPlayerShared::ModifyRage()"
+				"callconv"		"thiscall"
+				"return"		"void"
+				"this"			"address"
+				"arguments"
+				{
+					"delta"
+					{
+						"type"	"float"
+					}
+				}
+			}
+			"CTFPlayerShared::PulseRageBuff()"
+			{
+				"signature"		"CTFPlayerShared::PulseRageBuff()"
+				"callconv"		"thiscall"
+				"return"		"void"
+				"this"			"address"
+				"arguments"
+				{
+					"buff_slot"
+					{
+						"type"	"int"
+					}
+				}
 			}
 			"CTFPlayerShared::UpdateCloakMeter()"
 			{
@@ -101,6 +205,30 @@
 		
 		"Signatures"
 		{
+			"CBaseObject::DestroyScreens()"
+			{
+				// get to CBaseObject::MakeCarriedObject() through string "player_carryobject"
+				// ... to CBaseObject::DestroyScreens() is two calls above the string in that block
+				"library"	"server"
+				"linux"		"@_ZN11CBaseObject14DestroyScreensEv"
+				"windows"	"\x56\x57\x8B\xF9\x8B\xB7\xC0\x09\x00\x00"
+			}
+			"CBaseObject::SetControlPanelsActive()"
+			{
+				// get to CObjectSapper::FinishedBuilding() through string "player_sapped_object"
+				// ... to CBaseObject::FinishedBuilding() as first call in previous function
+				// ... to CBaseObject::SetControlPanelsActive() as first call in previous function
+				"library"	"server"
+				"linux"		"@_ZN11CBaseObject22SetControlPanelsActiveEb"
+				"windows"	"\x55\x8B\xEC\x53\x8B\xD9\x56\x8B\xB3\xC0\x09\x00\x00"
+			}
+			"CBaseObject::SpawnControlPanels()"
+			{
+				// contains unique string "bp%d_controlpanel%%d_ll"
+				"library"	"server"
+				"linux"		"@_ZN11CBaseObject18SpawnControlPanelsEv"
+				"windows"	"\x55\x8B\xEC\x81\xEC\x5C\x01\x00\x00\x53\x56\x57\x8B\xF9"
+			}
 			"CGlobalEntityList::FindEntityInSphere()"
 			{
 				// xref "NULL entity in global entity list!\n"
@@ -109,6 +237,13 @@
 				"library"	"server"
 				"linux"		"@_ZN17CGlobalEntityList18FindEntityInSphereEP11CBaseEntityRK6Vectorf"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x0C\x53\x56\x57\x8B\xF9\x8B\x4D\x08"
+			}
+			"CObjectSentrygun::SentryThink()"
+			{
+				// contains unique string "mult_sentry_range"
+				"library"	"server"
+				"linux"		"@_ZN16CObjectSentrygun11SentryThinkEv"
+				"windows"	"\x55\x8B\xEC\x51\x56\x8B\xF1\x57\x80\xBE\x2A\x2A\x00\x00\x00\xC7\x86\x2A\x2A\x00\x00\x00\x80\x89\x44"
 			}
 			"CTFFlameThrower::SecondaryAttack()"
 			{
@@ -131,6 +266,78 @@
 				"linux"		"@_ZN10CTFMinigun16RingOfFireAttackEi"
 				"windows"	"\x55\x8B\xEC\x81\xEC\x2A\x2A\x00\x00\x53\x8B\xD9\x56\x57\xF3\x0F\x10\x83"
 			}
+			"CTFPlayer::DetonateObjectOfType()"
+			{
+				// contains unique string "pda_engineer"
+				"library"	"server"
+				"linux"		"@_ZN9CTFPlayer20DetonateObjectOfTypeEiib"
+				"windows"	"\x55\x8B\xEC\x51\x53\x57\xFF\x75\x0C\x8B\xD9\xFF\x75\x08\x89\x5D\xFC\xE8\x2A\x2A\x2A\x2A\x8B\xF8"
+			}
+			"CTFPlayer::GetChargeEffectBeingProvided()"
+			{
+				// via CTFPlayer::OnBurnOther() contains xref "PlayerIgnitedInv"
+				// ... CTFPlayer::GetChargeEffectBeingProvided() called in previous block
+				"library"	"server"
+				"linux"		"@_ZN9CTFPlayer28GetChargeEffectBeingProvidedEv"
+				"windows"	"\x55\x8B\xEC\x51\x56\x8B\xF1\x8D\x86\xFC\x20\x00\x00"
+			}
+			"CTFPlayer::GetObjectOfType()"
+			{
+				// first call in "CTFPlayer::DetonateObjectOfType()"
+				"library"	"server"
+				"linux"		"@_ZNK9CTFPlayer15GetObjectOfTypeEii"
+				"windows"	"\x55\x8B\xEC\x51\x53\x8B\xC1\x56\x57\x33\xFF\x89\x45\xFC\x8B\x98\x7C\x21\x00\x00"
+			}
+			"CTFPlayer::RegenThink()"
+			{
+				// contsins string "RegenThink" in block after first jump
+				"library"		"server"
+				"linux"			"@_ZN9CTFPlayer10RegenThinkEv"
+				"windows"		"\x55\x8B\xEC\x83\xEC\x74\x57\x8B\xF9\x8B\x07"
+			}
+			"CTFPlayer::TeamFortress_SetSpeed()"
+			{
+				// function is x-ref to CTFPlayer::TeamFortress_CalculateMaxSpeed
+				"library"		"server"
+				"linux"			"@_ZN9CTFPlayer21TeamFortress_SetSpeedEv"
+				"windows"		"\x55\x8B\xEC\xA1\x2A\x2A\x2A\x2A\x83\xEC\x1C\x53"
+			}
+			"CTFPlayerShared::ActivateRageBuff()"
+			{
+				// containing non-unique string "mod_buff_duration"
+				"library"	"server"
+				"linux"		"@_ZN15CTFPlayerShared16ActivateRageBuffEP11CBaseEntityi"
+				"windows"	"\x55\x8B\xEC\x51\xF3\x0F\x10\x05\x2A\x2A\x2A\x2A\x56\x8B\xF1"
+			}
+			"CTFPlayerShared::Heal()"
+			{
+				// via CTFHolidayEntity::Teleport() with xref "spawn_loot_%s"
+				// ... CTFPlayerShared::Heal() is below with multiple vcalls that receive (0, n, 3E8)
+				"library"	"server"
+				"linux"		"@_ZN15CTFPlayerShared4HealEP11CBaseEntityfffbP9CTFPlayer"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x28\x53\x56\x8B\x75\x08\x0F\x57\xC0\x57\x56\x8B\xF9"
+			}
+			"CTFPlayerShared::ModifyRage()"
+			{
+				// last call in assembly block containing unique string "rage_on_hit"
+				"library"	"server"
+				"linux"		"@_ZN15CTFPlayerShared10ModifyRageEf"
+				"windows"	"\x55\x8B\xEC\xF3\x0F\x10\x81\x8C\x02\x00\x00"
+			}
+			"CTFPlayerShared::PulseRageBuff()"
+			{
+				// last call in assembly block containing unique string "mod_soldier_buff_range"
+				"library"	"server"
+				"linux"		"@_ZN15CTFPlayerShared13PulseRageBuffENS_13ERageBuffSlotE"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x18\xD9\x05\x2A\x2A\x2A\x2A"
+			}
+			"CTFPlayerShared::StopHealing()"
+			{
+				// first call in block with xref "healtarget:alive"
+				"library"	"server"
+				"linux"		"@_ZN15CTFPlayerShared11StopHealingEP11CBaseEntity"
+				"windows"	"\x55\x8B\xEC\x51\x56\xFF\x75\x08\x8B\xF1\xE8\x2A\x2A\x2A\x2A\x8B\xC8"
+			}
 			"CTFPlayerShared::UpdateCloakMeter()"
 			{
 				// find raw contents of g_aDebuffConditions and jump to xref function with most references
@@ -149,12 +356,21 @@
 		
 		"Offsets"
 		{
+			"CBaseEntity::GetBaseEntity()"
+			{
+				"windows"	"5"
+				"linux"		"6"
+			}
+			"CBaseObject::ChangeTeam()"
+			{
+				"windows"	"91"
+				"linux"		"92"
+			}
 			"CTFWeaponBaseGrenadeProj::InitGrenade(int float)"
 			{
 				"windows"	"236"
 				"linux"		"238"
 			}
-			
 			"CTFBaseProjectile::ProjectileTouch()"
 			{
 				"windows"	"232"
@@ -165,14 +381,17 @@
 				"windows"	"231"
 				"linux"		"232"
 			}
-			
 			"CTFMinigun::m_flNextFireRingTime"
 			{
 				// updated at the end of CTFMinigun::RingOfFireAttack()
 				"windows"	"2200"
 				"linux"		"2204"
 			}
-			
+			"CTFPlayer::ShouldGib()"
+			{
+				"windows"	"289"
+				"linux"		"290"
+			}
 			"CTFPlayerShared::m_pOuter"
 			{
 				"linux"		"400"

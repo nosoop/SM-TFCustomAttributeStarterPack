@@ -25,9 +25,9 @@ public Plugin myinfo = {
 Handle g_DHookShouldGib;
 
 public void OnPluginStart() {
-	Handle hGameConf = LoadGameConfigFile("tf2.ca_weapon_always_gibs_on_kill");
+	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
-		SetFailState("Failed to load gamedata (tf2.ca_weapon_always_gibs_on_kill).");
+		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
 	}
 	
 	g_DHookShouldGib = DHookCreateFromConf(hGameConf, "CTFPlayer::ShouldGib()");

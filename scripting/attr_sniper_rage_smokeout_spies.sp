@@ -25,9 +25,9 @@ public Plugin myinfo = {
 #define SOUND_HUNT_ACTIVATE "weapons/medi_shield_deploy.wav"
 
 public void OnPluginStart() {
-	Handle hGameConf = LoadGameConfigFile("tf2.ca_rage_info");
+	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
-		SetFailState("Failed to load gamedata (tf2.ca_rage_info).");
+		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
 	}
 	
 	Handle detourActivateRageBuff = DHookCreateFromConf(hGameConf,

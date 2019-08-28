@@ -35,9 +35,9 @@ ArrayList g_RadiusHealRecipients[MAXPLAYERS + 1];
 float g_flLastHealthParticleDisplayTime[MAXPLAYERS + 1];
 
 public void OnPluginStart() {
-	Handle hGameConf = LoadGameConfigFile("tf2.ca_group_overheal");
+	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
-		SetFailState("Failed to load gamedata (tf2.ca_group_overheal).");
+		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
 	}
 	
 	StartPrepSDKCall(SDKCall_EntityList);
