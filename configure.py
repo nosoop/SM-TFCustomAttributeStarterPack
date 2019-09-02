@@ -19,6 +19,7 @@ plugins = [
   'flamethrower_alt_fire_oil.sp',
   'keep_disguise_on_attack.sp',
   'lunchbox_override_pickup_type.sp',
+  'mod_crit_type_on_hitgroup.sp',
   'override_building_health.sp',
   'projectile_heal_on_teammate_contact.sp',
 ]
@@ -33,6 +34,7 @@ copy_files = [
 	'configs/customweapons/classic_nailgun.cfg',
 	'configs/customweapons/der_schmerzschild.cfg',
 	'configs/customweapons/essendon_eliminator.cfg',
+	'configs/customweapons/magnum_opus.cfg',
 	'configs/customweapons/merasmus_stash.cfg',
 	'configs/customweapons/subjugated_saboteur.cfg',
 	
