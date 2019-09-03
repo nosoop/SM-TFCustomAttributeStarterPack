@@ -25,12 +25,14 @@ plugins = [
 ]
 
 plugins += map(lambda p: os.path.join('buff_overrides', p), [
+  'buff_control_rockets.sp',
   'buff_crit_and_mark_for_death.sp',
   'sniper_rage_smokeout_spies.sp',
 ])
 
 # files to copy to builddir, relative to root
 copy_files = [
+	'configs/customweapons/apollo_pack.cfg',
 	'configs/customweapons/classic_nailgun.cfg',
 	'configs/customweapons/der_schmerzschild.cfg',
 	'configs/customweapons/essendon_eliminator.cfg',
