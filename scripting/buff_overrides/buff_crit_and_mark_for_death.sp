@@ -14,7 +14,7 @@ public void OnCustomBuffHandlerAvailable() {
 	TF2CustomAttrRageBuff_Register("crit-banner", OnCritBannerPulse);
 }
 
-public void OnCritBannerPulse(int owner, int target, const char[] name) {
+public void OnCritBannerPulse(int owner, int target, const char[] name, int buffItem) {
 	TFTeam buffTeam = TF2_GetClientTeam(owner);
 	
 	// disallow enemies, allow disguised players, disallow cloaked

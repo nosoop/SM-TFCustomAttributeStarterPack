@@ -10,7 +10,7 @@
 #pragma newdecls required
 #include <tf_custom_attributes>
 
-#define PLUGIN_VERSION "1.0.0"
+#define PLUGIN_VERSION "1.1.0"
 public Plugin myinfo = {
 	name = "[TF2CA] Banner Buff Override",
 	author = "nosoop",
@@ -29,6 +29,7 @@ Handle g_DHookOnModifyRage;
 
 static Address g_offset_CTFPlayerShared_pOuter;
 
+int g_iActiveBuffWeapon[MAXPLAYERS + 1];
 StringMap g_BuffForwards; // <callback>
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) {
@@ -40,8 +41,10 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	
-	g_DHookOnModifyRage = DHookCreateFromConf(hGameConf, "CTFPlayerShared::PulseRageBuff()");
+	Handle dtActivateRageBuff = DHookCreateFromConf(hGameConf, "CTFPlayerShared::ActivateRageBuff()");
+	DHookEnableDetour(dtActivateRageBuff, false, OnActivateRageBuffPre);
 	
+	g_DHookOnModifyRage = DHookCreateFromConf(hGameConf, "CTFPlayerShared::PulseRageBuff()");
 	DHookEnableDetour(g_DHookOnModifyRage, false, OnPulseRageBuffPre);
 	
 	StartPrepSDKCall(SDKCall_Raw);
@@ -66,24 +69,36 @@ public int RegisterCustomBuff(Handle plugin, int argc) {
 	
 	Handle hFwd;
 	if (!g_BuffForwards.GetValue(buffName, hFwd)) {
-		hFwd = CreateForward(ET_Ignore, Param_Cell, Param_Cell, Param_String);
+		hFwd = CreateForward(ET_Ignore, Param_Cell, Param_Cell, Param_String, Param_Cell);
 		g_BuffForwards.SetValue(buffName, hFwd);
 	}
 	AddToForward(hFwd, plugin, GetNativeFunction(2));
 }
 
+public MRESReturn OnActivateRageBuffPre(Address pPlayerShared, Handle hParams) {
+	int client = GetClientFromPlayerShared(pPlayerShared);
+	g_iActiveBuffWeapon[client] = INVALID_ENT_REFERENCE;
+	
+	int inflictor = DHookGetParam(hParams, 1);
+	if (!IsValidEntity(inflictor)) {
+		return MRES_Ignored;
+	}
+	
+	g_iActiveBuffWeapon[client] = EntIndexToEntRef(inflictor);
+	return MRES_Ignored;
+}
+
 public MRESReturn OnPulseRageBuffPre(Address pPlayerShared, Handle hParams) {
 	int client = GetClientFromPlayerShared(pPlayerShared);
 	
-	// check for buff banner-like
-	int hSecondary = GetPlayerWeaponSlot(client, 1);
-	if (!IsWeaponBuffItem(hSecondary)) {
+	int buffItem = EntRefToEntIndex(g_iActiveBuffWeapon[client]);
+	if (!IsValidEntity(buffItem)) {
 		return MRES_Ignored;
 	}
 	
 	char buffName[CUSTOM_SOLDIER_BUFF_MAX_NAME_LENGTH];
-	if (!TF2CustAttr_GetString(hSecondary, "custom soldier buff type",
-			buffName, sizeof(buffName))) {
+	if (!TF2CustAttr_GetString(buffItem, "custom soldier buff type", buffName, sizeof(buffName))
+			&& !TF2CustAttr_GetString(buffItem, "custom buff type", buffName, sizeof(buffName))) {
 		return MRES_Ignored;
 	}
 	
@@ -114,6 +129,7 @@ public MRESReturn OnPulseRageBuffPre(Address pPlayerShared, Handle hParams) {
 		Call_PushCell(client);
 		Call_PushCell(i);
 		Call_PushString(buffName);
+		Call_PushCell(buffItem);
 		Call_Finish();
 		
 		// there is a player_buff event we could implement but it shouldn't really matter
@@ -130,15 +146,4 @@ static int GetClientFromPlayerShared(Address pPlayerShared) {
 
 static int GetEntityFromAddress(Address pEntity) {
 	return SDKCall(g_SDKCallGetBaseEntity, pEntity);
-}
-
-static bool IsWeaponBuffItem(int weapon) {
-	if (!IsValidEntity(weapon)) {
-		return false;
-	}
-	
-	char className[64];
-	GetEntityClassname(weapon, className, sizeof(className));
-	
-	return StrEqual(className, "tf_weapon_buff_item");
 }

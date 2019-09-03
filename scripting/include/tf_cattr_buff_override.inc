@@ -11,7 +11,8 @@
  * Called when a player rage pulse is active.  The only check on the target is to ensure that
  * they are within range of the buff.
  */
-typedef PulseRageBuffCallback = function void(int owner, int target, const char[] buffName);
+typedef PulseRageBuffCallback = function void(int owner, int target, const char[] buffName,
+		int buffWeapon);
 
 /**
  * Registers a custom rage buff.  The given callback is fired if the player owns a buff item
