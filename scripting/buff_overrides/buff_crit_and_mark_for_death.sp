@@ -11,8 +11,7 @@
 #include <tf_cattr_buff_override>
 
 public void OnCustomBuffHandlerAvailable() {
-	PrintToServer("registering buff handler");
-	CustomAttrRageBuff_Register("crit-banner", OnCritBannerPulse);
+	TF2CustomAttrRageBuff_Register("crit-banner", OnCritBannerPulse);
 }
 
 public void OnCritBannerPulse(int owner, int target, const char[] name) {
