@@ -11,6 +11,7 @@
 
 #pragma newdecls required
 #include <stocksoup/tf/tempents_stocks>
+#include <tf_cattr_buff_override>
 #include <tf_custom_attributes>
 
 #define PLUGIN_VERSION "1.0.0"
@@ -23,6 +24,8 @@ public Plugin myinfo = {
 }
 
 #define SOUND_HUNT_ACTIVATE "weapons/medi_shield_deploy.wav"
+
+float g_flHuntModeEndTime[MAXPLAYERS + 1];
 
 public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
@@ -37,50 +40,67 @@ public void OnPluginStart() {
 	delete hGameConf;
 }
 
+public void OnClientPutInServer(int client) {
+	g_flHuntModeEndTime[client] = 0.0;
+}
+
+public void OnCustomBuffHandlerAvailable() {
+	TF2CustomAttrRageBuff_Register("spy smokeout", OnHuntModeUpdate);
+}
+
+public void OnLibraryAdded(const char[] name) {
+	if (StrEqual(name, "cattr-buff-override")) {
+		OnCustomBuffHandlerAvailable();
+	}
+}
+
 public void OnMapStart() {
 	PrecacheSound(SOUND_HUNT_ACTIVATE);
+	
+	for (int i = 1; i <= MaxClients; i++) {
+		if (IsClientInGame(i)) {
+			OnClientPutInServer(i);
+		}
+	}
 }
 
 public MRESReturn OnActivateRageBuffPre(Address pPlayerShared, Handle hParams) {
 	int client = DHookGetParam(hParams, 1);
-	
-	if (GetEntProp(client, Prop_Send, "m_bRageDraining")) {
-		return MRES_Supercede;
-	}
-	
-	if (GetEntPropFloat(client, Prop_Send, "m_flRageMeter") < 100.0) {
-		return MRES_Supercede;
-	}
-	
 	int hPrimary = GetPlayerWeaponSlot(client, 0);
 	
 	// check if weapon contains rage effect, skip if not
-	if (!IsValidEntity(hPrimary) || !TF2CustAttr_GetInt(hPrimary, "rage smokes out spies")) {
+	// TODO avoid requiring specific weapon slot
+	char attr[64];
+	if (!IsValidEntity(hPrimary)
+			|| !TF2CustAttr_GetString(hPrimary, "custom buff type", attr, sizeof(attr))
+			|| !StrEqual(attr, "spy smokeout")
+			|| GetEntProp(client, Prop_Send, "m_bRageDraining")) {
 		return MRES_Ignored;
 	}
 	
 	ActivateHuntMode(client);
+	return MRES_Ignored;
+}
+
+public void OnHuntModeUpdate(int owner, int target, const char[] name, int buffItem) {
+	// only apply to self
+	if (target != owner) {
+		return;
+	}
 	
-	// set rage to drain, game will handle draining duration
-	// standard rage drain takes 10 seconds, so we can just do an if rage draining for the checks
-	SetEntProp(client, Prop_Send, "m_bRageDraining", true);
-	
-	return MRES_Supercede;
+	g_flHuntModeEndTime[owner] = GetGameTime() + BUFF_PULSE_CONDITION_DURATION;
+	TF2_AddCondition(owner, TFCond_MarkedForDeath, BUFF_PULSE_CONDITION_DURATION);
 }
 
 void ActivateHuntMode(int client) {
-	// apply damage vulnerability custom attribute when rage is draining
-	// this was supposed to be an increased damage vuln and custom icon
-	// but the sprite effect was being stupid finicky
-	TF2_AddCondition(client, TFCond_MarkedForDeath, 10.0);
-	
+	g_flHuntModeEndTime[client] = GetGameTime() + BUFF_PULSE_CONDITION_DURATION;
 	SDKHook(client, SDKHook_PostThinkPost, OnHuntThinkPost);
 	
 	EmitSoundToAll(SOUND_HUNT_ACTIVATE, client);
 }
 
 public void OnHuntThinkPost(int client) {
-	if (!GetEntProp(client, Prop_Send, "m_bRageDraining")) {
+	if (GetGameTime() > g_flHuntModeEndTime[client]) {
 		SDKUnhook(client, SDKHook_PostThinkPost, OnHuntThinkPost);
 		return;
 	}
