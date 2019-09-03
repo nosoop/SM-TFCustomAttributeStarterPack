@@ -8,9 +8,10 @@
 #include <dhooks>
 
 #pragma newdecls required
+#include <stocksoup/tf/entity_prop_stocks>
 #include <tf_custom_attributes>
 
-#define PLUGIN_VERSION "1.1.0"
+#define PLUGIN_VERSION "1.1.1"
 public Plugin myinfo = {
 	name = "[TF2CA] Banner Buff Override",
 	author = "nosoop",
@@ -80,6 +81,15 @@ public MRESReturn OnActivateRageBuffPre(Address pPlayerShared, Handle hParams) {
 	g_iActiveBuffWeapon[client] = INVALID_ENT_REFERENCE;
 	
 	int inflictor = DHookGetParam(hParams, 1);
+	if (!IsValidEntity(inflictor)) {
+		return MRES_Ignored;
+	}
+	
+	if (inflictor == client) {
+		// Heatmaker treats the client as the inflictor instead of the weapon
+		// hack around this by pulling down the active weapon instead
+		inflictor = TF2_GetClientActiveWeapon(inflictor);
+	}
 	if (!IsValidEntity(inflictor)) {
 		return MRES_Ignored;
 	}
