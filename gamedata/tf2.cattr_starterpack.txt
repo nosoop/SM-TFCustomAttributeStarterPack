@@ -381,16 +381,18 @@
 				"windows"	"231"
 				"linux"		"232"
 			}
+			"CTFPlayer::ShouldGib()"
+			{
+				"windows"	"289"
+				"linux"		"290"
+			}
+			
+			// member offsets
 			"CTFMinigun::m_flNextFireRingTime"
 			{
 				// updated at the end of CTFMinigun::RingOfFireAttack()
 				"windows"	"2200"
 				"linux"		"2204"
-			}
-			"CTFPlayer::ShouldGib()"
-			{
-				"windows"	"289"
-				"linux"		"290"
 			}
 			"CTFPlayerShared::m_pOuter"
 			{
