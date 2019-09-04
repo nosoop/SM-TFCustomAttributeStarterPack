@@ -1,0 +1,137 @@
+#pragma semicolon 1
+#include <sourcemod>
+
+#include <sdkhooks>
+#include <sdktools>
+#include <dhooks>
+
+#pragma newdecls required
+
+#include <tf_custom_attributes>
+#include <stocksoup/tf/entity_prop_stocks>
+
+Handle g_DHookPrimaryAttack;
+Handle g_SDKCallGetWeaponSlot, g_SDKCallGetMaxClip1;
+
+float g_flFullClipRefillTime[MAXPLAYERS + 1][3];
+
+public void OnPluginStart() {
+	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
+	if (!hGameConf) {
+		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
+	}
+	
+	g_DHookPrimaryAttack = DHookCreateFromConf(hGameConf, "CTFWeaponBase::PrimaryAttack()");
+	
+	StartPrepSDKCall(SDKCall_Entity);
+	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual, "CBaseCombatWeapon::GetSlot()");
+	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
+	g_SDKCallGetWeaponSlot = EndPrepSDKCall();
+	
+	StartPrepSDKCall(SDKCall_Entity);
+	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual, "CBaseCombatWeapon::GetMaxClip1()");
+	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
+	g_SDKCallGetMaxClip1 = EndPrepSDKCall();
+	
+	delete hGameConf;
+	
+	HookEvent("post_inventory_application", OnInventoryAppliedPost);
+}
+
+public void OnMapStart() {
+	for (int i = 1; i <= MaxClients; i++) {
+		if (IsClientInGame(i)) {
+			OnClientPutInServer(i);
+		}
+	}
+	
+	int entity = -1;
+	while ((entity = FindEntityByClassname(entity, "*")) != -1) {
+		if (HasEntProp(entity, Prop_Data, "m_flNextPrimaryAttack")) {
+			HookWeaponEntity(entity);
+		}
+	}
+	
+}
+
+public void OnInventoryAppliedPost(Event event, const char[] name, bool dontBroadcast) {
+	int client = GetClientOfUserId(event.GetInt("userid"));
+	for (int i; i < sizeof(g_flFullClipRefillTime[]); i++) {
+		g_flFullClipRefillTime[client][i] = 0.0;
+	}
+}
+
+public void OnClientPutInServer(int client) {
+	SDKHook(client, SDKHook_PostThinkPost, OnClientPostThinkPost);
+}
+
+public void OnEntityCreated(int entity, const char[] className) {
+	if (HasEntProp(entity, Prop_Data, "m_flNextPrimaryAttack")) {
+		HookWeaponEntity(entity);
+	}
+}
+
+void HookWeaponEntity(int weapon) {
+	DHookEntity(g_DHookPrimaryAttack, true, weapon, .callback = OnWeaponPrimaryAttackPost);
+}
+
+public void OnClientPostThinkPost(int client) {
+	if (!IsPlayerAlive(client)) {
+		return;
+	}
+	
+	for (int i; i < sizeof(g_flFullClipRefillTime[]); i++) {
+		float flRefillTime = g_flFullClipRefillTime[client][i];
+		if (!flRefillTime) {
+			continue;
+		}
+		
+		int weapon = GetPlayerWeaponSlot(client, i);
+		if (!IsValidEntity(weapon)) {
+			continue;
+		}
+		
+		if (GetGameTime() > flRefillTime) {
+			FullRefillWeaponClip(weapon);
+			g_flFullClipRefillTime[client][i] = 0.0;
+		}
+	}
+}
+
+public MRESReturn OnWeaponPrimaryAttackPost(int weapon) {
+	int owner = TF2_GetEntityOwner(weapon);
+	if (owner < 1 || owner > MaxClients) {
+		return MRES_Ignored;
+	}
+	
+	float flRefillTime = TF2CustAttr_GetFloat(weapon, "full clip refill after time");
+	if (flRefillTime < 0.0) {
+		return MRES_Ignored;
+	}
+	
+	int slot = GetWeaponSlot(weapon);
+	if (slot < 0 || slot > sizeof(g_flFullClipRefillTime[])) {
+		// TODO note that slot is invalid
+		return MRES_Ignored;
+	}
+	
+	float flNewRefillTime = GetGameTime() + flRefillTime;
+	float flCurrentRefillTime = g_flFullClipRefillTime[owner][slot];
+	if (!flCurrentRefillTime || flNewRefillTime < flCurrentRefillTime) {
+		g_flFullClipRefillTime[owner][slot] = flNewRefillTime;
+	}
+	
+	return MRES_Ignored;
+}
+
+void FullRefillWeaponClip(int weapon) {
+	SetEntProp(weapon, Prop_Data, "m_iClip1", GetMaxPrimaryClip(weapon));
+}
+
+int GetWeaponSlot(int weapon) {
+	return SDKCall(g_SDKCallGetWeaponSlot, weapon);
+}
+
+int GetMaxPrimaryClip(int weapon) {
+	return SDKCall(g_SDKCallGetMaxClip1, weapon);
+}

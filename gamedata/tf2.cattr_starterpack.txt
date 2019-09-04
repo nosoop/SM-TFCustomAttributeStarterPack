@@ -164,6 +164,13 @@
 				"return"		"bool"
 				"this"			"entity"
 			}
+			"CTFWeaponBase::PrimaryAttack()"
+			{
+				"offset"		"CTFWeaponBase::PrimaryAttack()"
+				"hooktype"		"entity"
+				"return"		"void"
+				"this"			"entity"
+			}
 		}
 		
 		"MemPatches"
@@ -356,6 +363,16 @@
 		
 		"Offsets"
 		{
+			"CBaseCombatWeapon::GetSlot()"
+			{
+				"windows"	"326"
+				"linux"		"332"
+			}
+			"CBaseCombatWeapon::GetMaxClip1()"
+			{
+				"windows"	"317"
+				"linux"		"323"
+			}
 			"CBaseEntity::GetBaseEntity()"
 			{
 				"windows"	"5"
@@ -385,6 +402,11 @@
 			{
 				"windows"	"289"
 				"linux"		"290"
+			}
+			"CTFWeaponBase::PrimaryAttack()"
+			{
+				"windows"	"279"
+				"linux"		"285"
 			}
 			
 			// member offsets

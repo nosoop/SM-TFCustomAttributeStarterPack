@@ -15,8 +15,10 @@ plugins = [
   'attr_sapper_reprograms_buildings.sp',
   'attr_weapon_always_gibs_on_kill.sp',
   'cloak_debuff_time_scale.sp',
+  'condition_stack_on_hit.sp',
   'damage_increase_on_hit.sp',
   'flamethrower_alt_fire_oil.sp',
+  'full_clip_refill_after_time.sp',
   'keep_disguise_on_attack.sp',
   'lunchbox_override_pickup_type.sp',
   'mod_crit_type_on_hitgroup.sp',
@@ -38,6 +40,7 @@ copy_files = [
 	'configs/customweapons/essendon_eliminator.cfg',
 	'configs/customweapons/magnum_opus.cfg',
 	'configs/customweapons/merasmus_stash.cfg',
+	'configs/customweapons/plastic_pisstol.cfg',
 	'configs/customweapons/subjugated_saboteur.cfg',
 	
 	'gamedata/tf2.cattr_starterpack.txt',
