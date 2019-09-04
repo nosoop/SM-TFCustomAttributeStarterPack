@@ -1,0 +1,32 @@
+# vim: set sts=2 ts=8 sw=2 tw=99 et ft=python:
+import os, sys
+
+plugins = [
+  'attr_buff_override.sp',
+  'attr_group_overheal_uber.sp',
+  'attr_medic_disable_active_regen.sp',
+  'attr_nailgun_slow.sp',
+  'attr_rage_meter_mult.sp',
+  'attr_rage_on_headshot.sp',
+  'attr_sapper_recharge_time.sp',
+  'attr_sapper_reprograms_buildings.sp',
+  'attr_weapon_always_gibs_on_kill.sp',
+  'cloak_debuff_time_scale.sp',
+  'damage_increase_on_hit.sp',
+  'flamethrower_alt_fire_oil.sp',
+  'keep_disguise_on_attack.sp',
+  'lunchbox_override_pickup_type.sp',
+  'override_building_health.sp',
+  'projectile_heal_on_teammate_contact.sp',
+  
+  os.path.join('buff_overrides', 'buff_crit_and_mark_for_death.sp'),
+  os.path.join('buff_overrides', 'sniper_rage_smokeout_spies.sp'),
+]
+
+###############
+
+for script_file in plugins:
+  script_file_dir, script_basename = os.path.split(script_file)
+  script_path = os.path.join(builder.currentSourcePath, 'scripting', script_file)
+  smx_file = os.path.splitext(script_basename)[0] + '.smx'
+  SourcePawn.Plugin(script_path, smx_file, os.path.join('plugins', script_file_dir))
