@@ -35,49 +35,57 @@ public void OnClientPutInServer(int client) {
 public void OnGameFrame() {
 	int rocket = -1;
 	while ((rocket = FindEntityByClassname(rocket, "tf_projectile_rocket")) != -1) {
-		// compute tweening for aim position
-		int launcher = GetEntPropEnt(rocket, Prop_Send, "m_hOriginalLauncher");
-		if (!IsValidEntity(launcher)) {
-			continue;
-		}
-		
-		int owner = TF2_GetEntityOwner(launcher);
-		if (owner < 1 || owner > MaxClients) {
-			continue;
-		}
-		
-		if (GetGameTime() > g_flAimingControlEndTime[owner]) {
-			continue;
-		}
-		
-		float vecRocketPosition[3], vecDesiredPosition[3];
-		ComputeAimPoint(owner, vecDesiredPosition);
-		GetEntPropVector(rocket, Prop_Data, "m_vecAbsOrigin", vecRocketPosition);
-		
-		// compute desired location
-		float vecCurrentVelocity[3], vecDesiredVelocity[3];
-		GetEntPropVector(rocket, Prop_Data, "m_vecAbsVelocity", vecCurrentVelocity);
-		
-		float flCurrentSpeed = NormalizeVector(vecCurrentVelocity, vecCurrentVelocity);
-		
-		// this is where the rocket should be going
-		MakeVectorFromPoints(vecRocketPosition, vecDesiredPosition, vecDesiredVelocity);
-		NormalizeVector(vecDesiredVelocity, vecDesiredVelocity);
-		
-		// controls turning rate
-		for (int i; i < 3; i++) {
-			vecCurrentVelocity[i] = LerpFloat(g_flAimingControlTurnRate[owner],
-					vecCurrentVelocity[i], vecDesiredVelocity[i]);
-		}
-		NormalizeVector(vecCurrentVelocity, vecCurrentVelocity);
-		ScaleVector(vecCurrentVelocity, flCurrentSpeed);
-		
-		SetEntPropVector(rocket, Prop_Data, "m_vecAbsVelocity", vecCurrentVelocity);
-		
-		float angVelocity[3];
-		GetVectorAngles(vecCurrentVelocity, angVelocity);
-		TeleportEntity(rocket, NULL_VECTOR, angVelocity, NULL_VECTOR);
+		HomingRocketThink(rocket);
 	}
+	// TODO futureproof against other rocket classes??
+	while ((rocket = FindEntityByClassname(rocket, "tf_projectile_energy_ball")) != -1) {
+		HomingRocketThink(rocket);
+	}
+}
+
+void HomingRocketThink(int rocket) {
+	// compute tweening for aim position
+	int launcher = GetEntPropEnt(rocket, Prop_Send, "m_hOriginalLauncher");
+	if (!IsValidEntity(launcher)) {
+		return;
+	}
+	
+	int owner = TF2_GetEntityOwner(launcher);
+	if (owner < 1 || owner > MaxClients) {
+		return;
+	}
+	
+	if (GetGameTime() > g_flAimingControlEndTime[owner]) {
+		return;
+	}
+	
+	float vecRocketPosition[3], vecDesiredPosition[3];
+	ComputeAimPoint(owner, vecDesiredPosition);
+	GetEntPropVector(rocket, Prop_Data, "m_vecAbsOrigin", vecRocketPosition);
+	
+	// compute desired location
+	float vecCurrentVelocity[3], vecDesiredVelocity[3];
+	GetEntPropVector(rocket, Prop_Data, "m_vecAbsVelocity", vecCurrentVelocity);
+	
+	float flCurrentSpeed = NormalizeVector(vecCurrentVelocity, vecCurrentVelocity);
+	
+	// this is where the rocket should be going
+	MakeVectorFromPoints(vecRocketPosition, vecDesiredPosition, vecDesiredVelocity);
+	NormalizeVector(vecDesiredVelocity, vecDesiredVelocity);
+	
+	// controls turning rate
+	for (int i; i < 3; i++) {
+		vecCurrentVelocity[i] = LerpFloat(g_flAimingControlTurnRate[owner],
+				vecCurrentVelocity[i], vecDesiredVelocity[i]);
+	}
+	NormalizeVector(vecCurrentVelocity, vecCurrentVelocity);
+	ScaleVector(vecCurrentVelocity, flCurrentSpeed);
+	
+	SetEntPropVector(rocket, Prop_Data, "m_vecAbsVelocity", vecCurrentVelocity);
+	
+	float angVelocity[3];
+	GetVectorAngles(vecCurrentVelocity, angVelocity);
+	TeleportEntity(rocket, NULL_VECTOR, angVelocity, NULL_VECTOR);
 }
 
 public void OnRocketControlPulse(int owner, int target, const char[] name, int buffItem) {
