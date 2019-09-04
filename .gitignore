@@ -5,3 +5,7 @@
 # Ignore packaged release builds
 
 *.zip
+
+# Ignore AMBuild output
+build/
+

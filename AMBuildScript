@@ -1,0 +1,62 @@
+# vim: set ts=8 sts=2 sw=2 tw=99 et ft=python: 
+import os
+
+files = [
+  'attr_buff_override.sp',
+  'attr_group_overheal_uber.sp',
+  'attr_medic_disable_active_regen.sp',
+  'attr_nailgun_slow.sp',
+  'attr_rage_meter_mult.sp',
+  'attr_rage_on_headshot.sp',
+  'attr_sapper_recharge_time.sp',
+  'attr_sapper_reprograms_buildings.sp',
+  'attr_weapon_always_gibs_on_kill.sp',
+  'cloak_debuff_time_scale.sp',
+  'damage_increase_on_hit.sp',
+  'flamethrower_alt_fire_oil.sp',
+  'keep_disguise_on_attack.sp',
+  'lunchbox_override_pickup_type.sp',
+  'override_building_health.sp',
+  'projectile_heal_on_teammate_contact.sp',
+  
+  os.path.join('buff_overrides', 'buff_crit_and_mark_for_death.sp'),
+  os.path.join('buff_overrides', 'sniper_rage_smokeout_spies.sp'),
+]
+
+spcomp_dir = builder.options.spcomp_dir
+spcomp = os.path.join(spcomp_dir, 'spcomp.exe')
+
+spcomp_argv = [
+  os.path.join(builder.buildPath, spcomp),
+  '-i' + os.path.relpath(os.path.join(builder.buildPath, 'includes'),
+                         os.path.join(builder.buildPath, builder.buildFolder)),
+  '-i' + os.path.join(builder.sourcePath, 'scripting', 'include'),
+  '-h',
+  '-E',
+]
+
+builder.AddFolder('plugins')
+
+def build_plugin(script_path, smx_file, output_dir = '.'):
+  script_output_dir = os.path.normpath(os.path.join('plugins', output_dir))
+  builder.AddFolder(script_output_dir)
+  inputs = [
+    spcomp,
+    script_path,
+  ]
+  outputs = [
+    os.path.join('plugins', smx_file)
+  ]
+  argv = spcomp_argv + [script_path, '-D' + '{}'.format(script_output_dir + os.sep)]
+  cmd_entry, (smx_entry,) = builder.AddCommand(
+    inputs = inputs,
+    argv = argv,
+    outputs = outputs,
+    dep_type = 'msvc',
+  )
+
+for script_file in files:
+  script_file_dir, _ = os.path.split(script_file)
+  script_path = os.path.join(builder.currentSourcePath, 'scripting', script_file)
+  smx_file = os.path.splitext(script_file)[0] + '.smx'
+  build_plugin(script_path, smx_file, script_file_dir)
