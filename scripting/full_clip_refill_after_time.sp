@@ -9,6 +9,7 @@
 
 #include <tf_custom_attributes>
 #include <stocksoup/tf/entity_prop_stocks>
+#include <custom_status_hud>
 
 Handle g_DHookPrimaryAttack;
 Handle g_SDKCallGetWeaponSlot, g_SDKCallGetMaxClip1;
@@ -93,6 +94,7 @@ public void OnClientPostThinkPost(int client) {
 		
 		if (GetGameTime() > flRefillTime) {
 			FullRefillWeaponClip(weapon);
+			EmitGameSoundToClient(client, "TFPlayer.ReCharged");
 			g_flFullClipRefillTime[client][i] = 0.0;
 		}
 	}
@@ -105,7 +107,7 @@ public MRESReturn OnWeaponPrimaryAttackPost(int weapon) {
 	}
 	
 	float flRefillTime = TF2CustAttr_GetFloat(weapon, "full clip refill after time");
-	if (flRefillTime < 0.0) {
+	if (flRefillTime <= 0.0) {
 		return MRES_Ignored;
 	}
 	
@@ -134,4 +136,39 @@ int GetWeaponSlot(int weapon) {
 
 int GetMaxPrimaryClip(int weapon) {
 	return SDKCall(g_SDKCallGetMaxClip1, weapon);
+}
+
+public Action OnCustomStatusHUDUpdate(int client, StringMap entries) {
+	bool changed;
+	for (int i; i < sizeof(g_flFullClipRefillTime[]); i++) {
+		float flNextRefillTime = g_flFullClipRefillTime[client][i];
+		if (!flNextRefillTime || GetGameTime() > flNextRefillTime) {
+			continue;
+		}
+		
+		int weapon = GetPlayerWeaponSlot(client, i);
+		if (!IsValidEntity(weapon)) {
+			continue;
+		}
+		
+		char refillText[64];
+		if (!TF2CustAttr_GetString(weapon, "full clip refill after time progress display",
+				refillText, sizeof(refillText))) {
+			// don't display text
+			continue;
+		}
+		
+		changed = true;
+		
+		float flRemainingTime = flNextRefillTime - GetGameTime();
+		float flMaxRefillTime = TF2CustAttr_GetFloat(weapon, "full clip refill after time");
+		
+		char keyBuffer[16], buffer[64];
+		Format(keyBuffer, sizeof(keyBuffer), "clip_slot_%d", i);
+		Format(buffer, sizeof(buffer), "%s: %.0f%%", refillText,
+				FloatAbs(1.0 - flRemainingTime / flMaxRefillTime) * 100.0);
+		
+		entries.SetString(keyBuffer, buffer);
+	}
+	return changed? Plugin_Changed : Plugin_Continue;
 }
