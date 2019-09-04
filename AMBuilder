@@ -1,6 +1,8 @@
 # vim: set sts=2 ts=8 sw=2 tw=99 et ft=python:
 import os, sys
 
+builder.SetBuildFolder('plugins')
+
 plugins = [
   'attr_buff_override.sp',
   'attr_group_overheal_uber.sp',
@@ -28,5 +30,9 @@ plugins = [
 for script_file in plugins:
   script_file_dir, script_basename = os.path.split(script_file)
   script_path = os.path.join(builder.currentSourcePath, 'scripting', script_file)
-  smx_file = os.path.splitext(script_basename)[0] + '.smx'
-  SourcePawn.Plugin(script_path, smx_file, os.path.join('plugins', script_file_dir))
+  
+  # use same directory structure in output
+  smx_file = os.path.splitext(script_file)[0] + '.smx'
+  
+  SourcePawn.Plugin(builder, script_path, smx_file)
+

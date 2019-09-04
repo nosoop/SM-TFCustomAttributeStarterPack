@@ -37,22 +37,26 @@ class SMX(object):
       '-v0',
     ]
 
-  def Plugin(self, script_path, smx_file, output_dir = ''):
-    script_output_dir = os.path.normpath(output_dir)
+  """
+  Builds a SourceMod plugin.
+  
+  `smx_file` is a filename relative to the build folder.
+  """
+  def Plugin(self, context, script_path, smx_file):
+    out_dir = os.path.dirname(smx_file)
+    context.AddFolder(out_dir)
     
-    # prevent adding cwd, ambuild tries to nuke it
-    if os.path.realpath(os.getcwd()) != os.path.realpath(script_output_dir):
-      builder.AddFolder(script_output_dir)
+    # TODO pull other options from context
     
     inputs = [
       self.spcomp,
       script_path,
     ]
     outputs = [
-      os.path.join(script_output_dir, smx_file)
+      smx_file
     ]
-    argv = self.spcomp_argv + [script_path, '-D' + script_output_dir + os.sep]
-    cmd_entry, (smx_entry,) = builder.AddCommand(
+    argv = self.spcomp_argv + [ script_path, '-D' + '.\{}'.format(out_dir)]
+    cmd_entry, (smx_entry,) = context.AddCommand(
       inputs = inputs,
       argv = argv,
       outputs = outputs,
