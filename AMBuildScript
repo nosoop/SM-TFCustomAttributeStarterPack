@@ -13,6 +13,7 @@ class SMX(object):
     self.spcomp = None
     self.spcomp_dir = None
     self.spcomp_argv = []
+    self.plugins = {}
 
   def detectSPComp(self):
     if builder.options.spcomp_dir:
@@ -56,7 +57,7 @@ class SMX(object):
       smx_file
     ]
     argv = self.spcomp_argv + [ script_path, '-D' + '.\{}'.format(out_dir)]
-    cmd_entry, (smx_entry,) = context.AddCommand(
+    return context.AddCommand(
       inputs = inputs,
       argv = argv,
       outputs = outputs,
@@ -73,7 +74,7 @@ BuildScripts = [
 
 if builder.backend == 'amb2':
   BuildScripts += [
-    # 'PackageScript',
+    'PackageScript',
   ]
 
 builder.RunBuildScripts(BuildScripts, { 'SourcePawn': SPCompiler })

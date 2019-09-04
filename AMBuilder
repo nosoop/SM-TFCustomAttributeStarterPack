@@ -34,5 +34,5 @@ for script_file in plugins:
   # use same directory structure in output
   smx_file = os.path.splitext(script_file)[0] + '.smx'
   
-  SourcePawn.Plugin(builder, script_path, smx_file)
-
+  cmd_entry, (smx_entry,) = SourcePawn.Plugin(builder, script_path, smx_file)
+  SourcePawn.plugins[script_path] = smx_entry
