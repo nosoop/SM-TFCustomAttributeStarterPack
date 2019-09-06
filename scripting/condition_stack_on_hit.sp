@@ -26,7 +26,8 @@ public void OnClientPutInServer(int client) {
 public void OnTakeDamagePost(int victim, int attacker, int inflictor, float damage,
 		int damagetype, int weapon, const float damageForce[3], const float damagePosition[3]) {
 	char attr[256];
-	if (!TF2CustAttr_GetString(weapon, "condition stack on hit", attr, sizeof(attr))) {
+	if (!IsValidEntity(weapon)
+			|| !TF2CustAttr_GetString(weapon, "condition stack on hit", attr, sizeof(attr))) {
 		return;
 	}
 	
