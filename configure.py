@@ -29,6 +29,7 @@ plugins = [
   'generate_rage_on_dmg_patch.sp',
   'generate_rage_over_time.sp',
   'jar_is_poison.sp',
+  'jar_is_bleed_on_hit.sp',
   'joke_medigun_mod_drain_health.sp',
   'keep_disguise_on_attack.sp',
   'low_gravity_charge.sp',
@@ -88,6 +89,7 @@ copy_files = [
 	'configs/customweapons/talos.cfg',
 	'configs/customweapons/welder.cfg',
 	'configs/customweapons/wunderwaffe.cfg',
+	'configs/customweapons/truth_fruit.cfg',
 	
 	'gamedata/tf2.cattr_starterpack.txt',
 ]
