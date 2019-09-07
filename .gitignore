@@ -1,11 +1,11 @@
 # Ignore compiled SourceMod plugins
-
 *.smx
 
 # Ignore packaged release builds
-
 *.zip
 
-# Ignore AMBuild output
+# Ignore ninja build stuff
+# (These should be handled with configure.py)
+**/__pycache__
 build/
-
+build.ninja
