@@ -285,8 +285,8 @@ void LeakOil(int weapon) {
 	}
 	
 	/* */
-	float vecSpawnOrigin[3], vecSpawnAngles[3], vecVelocity[3], vecUnknown2[3];
-	GetProjectileDynamics(owner, vecSpawnOrigin, vecSpawnAngles, vecVelocity, vecUnknown2);
+	float vecSpawnOrigin[3], vecSpawnAngles[3], vecVelocity[3], vecAngVelocity[3];
+	GetProjectileDynamics(owner, vecSpawnOrigin, vecSpawnAngles, vecVelocity, vecAngVelocity);
 	
 	SetEntPropEnt(oilprojectile, Prop_Data, "m_hThrower", owner);
 	
@@ -294,7 +294,7 @@ void LeakOil(int weapon) {
 	
 	// I don't think we need initgrenade, but we'll leave it for now just in case
 	TeleportEntity(oilprojectile, vecSpawnOrigin, vecSpawnAngles, NULL_VECTOR);
-	SDKCall(g_SDKCallInitGrenade, oilprojectile, vecVelocity, vecUnknown2, owner, 0, 5.0);
+	SDKCall(g_SDKCallInitGrenade, oilprojectile, vecVelocity, vecAngVelocity, owner, 0, 5.0);
 	
 	// stick to ground
 	SetEntProp(oilprojectile, Prop_Send, "m_iType", 2);
@@ -566,7 +566,7 @@ Action RemoveEntityDelayedFinished(Handle timer, int oilref) {
  * parameters for the baseball.
  */
 void GetProjectileDynamics(int client, float vecSpawnOrigin[3], float vecSpawnAngles[3],
-		float vecVelocity[3], float vecUnknown2[3]) {
+		float vecVelocity[3], float vecAngVelocity[3]) {
 	float vecEyeAngles[3], vecEyeForward[3], vecEyeUp[3];
 	GetClientEyeAngles(client, vecEyeAngles);
 	GetAngleVectors(vecEyeAngles, vecEyeForward, NULL_VECTOR, vecEyeUp);
@@ -595,7 +595,7 @@ void GetProjectileDynamics(int client, float vecSpawnOrigin[3], float vecSpawnAn
 	ScaleVector(vecEyeUp, 250.0);
 	vecVelocity = vecEyeUp;
 	
-	vecUnknown2[1] = GetRandomFloat(0.0, 100.0);
+	vecAngVelocity[1] = GetRandomFloat(0.0, 100.0);
 	return;
 }
 
