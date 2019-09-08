@@ -4,6 +4,13 @@
 	{
 		"Functions"
 		{
+			"CBaseCombatWeapon::SecondaryAttack()"
+			{
+				"offset"		"CBaseCombatWeapon::SecondaryAttack()"
+				"hooktype"		"entity"
+				"return"		"void"
+				"this"			"entity"
+			}
 			"CObjectSentrygun::SentryThink()"
 			{
 				"signature"		"CObjectSentrygun::SentryThink()"
@@ -373,10 +380,20 @@
 				"windows"	"317"
 				"linux"		"323"
 			}
+			"CBaseCombatWeapon::SecondaryAttack()"
+			{
+				"windows"	"280"
+				"linux"		"286"
+			}
 			"CBaseEntity::GetBaseEntity()"
 			{
 				"windows"	"5"
 				"linux"		"6"
+			}
+			"CBaseEntity::IsBaseCombatWeapon()"
+			{
+				"windows"	"86"
+				"linux"		"87"
 			}
 			"CBaseObject::ChangeTeam()"
 			{
