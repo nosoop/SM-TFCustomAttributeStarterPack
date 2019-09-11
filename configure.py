@@ -83,7 +83,7 @@ with contextlib.closing(ninja_syntax.Writer(open('build.ninja', 'wt'))) as build
 		build.variable(key, value)
 	build.newline()
 	
-	build.comment('Regenerate build files if build script changes.')
+	build.comment("""Regenerate build files if build script changes.""")
 	build.rule('configure',
 			command = '${configure_env}python ${root}/configure.py ${configure_args}',
 			description = 'Reconfiguring build', generator = 1)
