@@ -65,8 +65,11 @@ public void OnMapStart() {
 }
 
 public MRESReturn OnActivateRageBuffPre(Address pPlayerShared, Handle hParams) {
-	int client = DHookGetParam(hParams, 1);
-	int hPrimary = GetPlayerWeaponSlot(client, 0);
+	int inflictor = DHookGetParam(hParams, 1);
+	if (inflictor < 1 || inflictor > MaxClients) {
+		return MRES_Ignored;
+	}
+	int hPrimary = GetPlayerWeaponSlot(inflictor, 0);
 	
 	// check if weapon contains rage effect, skip if not
 	// TODO avoid requiring specific weapon slot
@@ -74,11 +77,11 @@ public MRESReturn OnActivateRageBuffPre(Address pPlayerShared, Handle hParams) {
 	if (!IsValidEntity(hPrimary)
 			|| !TF2CustAttr_GetString(hPrimary, "custom buff type", attr, sizeof(attr))
 			|| !StrEqual(attr, "spy smokeout")
-			|| GetEntProp(client, Prop_Send, "m_bRageDraining")) {
+			|| GetEntProp(inflictor, Prop_Send, "m_bRageDraining")) {
 		return MRES_Ignored;
 	}
 	
-	ActivateHuntMode(client);
+	ActivateHuntMode(inflictor);
 	return MRES_Ignored;
 }
 
