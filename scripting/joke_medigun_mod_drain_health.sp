@@ -39,7 +39,7 @@ public void OnPluginStart() {
 	
 	Handle dtMedigunAllowedToHealTarget = DHookCreateFromConf(hGameConf,
 			"CWeaponMedigun::AllowedToHealTarget()");
-	DHookEnableDetour(dtMedigunAllowedToHealTarget, true, OnAllowedToHealTargetPost);
+	DHookEnableDetour(dtMedigunAllowedToHealTarget, false, OnAllowedToHealTargetPre);
 	
 	Handle dtMedigunSecondaryAttack = DHookCreateFromConf(hGameConf,
 			"CWeaponMedigun::SecondaryAttack()");
@@ -108,9 +108,9 @@ public MRESReturn OnCreateRagdollPre(int client, Handle hParams) {
 	return MRES_ChangedHandled;
 }
 
-public MRESReturn OnAllowedToHealTargetPost(int medigun, Handle hReturn, Handle hParams) {
-	bool bAllowedToHeal = !!DHookGetReturn(hReturn);
-	if (bAllowedToHeal || TF2CustAttr_GetFloat(medigun, "medigun drains health") == 0.0) {
+// setting this up as a post hook causes windows srcds to crash
+public MRESReturn OnAllowedToHealTargetPre(int medigun, Handle hReturn, Handle hParams) {
+	if (TF2CustAttr_GetFloat(medigun, "medigun drains health") == 0.0) {
 		return MRES_Ignored;
 	}
 	int target = DHookGetParam(hParams, 1);
