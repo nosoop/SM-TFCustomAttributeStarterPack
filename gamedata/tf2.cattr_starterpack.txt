@@ -4,6 +4,13 @@
 	{
 		"Functions"
 		{
+			"CBaseCombatWeapon::ItemPostFrame()"
+			{
+				"offset"		"CBaseCombatWeapon::ItemPostFrame()"
+				"hooktype"		"entity"
+				"return"		"void"
+				"this"			"entity"
+			}
 			"CBaseCombatWeapon::SecondaryAttack()"
 			{
 				"offset"		"CBaseCombatWeapon::SecondaryAttack()"
@@ -66,6 +73,56 @@
 				"callconv"		"thiscall"
 				"return"		"void"
 				"this"			"entity"
+			}
+			"CTFPlayer::CreateRagdollEntity()"
+			{
+				"signature"		"CTFPlayer::CreateRagdollEntity()"
+				"callconv"		"thiscall"
+				"return"		"void"
+				"this"			"entity"
+				"arguments"
+				{
+					"gib"
+					{
+						"type"	"bool"
+					}
+					"burning"
+					{
+						"type"	"bool"
+					}
+					"electrocuted"
+					{
+						"type"	"bool"
+					}
+					"onground"
+					{
+						"type"	"bool"
+					}
+					"cloaked"
+					{
+						"type"	"bool"
+					}
+					"gold_ragdoll"
+					{
+						"type"	"bool"
+					}
+					"ice_ragdoll"
+					{
+						"type"	"bool"
+					}
+					"become_ash"
+					{
+						"type"	"bool"
+					}
+					"damagecustom"
+					{
+						"type"	"bool"
+					}
+					"crit_on_hard_hit"
+					{
+						"type"	"bool"
+					}
+				}
 			}
 			"CTFPlayer::DetonateObjectOfType()"
 			{
@@ -182,6 +239,34 @@
 			{
 				"offset"		"CTFWeaponBase::PrimaryAttack()"
 				"hooktype"		"entity"
+				"return"		"void"
+				"this"			"entity"
+			}
+			"CWeaponMedigun::AllowedToHealTarget()"
+			{
+				"signature"		"CWeaponMedigun::AllowedToHealTarget()"
+				"callconv"		"thiscall"
+				"return"		"bool"
+				"this"			"entity"
+				"arguments"
+				{
+					"heal_target"
+					{
+						"type"	"cbaseentity"
+					}
+				}
+			}
+			"CWeaponMedigun::HealTargetThink()"
+			{
+				"signature"		"CWeaponMedigun::HealTargetThink()"
+				"callconv"		"thiscall"
+				"return"		"void"
+				"this"			"entity"
+			}
+			"CWeaponMedigun::SecondaryAttack()"
+			{
+				"signature"		"CWeaponMedigun::SecondaryAttack()"
+				"callconv"		"thiscall"
 				"return"		"void"
 				"this"			"entity"
 			}
@@ -347,6 +432,15 @@
 				"linux"		"@_ZN10CTFMinigun16RingOfFireAttackEi"
 				"windows"	"\x55\x8B\xEC\x81\xEC\x2A\x2A\x00\x00\x53\x8B\xD9\x56\x57\xF3\x0F\x10\x83"
 			}
+			"CTFPlayer::CreateRagdollEntity()"
+			{
+				// semi-unique xref "tf_ragdoll" with tons of straight conditionals
+				// disambiguate from CreateFeignDeathRagdoll with offset around 0x1100 (as opposed to 0x2200s)
+				// this hardcodes the entity offset on Windows
+				"library"	"server"
+				"linux"		"@_ZN9CTFPlayer19CreateRagdollEntityEbbbbbbbbib"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x08\x53\x56\x8B\xF1\x8B\x8E\x50\x11\x00\x00"
+			}
 			"CTFPlayer::DetonateObjectOfType()"
 			{
 				// contains unique string "pda_engineer"
@@ -433,6 +527,27 @@
 				"library"	"server"
 				"linux"		"@_ZNK16CTFWeaponBaseGun35ShouldRemoveDisguiseOnPrimaryAttackEv"
 			}
+			"CWeaponMedigun::AllowedToHealTarget()"
+			{
+				// contains non-unique string "weapon_blocks_healing" with references to CTFPlayerShared offset in the next few blocks
+				"library"	"server"
+				"linux"		"@_ZN14CWeaponMedigun19AllowedToHealTargetEP11CBaseEntity"
+				"windows"	"\x55\x8B\xEC\x53\x8B\xD9\x56\x57\x8B\xB3\xE8\x01\x00\x00"
+			}
+			"CWeaponMedigun::HealTargetThink()"
+			{
+				// contains two references to string "MedigunHealTargetThink"
+				"library"	"server"
+				"linux"		"@_ZN14CWeaponMedigun15HealTargetThinkEv"
+				"windows"	"\x55\x8B\xEC\x51\x53\x57\x8B\xF9\x8B\x87\xD8\x07\x00\x00"
+			}
+			"CWeaponMedigun::SecondaryAttack()"
+			{
+				// contains one reference to "player_chargedeployed" (other function has three)
+				"library"	"server"
+				"linux"		"@_ZN14CWeaponMedigun15SecondaryAttackEv"
+				"windows"	"\x55\x8B\xEC\x81\xEC\x48\x01\x00\x00\x56"
+			}
 			"JarExplode()"
 			{
 				// find xref "extinguish_reduces_cooldown"
@@ -453,6 +568,11 @@
 			{
 				"windows"	"317"
 				"linux"		"323"
+			}
+			"CBaseCombatWeapon::ItemPostFrame()"
+			{
+				"windows"	"265"
+				"linux"		"271"
 			}
 			"CBaseCombatWeapon::SecondaryAttack()"
 			{
