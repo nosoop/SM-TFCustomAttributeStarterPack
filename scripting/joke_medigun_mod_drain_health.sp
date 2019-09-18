@@ -21,6 +21,12 @@ Handle g_SDKCallFindEntityInSphere;
 // read from CTFPlayer::DeathSound() disasm
 int offs_CTFPlayer_LastDamageType = 0x215C;
 
+char g_MedicScripts[][] = {
+	"medic_sf13_influx_big03",
+	"medic_sf13_magic_reac07",
+	"Medic.CritDeath",
+};
+
 public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
@@ -64,7 +70,11 @@ public void OnPluginStart() {
 }
 
 public void OnMapStart() {
-	PrecacheScriptSound("medic_sf13_magic_reac07");
+	PrecacheScriptSound("MVM.BombExplodes");
+	PrecacheSound("mvm/mvm_bomb_explode.wav");
+	for (int i; i < sizeof(g_MedicScripts); i++) {
+		PrecacheScriptSound(g_MedicScripts[i]);
+	}
 	
 	int entity = -1;
 	while ((entity = FindEntityByClassname(entity, "tf_weapon_medigun")) != -1) {
@@ -205,38 +215,32 @@ public MRESReturn OnMedigunSecondaryAttackPre(int medigun) {
 	
 	int owner = TF2_GetEntityOwner(medigun);
 	
-	TF2_StunPlayer(owner, 3.0, 0.75, TF_STUNFLAGS_LOSERSTATE | TF_STUNFLAG_THIRDPERSON);
+	EmitGameSoundToAll(g_MedicScripts[GetRandomInt(0, sizeof(g_MedicScripts) - 1)], owner);
+	EmitGameSoundToAll("MVM.BombExplodes", owner);
 	
-	TF2_AddCondition(owner, TFCond_MarkedForDeath);
-	
-	EmitGameSoundToAll("medic_sf13_magic_reac07", owner);
-	
-	// hardcoded medic vo duration
-	CreateTimer(2.5, OnMedicDetonate, EntIndexToEntRef(medigun), TIMER_FLAG_NO_MAPCHANGE);
+	MedicDetonate(medigun);
 	
 	return MRES_Supercede;
 }
 
-public Action OnMedicDetonate(Handle timer, int medigunref) {
-	int medigun = EntRefToEntIndex(medigunref);
-	if (!IsValidEntity(medigun)) {
-		return Plugin_Handled;
-	}
-	
+void MedicDetonate(int medigun) {
 	float radius = TF2CustAttr_GetFloat(medigun, "ubercharge nukes everything in radius");
 	if (radius == 0.0) {
-		return Plugin_Handled;
+		return;
 	}
 	
 	int owner = TF2_GetEntityOwner(medigun);
 	if (!IsValidEntity(owner) || !IsPlayerAlive(owner)) {
-		return Plugin_Handled;
+		return;
 	}
 	
-	ForcePlayerSuicide(owner);
+	// ForcePlayerSuicide(owner);
+	SetEntPropFloat(medigun, Prop_Send, "m_flChargeLevel", 0.0);
 	
 	float vecOrigin[3];
 	GetClientAbsOrigin(owner, vecOrigin);
+	
+	Client_Shake(owner);
 	
 	TE_SetupTFParticleEffect("fluidSmokeExpl_ring_mvm", vecOrigin);
 	TE_SendToAll();
@@ -246,18 +250,68 @@ public Action OnMedicDetonate(Handle timer, int medigunref) {
 		// damage players
 		if (entity > 0 && entity <= MaxClients && entity != owner) {
 			s_ForceCritDeathSound = true;
+			s_ForceGibRagdoll = true;
 			SDKHooks_TakeDamage(entity, medigun, owner, 69420.0,
 					DMG_PREVENT_PHYSICS_FORCE | DMG_ALWAYSGIB);
 			s_ForceCritDeathSound = false;
+			s_ForceGibRagdoll = false;
 			continue;
 		}
 		
 		// destroy nearby buildings??
 	}
-	
-	return Plugin_Handled;
 }
 
 static int FindEntityInSphere(int startEntity, const float vecPosition[3], float flRadius) {
 	return SDKCall(g_SDKCallFindEntityInSphere, startEntity, vecPosition, flRadius);
+}
+
+// pulled from smlib
+
+#define	SHAKE_START					0			// Starts the screen shake for all players within the radius.
+#define	SHAKE_STOP					1			// Stops the screen shake for all players within the radius.
+#define	SHAKE_AMPLITUDE				2			// Modifies the amplitude of an active screen shake for all players within the radius.
+#define	SHAKE_FREQUENCY				3			// Modifies the frequency of an active screen shake for all players within the radius.
+#define	SHAKE_START_RUMBLEONLY		4			// Starts a shake effect that only rumbles the controller, no screen effect.
+#define	SHAKE_START_NORUMBLE		5			// Starts a shake that does NOT rumble the controller.
+
+/**
+ * Shakes a client's screen with the specified amptitude,
+ * frequency & duration.
+ * 
+ * @param client		Client Index.
+ * @param command		Shake Mode, use one of the SHAKE_ definitions.
+ * @param amplitude		Shake magnitude/amplitude.
+ * @param frequency		Shake noise frequency.
+ * @param duration		Shake lasts this long.
+ * @return				True on success, false otherwise.
+ */
+stock bool Client_Shake(int client, int command = SHAKE_START, float amplitude = 50.0,
+		float frequency = 150.0, float duration = 3.0) {
+	if (command == SHAKE_STOP) {
+		amplitude = 0.0;
+	} else if (amplitude <= 0.0) {
+		return false;
+	}
+	
+	Handle userMessage = StartMessageOne("Shake", client);
+	
+	if (userMessage == INVALID_HANDLE) {
+		return false;
+	}
+	
+	if (GetFeatureStatus(FeatureType_Native, "GetUserMessageType") == FeatureStatus_Available
+			&& GetUserMessageType() == UM_Protobuf) {
+		PbSetInt(userMessage, "command", command);
+		PbSetFloat(userMessage, "local_amplitude", amplitude);
+		PbSetFloat(userMessage, "frequency", frequency);
+		PbSetFloat(userMessage, "duration", duration);
+	} else {
+		BfWriteByte(userMessage, command);
+		BfWriteFloat(userMessage, amplitude);
+		BfWriteFloat(userMessage, frequency);
+		BfWriteFloat(userMessage, duration);
+	}
+	EndMessage();
+	return true;
 }
