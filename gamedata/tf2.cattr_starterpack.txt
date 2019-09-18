@@ -589,6 +589,11 @@
 				"windows"	"86"
 				"linux"		"87"
 			}
+			"CBaseEntity::MyCombatCharacterPointer()"
+			{
+				"windows"	"71"
+				"linux"		"72"
+			}
 			"CBaseObject::ChangeTeam()"
 			{
 				"windows"	"91"

@@ -17,6 +17,7 @@
 
 Handle g_DHookWeaponPostFrame;
 Handle g_SDKCallFindEntityInSphere;
+Handle g_SDKCallGetCombatCharacterPtr;
 
 // read from CTFPlayer::DeathSound() disasm
 int offs_CTFPlayer_LastDamageType = 0x215C;
@@ -42,6 +43,12 @@ public void OnPluginStart() {
 	PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef);
 	PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
 	g_SDKCallFindEntityInSphere = EndPrepSDKCall();
+	
+	StartPrepSDKCall(SDKCall_Entity);
+	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual,
+			"CBaseEntity::MyCombatCharacterPointer()");
+	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
+	g_SDKCallGetCombatCharacterPtr = EndPrepSDKCall();
 	
 	Handle dtMedigunAllowedToHealTarget = DHookCreateFromConf(hGameConf,
 			"CWeaponMedigun::AllowedToHealTarget()");
@@ -248,7 +255,7 @@ void MedicDetonate(int medigun) {
 	int entity = -1;
 	while ((entity = FindEntityInSphere(entity, vecOrigin, radius)) != -1) {
 		// damage players
-		if (entity > 0 && entity <= MaxClients && entity != owner) {
+		if (IsEntityCombatCharacter(entity) && entity != owner) {
 			s_ForceCritDeathSound = true;
 			s_ForceGibRagdoll = true;
 			SDKHooks_TakeDamage(entity, medigun, owner, 69420.0,
@@ -267,6 +274,7 @@ static int FindEntityInSphere(int startEntity, const float vecPosition[3], float
 }
 
 // pulled from smlib
+// I don't actually have an implementation in stocksoup
 
 #define	SHAKE_START					0			// Starts the screen shake for all players within the radius.
 #define	SHAKE_STOP					1			// Stops the screen shake for all players within the radius.
@@ -314,4 +322,8 @@ stock bool Client_Shake(int client, int command = SHAKE_START, float amplitude =
 	}
 	EndMessage();
 	return true;
+}
+
+bool IsEntityCombatCharacter(int entity) {
+	return SDKCall(g_SDKCallGetCombatCharacterPtr, entity) != Address_Null;
 }
