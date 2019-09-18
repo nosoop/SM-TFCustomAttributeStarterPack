@@ -238,7 +238,7 @@ public Action OnCustomStatusHUDUpdate(int client, StringMap entries) {
 
 public Action OnClientWeaponCanSwitchTo(int client, int weapon) {
 	int slot = GetWeaponSlot(weapon);
-	if (slot < 0 || slot > sizeof(g_flGunThrowRegenerateTime[])) {
+	if (slot < 0 || slot >= sizeof(g_flGunThrowRegenerateTime[])) {
 		return Plugin_Continue;
 	}
 	
