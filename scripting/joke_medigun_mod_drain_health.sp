@@ -1,5 +1,7 @@
 /**
- * Monolith plugin.
+ * Monolith plugin for Karma Charger's Medick-Gun.
+ * 
+ * For damaging teammates to work properly, mp_friendlyfire must be set to 1.
  */
 #pragma semicolon 1
 #include <sourcemod>
@@ -187,26 +189,8 @@ public void OnPlayerDeath(Event event, const char[] name, bool dontBroadcast) {
 	
 	vecOrigin[2] += (vecMaxs[2] - vecMins[2]) / 2.0;
 	
-	TE_SetupTFExplosion_stub(vecOrigin, view_as<float>({ 0.0, 1.0, 0.0 }), TF_WEAPON_ROCKETLAUNCHER, 0, 0, 0xFFFF, 0xFFFF);
+	TE_SetupTFExplosion(vecOrigin, view_as<float>({ 0.0, 1.0, 0.0 }), TF_WEAPON_ROCKETLAUNCHER);
 	TE_SendToAll();
-}
-
-// this is going to be rolled up into stocksoup once it's better documented
-stock void TE_SetupTFExplosion_stub(const float vecOrigin[3],
-		const float vecNormal[3] = { 0.0, 1.0, 0.0 }, int weaponid = TF_WEAPON_NONE,
-		int entindex = 0, int def_id, int sound, int particleIndex = 0xFFFF) {
-	TE_Start("TFExplosion");
-	TE_WriteFloat("m_vecOrigin[0]", vecOrigin[0]);
-	TE_WriteFloat("m_vecOrigin[1]", vecOrigin[1]);
-	TE_WriteFloat("m_vecOrigin[2]", vecOrigin[2]);
-	TE_WriteVector("m_vecNormal", vecNormal);
-	TE_WriteNum("m_iWeaponID", weaponid);
-	TE_WriteNum("entindex", entindex);
-	TE_WriteNum("m_nDefID", def_id);
-	TE_WriteNum("m_nSound", sound & 0xFFFF);
-	
-	// written as a short, -1 == 0xFFFF
-	TE_WriteNum("m_iCustomParticleIndex", particleIndex & 0xFFFF);
 }
 
 public MRESReturn OnMedigunSecondaryAttackPre(int medigun) {
@@ -254,7 +238,7 @@ void MedicDetonate(int medigun) {
 	
 	int entity = -1;
 	while ((entity = FindEntityInSphere(entity, vecOrigin, radius)) != -1) {
-		// damage players
+		// damage combat characters (buildings, players, tanks...)
 		if (IsEntityCombatCharacter(entity) && entity != owner) {
 			s_ForceCritDeathSound = true;
 			s_ForceGibRagdoll = true;
