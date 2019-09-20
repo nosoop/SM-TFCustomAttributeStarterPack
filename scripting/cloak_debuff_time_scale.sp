@@ -10,6 +10,7 @@
 #include <sourcescramble>
 #include <stocksoup/log_server>
 #include <stocksoup/memory>
+#include <stocksoup/tf/entity_prop_stocks>
 
 #define FLOAT_MAX view_as<float>(0x7F7FFFFF)
 
@@ -19,6 +20,8 @@ float g_flDefaultCloakTimerValue;
 
 MemoryPatch g_PatchCloakTimer;
 MemoryBlock g_CloakTimerAmount;
+
+float g_flComputedDefuffRates[MAXPLAYERS + 1];
 
 public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
@@ -49,6 +52,9 @@ public void OnPluginStart() {
 		StoreToAddress(ppFloat, view_as<int>(g_CloakTimerAmount.Address), NumberType_Int32);
 	}
 	
+	Handle dtSetCloakRates = DHookCreateFromConf(hGameConf, "CTFWeaponInvis::SetCloakRates()");
+	DHookEnableDetour(dtSetCloakRates, false, OnSetCloakRatesPre);
+	
 	Handle dtUpdateCloakMeter = DHookCreateFromConf(hGameConf,
 			"CTFPlayerShared::UpdateCloakMeter()");
 	DHookEnableDetour(dtUpdateCloakMeter, false, OnUpdateCloakMeterPre);
@@ -59,34 +65,36 @@ public void OnPluginStart() {
 	delete hGameConf;
 }
 
-public MRESReturn OnUpdateCloakMeterPre(Address pShared) {
-	int client = GetClientFromPlayerShared(pShared);
-	UpdateCloakDebuffAmount(g_flDefaultCloakTimerValue);
-	
-	if (!TF2_IsPlayerInCondition(client, TFCond_Cloaked)) {
+public MRESReturn OnSetCloakRatesPre(int invisWatch) {
+	int owner = TF2_GetEntityOwner(invisWatch);
+	if (owner < 1 || owner > MaxClients) {
 		return MRES_Ignored;
 	}
 	
-	int watch = GetPlayerWeaponSlot(client, TFWeaponSlot_Building);
-	if (!IsValidEntity(watch)) {
-		return MRES_Ignored;
-	}
-	float flNewRate = TF2CustAttr_GetFloat(watch, "cloak debuff time scale",
+	// if attribute isn't specified, fall back to game's default (with roundabout calculation)
+	float flNewRate = TF2CustAttr_GetFloat(invisWatch, "cloak debuff time scale",
 			1.0 / (1 + g_flDefaultCloakTimerValue));
-	
-	float flTimeValue = CalculateReductionRateFromMultiplier(flNewRate);
-	UpdateCloakDebuffAmount(flTimeValue);
+	g_flComputedDefuffRates[owner] = CalculateReductionRateFromMultiplier(flNewRate);
 	return MRES_Ignored;
 }
 
-// calculation for new debuff time
+public MRESReturn OnUpdateCloakMeterPre(Address pShared) {
+	int client = GetClientFromPlayerShared(pShared);
+	UpdateCloakDebuffAmount(g_flComputedDefuffRates[client]);
+	return MRES_Ignored;
+}
+
+// the value that is injected into the game is the amount of time each debuff is reduced per
+// second
+// 
+// calculation for new debuff time based on debuff scalar
 // rate = 1 / (1 + time_value)
 // rate * (1 + time_value) = 1
 // time_value = (1 - rate) / rate
 
 float CalculateReductionRateFromMultiplier(float flTimeScale) {
 	if (flTimeScale <= 0.0) {
-		// if debuff rate = 0, use largest float to try and instantly clear the condition
+		// if debuff rate <= 0, use largest float to instantly clear non-infinite conditions
 		return FLOAT_MAX;
 	}
 	return (1 - flTimeScale) / flTimeScale;
