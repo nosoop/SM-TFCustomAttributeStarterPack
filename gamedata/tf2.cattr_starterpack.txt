@@ -18,6 +18,13 @@
 				"return"		"void"
 				"this"			"entity"
 			}
+			"CBaseGrenade::GetDamageRadius()"
+			{
+				"offset"		"CBaseGrenade::GetDamageRadius()"
+				"callconv"		"thiscall"
+				"return"		"float"
+				"this"			"entity"
+			}
 			"CObjectSentrygun::SentryThink()"
 			{
 				"signature"		"CObjectSentrygun::SentryThink()"
@@ -598,6 +605,11 @@
 			{
 				"windows"	"91"
 				"linux"		"92"
+			}
+			"CBaseGrenade::GetDamageRadius()"
+			{
+				"windows"	"234"
+				"linux"		"235"
 			}
 			"CTFWeaponBaseGrenadeProj::InitGrenade(int float)"
 			{
