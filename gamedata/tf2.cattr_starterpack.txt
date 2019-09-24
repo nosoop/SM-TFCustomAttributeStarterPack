@@ -249,6 +249,20 @@
 				"return"		"void"
 				"this"			"entity"
 			}
+			"CTFWeaponBaseGun::FireProjectile()"
+			{
+				"signature"		"CTFWeaponBaseGun::FireProjectile()"
+				"callconv"		"thiscall"
+				"return"		"void"
+				"this"			"entity"
+				"arguments"
+				{
+					"player"
+					{
+						"type"	"cbaseentity"
+					}
+				}
+			}
 			"CWeaponMedigun::AllowedToHealTarget()"
 			{
 				"signature"		"CWeaponMedigun::AllowedToHealTarget()"
@@ -527,6 +541,13 @@
 				"linux"			"@_ZN15CTFPlayerShared16UpdateCloakMeterEv"
 				"windows"		"\x55\x8B\xEC\x83\xEC\x18\x56\x8B\xF1\x6A\x08"
 			}
+			"CTFWeaponBaseGun::FireProjectile()"
+			{
+				// xref "override_projectile_type" with 25+ switch cases
+				"library"	"server"
+				"linux"		"@_ZN16CTFWeaponBaseGun14FireProjectileEP9CTFPlayer"
+				"windows"	"\x55\x8B\xEC\x51\x53\x56\x57\x6A\x01\x6A\x00"
+			}
 			"CTFWeaponBaseGun::ShouldRemoveDisguiseOnPrimaryAttack()"
 			{
 				// find xref "keep_disguise_on_attack"
@@ -631,10 +652,20 @@
 				"windows"	"289"
 				"linux"		"290"
 			}
+			"CTFWeaponBase::GetProjectileFireSetup()"
+			{
+				"windows"	"393"
+				"linux"		"400"
+			}
 			"CTFWeaponBase::PrimaryAttack()"
 			{
 				"windows"	"279"
 				"linux"		"285"
+			}
+			"CTFWeaponBaseGun::FireEnergyBall()"
+			{
+				"windows"	"470"
+				"linux"		"477"
 			}
 			
 			// member offsets

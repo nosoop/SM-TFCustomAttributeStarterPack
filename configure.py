@@ -26,6 +26,7 @@ plugins = [
   'mult_basegrenade_explode_radius.sp',
   'override_building_health.sp',
   'projectile_heal_on_teammate_contact.sp',
+  'projectile_override_energy_ball.sp',
 ]
 
 plugins += map(lambda p: os.path.join('buff_overrides', p), [
@@ -42,6 +43,7 @@ copy_files = [
 	'configs/customweapons/essendon_eliminator.cfg',
 	'configs/customweapons/joke_medick_gun.cfg',
 	'configs/customweapons/magnum_opus.cfg',
+	'configs/customweapons/mega_buster.cfg',
 	'configs/customweapons/merasmus_stash.cfg',
 	'configs/customweapons/plastic_pisstol.cfg',
 	'configs/customweapons/subjugated_saboteur.cfg',
