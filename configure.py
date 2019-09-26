@@ -21,6 +21,7 @@ plugins = [
   'damage_increase_on_hit.sp',
   'flamethrower_alt_fire_oil.sp',
   'full_clip_refill_after_time.sp',
+  'generate_rage_over_time.sp',
   'joke_medigun_mod_drain_health.sp',
   'keep_disguise_on_attack.sp',
   'lunchbox_override_pickup_type.sp',
