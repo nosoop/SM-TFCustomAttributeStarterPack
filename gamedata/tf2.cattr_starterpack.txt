@@ -242,6 +242,28 @@
 				"return"		"bool"
 				"this"			"entity"
 			}
+			"CTFWeaponBase::DeflectEntity()"
+			{
+				"offset"		"CTFWeaponBase::DeflectEntity()"
+				"hooktype"		"entity"
+				"return"		"void"
+				"this"			"entity"
+				"arguments"
+				{
+					"target"
+					{
+						"type"	"cbaseentity"
+					}
+					"owner"
+					{
+						"type"	"cbaseentity"
+					}
+					"deflect_pos"
+					{
+						"type"	"vectorptr"
+					}
+				}
+			}
 			"CTFWeaponBase::PrimaryAttack()"
 			{
 				"offset"		"CTFWeaponBase::PrimaryAttack()"
@@ -651,6 +673,11 @@
 			{
 				"windows"	"289"
 				"linux"		"290"
+			}
+			"CTFWeaponBase::DeflectEntity()"
+			{
+				"windows"	"413"
+				"linux"		"420"
 			}
 			"CTFWeaponBase::GetProjectileFireSetup()"
 			{

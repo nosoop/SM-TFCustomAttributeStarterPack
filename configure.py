@@ -4,6 +4,8 @@ import os
 
 # plugin names, relative to `scripting/`
 plugins = [
+  'airblast_projectiles_adds_self_condition.sp',
+  'airblast_projectiles_restores_health.sp',
   'alt_fire_throws_cleaver.sp',
   'attr_buff_override.sp',
   'attr_group_overheal_uber.sp',
@@ -39,6 +41,7 @@ plugins += map(lambda p: os.path.join('buff_overrides', p), [
 copy_files = [
 	'configs/customweapons/apollo_pack.cfg',
 	'configs/customweapons/classic_nailgun.cfg',
+	'configs/customweapons/crop_killer.cfg',
 	'configs/customweapons/der_schmerzschild.cfg',
 	'configs/customweapons/essendon_eliminator.cfg',
 	'configs/customweapons/joke_medick_gun.cfg',
