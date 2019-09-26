@@ -21,6 +21,7 @@ plugins = [
   'damage_increase_on_hit.sp',
   'flamethrower_alt_fire_oil.sp',
   'full_clip_refill_after_time.sp',
+  'generate_rage_on_dmg_patch.sp',
   'generate_rage_over_time.sp',
   'joke_medigun_mod_drain_health.sp',
   'keep_disguise_on_attack.sp',
@@ -52,6 +53,7 @@ copy_files = [
 	'configs/customweapons/merasmus_stash.cfg',
 	'configs/customweapons/plastic_pisstol.cfg',
 	'configs/customweapons/subjugated_saboteur.cfg',
+	'configs/customweapons/talos.cfg',
 	
 	'gamedata/tf2.cattr_starterpack.txt',
 ]
