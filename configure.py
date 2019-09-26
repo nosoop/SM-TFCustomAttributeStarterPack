@@ -25,6 +25,7 @@ plugins = [
   'joke_medigun_mod_drain_health.sp',
   'keep_disguise_on_attack.sp',
   'lunchbox_override_pickup_type.sp',
+  'minigun_burst_shot_rage.sp',
   'mod_crit_type_on_hitgroup.sp',
   'mult_basegrenade_explode_radius.sp',
   'override_building_health.sp',

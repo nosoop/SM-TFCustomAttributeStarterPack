@@ -53,6 +53,13 @@
 					}
 				}
 			}
+			"CTFMinigun::ActivatePushBackAttackMode()"
+			{
+				"signature"		"CTFMinigun::ActivatePushBackAttackMode()"
+				"callconv"		"thiscall"
+				"return"		"void"
+				"this"			"entity"
+			}
 			"CTFBaseRocket::RocketTouch()"
 			{
 				"offset"		"CTFBaseRocket::RocketTouch()"
@@ -167,6 +174,24 @@
 				"callconv"		"thiscall"
 				"return"		"void"
 				"this"			"entity"
+			}
+			"CTFPlayer::RemoveAmmo()"
+			{
+				"offset"		"CTFPlayer::RemoveAmmo()"
+				"hooktype"		"entity"
+				"return"		"bool"
+				"this"			"entity"
+				"arguments"
+				{
+					"count"
+					{
+						"type"	"int"
+					}
+					"ammo_type"
+					{
+						"type"	"int"
+					}
+				}
 			}
 			"CTFPlayer::ShouldGib()"
 			{
@@ -467,6 +492,13 @@
 				"library"	"server"
 				"linux"		"@_ZN11CTFLunchBox15SecondaryAttackEv"
 			}
+			"CTFMinigun::ActivatePushBackAttackMode()"
+			{
+				// contains "generate_rage_on_dmg", "Heavy.Battlecry03", and "Player.DenyWeaponSelection"
+				"library"	"server"
+				"linux"		"@_ZN10CTFMinigun26ActivatePushBackAttackModeEv"
+				"windows"	"\x55\x8B\xEC\x51\x53\x56\x8B\xD9\xE8\x2A\x2A\x2A\x2A"
+			}
 			"CTFMinigun::RingOfFireAttack()"
 			{
 				// get to CTFMinigun::SharedAttack() from xref "uses_ammo_while_aiming"
@@ -668,6 +700,11 @@
 			{
 				"windows"	"231"
 				"linux"		"232"
+			}
+			"CTFPlayer::RemoveAmmo()"
+			{
+				"windows"	"257"
+				"linux"		"257"
 			}
 			"CTFPlayer::ShouldGib()"
 			{
