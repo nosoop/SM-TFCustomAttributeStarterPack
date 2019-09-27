@@ -108,6 +108,10 @@ public MRESReturn OnApplyPushFromDamagePre(int client, Handle hParams) {
 
 public MRESReturn OnHandleRageGainPre(Handle hParams) {
 	g_PatchHandleRageGain.Disable();
+	if (DHookIsNullParam(hParams, 1)) {
+		return MRES_Ignored;
+	}
+	
 	int client = DHookGetParam(hParams, 1);
 	
 	int activeWeapon = TF2_GetClientActiveWeapon(client);

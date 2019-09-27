@@ -60,6 +60,8 @@ public void OnPluginStart() {
 	DHookEnableDetour(dtMinigunActivatePushBack, false, OnMinigunActivatePushBackPre);
 	
 	delete hGameConf;
+	
+	HookEvent("player_spawn", OnPlayerSpawn);
 }
 
 
@@ -77,6 +79,11 @@ public void OnMapStart() {
 	PrecacheSound(")" ... TALOS_BOOST_SOUND_LOOP);
 	PrecacheSound(")" ... TALOS_BOOST_SOUND_OVER);
 	PrecacheSound(")" ... TALOS_BOOST_SOUND_START);
+}
+
+public void OnPlayerSpawn(Event event, const char[] name, bool dontBroadcast) {
+	int client = GetClientOfUserId(event.GetInt("userid"));
+	g_flBoostPenaltyDecayRate[client] = 0.0;
 }
 
 public void OnClientPutInServer(int client) {
@@ -146,22 +153,20 @@ public void OnClientPostThinkPost(int client) {
 		case Boost_None: {
 			// not in boosted state
 			// TODO properly deal with fire rate penalties
-			if (IsPlayerAlive(client) && g_flBoostPenaltyDecayRate[client]) {
+			if (g_flBoostPenaltyDecayRate[client]) {
 				// we have a penalty being applied
 				Address pAttr = TF2Attrib_GetByName(primaryWeapon, "fire rate bonus HIDDEN");
-				if (!pAttr) {
-					// ????
-				}
-				
-				float flNewRate = TF2Attrib_GetValue(pAttr)
+				if (pAttr) {
+					float flNewRate = TF2Attrib_GetValue(pAttr)
 						- (g_flBoostPenaltyDecayRate[client] * GetGameFrameTime());
-				TF2Attrib_SetValue(pAttr, flNewRate);
-				TF2Attrib_ClearCache(primaryWeapon);
-				
-				if (GetGameTime() > g_flBoostPenaltyExpired[client]) {
-					TF2Attrib_RemoveByName(primaryWeapon, "fire rate bonus HIDDEN");
-					UpdateWeaponResetParity(primaryWeapon);
-					g_flBoostPenaltyDecayRate[client] = 0.0;
+					TF2Attrib_SetValue(pAttr, flNewRate);
+					TF2Attrib_ClearCache(primaryWeapon);
+					
+					if (GetGameTime() > g_flBoostPenaltyExpired[client]) {
+						TF2Attrib_RemoveByName(primaryWeapon, "fire rate bonus HIDDEN");
+						UpdateWeaponResetParity(primaryWeapon);
+						g_flBoostPenaltyDecayRate[client] = 0.0;
+					}
 				}
 			}
 		}
@@ -273,12 +278,13 @@ void UpdateWeaponResetParity(int weapon) {
 }
 
 public Action OnCustomStatusHUDUpdate(int client, StringMap entries) {
-	if (g_BoostState[client] != Boost_Active && g_BoostState[client] != Boost_None) {
+	int primaryWeapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Primary);
+	if (!IsValidEntity(primaryWeapon) || TF2_GetClientActiveWeapon(client) != primaryWeapon) {
 		return Plugin_Continue;
 	}
 	
-	int primaryWeapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Primary);
-	if (!IsValidEntity(primaryWeapon) || TF2_GetClientActiveWeapon(client) != primaryWeapon) {
+	char attr[128];
+	if (!TF2CustAttr_GetString(primaryWeapon, "minigun burst shot rage", attr, sizeof(attr))) {
 		return Plugin_Continue;
 	}
 	
@@ -286,7 +292,7 @@ public Action OnCustomStatusHUDUpdate(int client, StringMap entries) {
 	Address pAttr = TF2Attrib_GetByName(primaryWeapon, "fire rate bonus HIDDEN");
 	
 	float flValue = pAttr? TF2Attrib_GetValue(pAttr) : 1.0;
-	Format(buffer, sizeof(buffer), "Fire Rate: %.0f%%", (1.0 / flValue) * 100.0);
+	Format(buffer, sizeof(buffer), "Fire Rate: %.0f%%", 100.0 / flValue);
 	entries.SetString("talos_fire_rate", buffer);
 	
 	return Plugin_Changed;
