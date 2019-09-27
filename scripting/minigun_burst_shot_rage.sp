@@ -10,6 +10,7 @@
 #include <stocksoup/math>
 #include <stocksoup/tf/entity_prop_stocks>
 #include <stocksoup/var_strings>
+#include <custom_status_hud>
 
 #include <tf_custom_attributes>
 
@@ -32,6 +33,8 @@ float g_flStateTransitionTime[MAXPLAYERS + 1];
 float g_flNextAllowedBoostTime[MAXPLAYERS + 1];
 
 float g_flBoostActivateTime[MAXPLAYERS + 1];
+float g_flBoostPenaltyExpired[MAXPLAYERS + 1];
+float g_flBoostPenaltyDecayRate[MAXPLAYERS + 1];
 
 // minigun weapon states
 enum eMinigunState {
@@ -141,7 +144,26 @@ public void OnClientPostThinkPost(int client) {
 	
 	switch (g_BoostState[client]) {
 		case Boost_None: {
-			// not in boosted state, nothing going on
+			// not in boosted state
+			// TODO properly deal with fire rate penalties
+			if (IsPlayerAlive(client) && g_flBoostPenaltyDecayRate[client]) {
+				// we have a penalty being applied
+				Address pAttr = TF2Attrib_GetByName(primaryWeapon, "fire rate bonus HIDDEN");
+				if (!pAttr) {
+					// ????
+				}
+				
+				float flNewRate = TF2Attrib_GetValue(pAttr)
+						- (g_flBoostPenaltyDecayRate[client] * GetGameFrameTime());
+				TF2Attrib_SetValue(pAttr, flNewRate);
+				TF2Attrib_ClearCache(primaryWeapon);
+				
+				if (GetGameTime() > g_flBoostPenaltyExpired[client]) {
+					TF2Attrib_RemoveByName(primaryWeapon, "fire rate bonus HIDDEN");
+					UpdateWeaponResetParity(primaryWeapon);
+					g_flBoostPenaltyDecayRate[client] = 0.0;
+				}
+			}
 		}
 		case Boost_Prestart: {
 			// player activated boost, begin charging, transition to starting state
@@ -183,6 +205,9 @@ public void OnClientPostThinkPost(int client) {
 				float flFireBonus = ReadFloatVar(attr, "mult_postfiredelay", 1.0);
 				TF2Attrib_SetByName(primaryWeapon, "fire rate bonus HIDDEN", flFireBonus);
 				
+				float flSpreadScale = ReadFloatVar(attr, "mult_spread", 1.0);
+				TF2Attrib_SetByName(primaryWeapon, "weapon spread bonus", flSpreadScale);
+				
 				g_BoostState[client]++;
 			}
 		}
@@ -192,11 +217,25 @@ public void OnClientPostThinkPost(int client) {
 				StopSound(client, SNDCHAN_AUTO, ")" ... TALOS_BOOST_SOUND_LOOP);
 				EmitSoundToClient(client, ")" ... TALOS_BOOST_SOUND_OVER);
 				TF2Attrib_RemoveByName(primaryWeapon, "fire rate bonus HIDDEN");
+				TF2Attrib_RemoveByName(primaryWeapon, "weapon spread bonus");
 				
 				// fix sound breakage after fire rate bonus attribute is cleared
 				UpdateWeaponResetParity(primaryWeapon);
 				
 				g_flBoostActivateTime[client] = 0.0;
+				
+				float flRechargeTime = ReadFloatVar(attr, "recharge_period", 0.0);
+				if (flRechargeTime > 0.0) {
+					// 
+					float flFirePenalty = ReadFloatVar(attr, "fire_delay_recharge", 1.0);
+					TF2Attrib_SetByName(primaryWeapon, "fire rate bonus HIDDEN", flFirePenalty);
+					
+					float flDecayAmount = (flFirePenalty - 1.0); // 0.25 -> 1.0 = -0.75
+					// subtract -0.75 * GetGameFrameTime() until expired ??
+					
+					g_flBoostPenaltyDecayRate[client] = flDecayAmount / flRechargeTime;
+					g_flBoostPenaltyExpired[client] = GetGameTime() + flRechargeTime;
+				}
 				
 				g_BoostState[client] = Boost_None;
 			}
@@ -231,4 +270,24 @@ public MRESReturn OnPlayerRemoveAmmo(int client, Handle hReturn, Handle hParams)
 void UpdateWeaponResetParity(int weapon) {
 	SetEntProp(weapon, Prop_Send, "m_bResetParity",
 			!GetEntProp(weapon, Prop_Send, "m_bResetParity"));
+}
+
+public Action OnCustomStatusHUDUpdate(int client, StringMap entries) {
+	if (g_BoostState[client] != Boost_Active && g_BoostState[client] != Boost_None) {
+		return Plugin_Continue;
+	}
+	
+	int primaryWeapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Primary);
+	if (!IsValidEntity(primaryWeapon) || TF2_GetClientActiveWeapon(client) != primaryWeapon) {
+		return Plugin_Continue;
+	}
+	
+	char buffer[64];
+	Address pAttr = TF2Attrib_GetByName(primaryWeapon, "fire rate bonus HIDDEN");
+	
+	float flValue = pAttr? TF2Attrib_GetValue(pAttr) : 1.0;
+	Format(buffer, sizeof(buffer), "Fire Rate: %.0f%%", (1.0 / flValue) * 100.0);
+	entries.SetString("talos_fire_rate", buffer);
+	
+	return Plugin_Changed;
 }
