@@ -18,6 +18,7 @@ plugins = [
   'attr_weapon_always_gibs_on_kill.sp',
   'cloak_debuff_time_scale.sp',
   'condition_stack_on_hit.sp',
+  'crossbow_addcond_on_teammate_hit.sp',
   'damage_increase_on_hit.sp',
   'flamethrower_alt_fire_oil.sp',
   'full_clip_refill_after_time.sp',
@@ -43,6 +44,7 @@ plugins += map(lambda p: os.path.join('buff_overrides', p), [
 # files to copy to builddir, relative to root
 copy_files = [
 	'configs/customweapons/apollo_pack.cfg',
+	'configs/customweapons/brainteaser.cfg',
 	'configs/customweapons/classic_nailgun.cfg',
 	'configs/customweapons/crop_killer.cfg',
 	'configs/customweapons/der_schmerzschild.cfg',

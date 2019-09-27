@@ -308,6 +308,20 @@
 				"return"		"void"
 				"this"			"address"
 			}
+			"CTFProjectile_HealingBolt::ImpactTeamPlayer()"
+			{
+				"signature"		"CTFProjectile_HealingBolt::ImpactTeamPlayer()"
+				"callconv"		"thiscall"
+				"return"		"void"
+				"this"			"entity"
+				"arguments"
+				{
+					"target"
+					{
+						"type"	"cbaseentity"
+					}
+				}
+			}
 			"CTFWeaponBaseGun::ShouldRemoveDisguiseOnPrimaryAttack()"
 			{
 				"signature"		"CTFWeaponBaseGun::ShouldRemoveDisguiseOnPrimaryAttack()"
@@ -739,6 +753,13 @@
 				"library"		"server"
 				"linux"			"@_ZN15CTFPlayerShared16UpdateCloakMeterEv"
 				"windows"		"\x55\x8B\xEC\x83\xEC\x18\x56\x8B\xF1\x6A\x08"
+			}
+			"CTFProjectile_HealingBolt::ImpactTeamPlayer()"
+			{
+				// x-ref "Weapon_Arrow.ImpactFleshCrossbowHeal" in branching function
+				"library"	"server"
+				"linux"		"@_ZN25CTFProjectile_HealingBolt16ImpactTeamPlayerEP9CTFPlayer"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x10\x56\x57\x8B\x7D\x08\x8B\xF1\x89\x75\xF0"
 			}
 			"CTFWeaponBaseGun::FireProjectile()"
 			{
