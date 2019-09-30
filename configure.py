@@ -30,6 +30,7 @@ plugins = [
   'generate_rage_over_time.sp',
   'joke_medigun_mod_drain_health.sp',
   'keep_disguise_on_attack.sp',
+  'low_gravity_charge.sp',
   'lunchbox_override_pickup_type.sp',
   'minigun_burst_shot_rage.sp',
   'mod_crit_type_on_hitgroup.sp',
