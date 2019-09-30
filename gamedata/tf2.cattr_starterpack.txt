@@ -2,6 +2,22 @@
 {
 	"tf"
 	{
+		"Addresses"
+		{
+			"CTFPlayer::DoTauntAttack()::TauntAttackOffset"
+			{
+				// reads CTFPlayer.m_iTauntAttack early in the function
+				"signature"			"CTFPlayer::DoTauntAttack()"
+				"linux"
+				{
+					"offset"		"75"
+				}
+				"windows"
+				{
+					"offset"		"78"
+				}
+			}
+		}
 		"Functions"
 		{
 			"CBaseCombatWeapon::ItemPostFrame()"
@@ -208,6 +224,13 @@
 						"type"	"bool"
 					}
 				}
+			}
+			"CTFPlayer::DoTauntAttack()"
+			{
+				"signature"		"CTFPlayer::DoTauntAttack()"
+				"callconv"		"thiscall"
+				"return"		"void"
+				"this"			"entity"
 			}
 			"CTFPlayer::GetChargeEffectBeingProvided()"
 			{
@@ -681,6 +704,13 @@
 				"library"	"server"
 				"linux"		"@_ZN9CTFPlayer20DetonateObjectOfTypeEiib"
 				"windows"	"\x55\x8B\xEC\x51\x53\x57\xFF\x75\x0C\x8B\xD9\xFF\x75\x08\x89\x5D\xFC\xE8\x2A\x2A\x2A\x2A\x8B\xF8"
+			}
+			"CTFPlayer::DoTauntAttack()"
+			{
+				// unique x-ref "scout_grand_slam"
+				"library"	"server"
+				"linux"		"@_ZN9CTFPlayer13DoTauntAttackEv"
+				"windows"	"\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x04\x89\x6C\x24\x04\x8B\xEC\x81\xEC\xE8\x0D\x00\x00"
 			}
 			"CTFPlayer::GetChargeEffectBeingProvided()"
 			{
