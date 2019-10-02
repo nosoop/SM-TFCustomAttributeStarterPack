@@ -52,6 +52,7 @@ plugins += map(lambda p: os.path.join('drink_effects', p), [
 
 # files to copy to builddir, relative to root
 copy_files = [
+	'configs/customweapons/air_lock.cfg',
 	'configs/customweapons/apollo_pack.cfg',
 	'configs/customweapons/bonk_sugar_frenzy.cfg',
 	'configs/customweapons/brainteaser.cfg',
