@@ -14,6 +14,7 @@
 #include <tf_custom_attributes>
 
 #include <stocksoup/var_strings>
+#include <custom_status_hud>
 
 Handle g_SDKCallUpdatePlayerSpeed;
 
@@ -33,6 +34,12 @@ public void OnPluginStart() {
 }
 
 public void OnMapStart() {
+	PrecacheScriptSound("DisciplineDevice.PowerUp");
+	PrecacheScriptSound("DisciplineDevice.PowerDown");
+	
+	PrecacheSound(")weapons\\discipline_device_power_up.wav");
+	PrecacheSound(")weapons\\discipline_device_power_down.wav");
+	
 	for (int i = 1; i <= MaxClients; i++) {
 		if (IsClientInGame(i)) {
 			OnClientPutInServer(i);
@@ -60,6 +67,7 @@ public void OnClientPostThinkPost(int client) {
 	
 	TF2_UpdatePlayerSpeed(client);
 	EmitGameSoundToAll("Scout.DodgeTired", client);
+	EmitGameSoundToAll("DisciplineDevice.PowerDown", .entity = client);
 	
 	g_flBuffEndTime[client] = 0.0;
 }
@@ -89,6 +97,7 @@ public void SugarFrenzyEffect(int owner, int weapon, const char[] effectName) {
 	 * when the duration is over -- attribute expiry during that tick still counts here
 	 */
 	g_flBuffEndTime[owner] = GetGameTime() + flDuration + GetTickInterval();
+	EmitGameSoundToAll("DisciplineDevice.PowerUp", .entity = owner);
 	
 	ClearAttributeCache(owner);
 }
@@ -122,4 +131,16 @@ void ClearAttributeCache(int client) {
 
 static void TF2_UpdatePlayerSpeed(int client) {
 	SDKCall(g_SDKCallUpdatePlayerSpeed, client);
+}
+
+public Action OnCustomStatusHUDUpdate(int client, StringMap entries) {
+	if (g_flBuffEndTime[client] > GetGameTime()) {
+		char buffer[64];
+		Format(buffer, sizeof(buffer), "Sugar Frenzy: %.0fs",
+				g_flBuffEndTime[client] - GetGameTime());
+		
+		entries.SetString("sugar_frenzy_buff", buffer);
+		return Plugin_Changed;
+	}
+	return Plugin_Continue;
 }
