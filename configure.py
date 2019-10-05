@@ -21,6 +21,9 @@ plugins = [
   'crossbow_addcond_on_teammate_hit.sp',
   'custom_drink_effect.sp',
   'damage_increase_on_hit.sp',
+  'energy_ring_impact_effect.sp',
+  'energy_ring_instakill_radius.sp',
+  'energy_ring_speed_mult.sp',
   'flamethrower_alt_fire_oil.sp',
   'full_clip_refill_after_time.sp',
   'generate_rage_on_dmg_patch.sp',
@@ -62,6 +65,7 @@ copy_files = [
 	'configs/customweapons/plastic_pisstol.cfg',
 	'configs/customweapons/subjugated_saboteur.cfg',
 	'configs/customweapons/talos.cfg',
+	'configs/customweapons/wunderwaffe.cfg',
 	
 	'gamedata/tf2.cattr_starterpack.txt',
 ]
