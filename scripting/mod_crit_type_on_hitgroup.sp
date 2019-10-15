@@ -36,8 +36,11 @@ public Action TF2_OnTakeDamage(int victim, int &attacker, int &inflictor, float 
 	
 	// don't activate this on HITGROUP_GENERIC
 	if (hitgroup && hitgroup == ReadIntVar(attr, "hitgroup", HITGROUP_GENERIC)) {
-		critType = view_as<CritType>(ReadIntVar(attr, "crit_type"));
-		return Plugin_Changed;
+		CritType newCritType = view_as<CritType>(ReadIntVar(attr, "crit_type"));
+		if (newCritType > critType) {
+			critType = newCritType;
+			return Plugin_Changed;
+		}
 	}
 	return Plugin_Continue;
 }
