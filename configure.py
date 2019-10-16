@@ -43,6 +43,7 @@ plugins = [
   'projectile_heal_on_teammate_contact.sp',
   'projectile_override_energy_ball.sp',
   'stack_grenade_damage_custom.sp',
+  'tag_last_enemy_hit.sp',
 ]
 
 plugins += map(lambda p: os.path.join('buff_overrides', p), [
@@ -59,6 +60,7 @@ plugins += map(lambda p: os.path.join('drink_effects', p), [
 copy_files = [
 	'configs/customweapons/air_lock.cfg',
 	'configs/customweapons/apollo_pack.cfg',
+	'configs/customweapons/bloodhound_5000.cfg',
 	'configs/customweapons/bonk_sugar_frenzy.cfg',
 	'configs/customweapons/brainteaser.cfg',
 	'configs/customweapons/classic_nailgun.cfg',
