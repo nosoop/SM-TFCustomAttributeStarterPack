@@ -34,6 +34,24 @@
 				"return"		"void"
 				"this"			"entity"
 			}
+			"CBaseGrenade::Explode()"
+			{
+				"offset"		"CBaseGrenade::Explode()"
+				"callconv"		"thiscall"
+				"return"		"void"
+				"this"			"entity"
+				"arguments"
+				{
+					"trace"
+					{
+						"type"	"int" // ptr
+					}
+					"int_value"
+					{
+						"type"	"int"
+					}
+				}
+			}
 			"CBaseGrenade::GetDamageRadius()"
 			{
 				"offset"		"CBaseGrenade::GetDamageRadius()"
@@ -877,6 +895,11 @@
 			{
 				"windows"	"71"
 				"linux"		"72"
+			}
+			"CBaseGrenade::Explode()"
+			{
+				"windows"	"228"
+				"linux"		"229"
 			}
 			"CBaseObject::ChangeTeam()"
 			{

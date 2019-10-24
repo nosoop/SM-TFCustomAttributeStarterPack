@@ -42,6 +42,7 @@ plugins = [
   'override_building_health.sp',
   'projectile_heal_on_teammate_contact.sp',
   'projectile_override_energy_ball.sp',
+  'stack_grenade_damage_custom.sp',
 ]
 
 plugins += map(lambda p: os.path.join('buff_overrides', p), [
@@ -72,6 +73,7 @@ copy_files = [
 	'configs/customweapons/mega_buster.cfg',
 	'configs/customweapons/merasmus_stash.cfg',
 	'configs/customweapons/plastic_pisstol.cfg',
+	'configs/customweapons/primed_directive.cfg',
 	'configs/customweapons/subjugated_saboteur.cfg',
 	'configs/customweapons/talos.cfg',
 	'configs/customweapons/wunderwaffe.cfg',
