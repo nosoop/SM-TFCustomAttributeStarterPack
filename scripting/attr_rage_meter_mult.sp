@@ -48,29 +48,34 @@ public MRESReturn OnModifyRagePre(Address pPlayerShared, Handle hParams) {
 			pPlayerShared + g_offset_CTFPlayerShared_pOuter, NumberType_Int32));
 	int client = GetEntityFromAddress(pOuter);
 	
+	// LogServer("updating rage");
+	
+	float flMultiplier = 1.0;
+	
 	int hSecondary = GetPlayerWeaponSlot(client, 1);
-	
-	LogServer("updating rage");
-	
-	if (!IsValidEntity(hSecondary)) {
-		return MRES_Ignored;
+	if (IsValidEntity(hSecondary)) {
+		char className[64];
+		GetEntityClassname(hSecondary, className, sizeof(className));
+		if (StrEqual(className, "tf_weapon_buff_item")) {
+			flMultiplier *= TF2CustAttr_GetFloat(hSecondary, "banner rage fill multiplier",
+					1.0);
+		}
 	}
 	
-	char className[64];
-	GetEntityClassname(hSecondary, className, sizeof(className));
-	
-	if (!StrEqual(className, "tf_weapon_buff_item")) {
-		return MRES_Ignored;
+	for (int i; i < 3; i++) {
+		int weapon = GetPlayerWeaponSlot(client, i);
+		if (!IsValidEntity(weapon)) {
+			continue;
+		}
+		flMultiplier *= TF2CustAttr_GetFloat(weapon, "rage fill multiplier", 1.0);
 	}
 	
-	float flMultiplier = TF2CustAttr_GetFloat(hSecondary, "banner rage fill multiplier", 1.0);
 	if (flMultiplier == 1.0) {
 		return MRES_Ignored;
 	}
 	
-	
 	float flDelta = DHookGetParam(hParams, 1);
-	LogServer("orig delta: %.4f", flDelta);
+	// LogServer("orig delta: %f", flDelta);
 	DHookSetParam(hParams, 1, flDelta * flMultiplier);
 	return MRES_ChangedHandled;
 }
