@@ -66,6 +66,20 @@
 				"return"		"void"
 				"this"			"entity"
 			}
+			"CTFBaseProjectile::ProjectileTouch()"
+			{
+				"offset"		"CTFBaseProjectile::ProjectileTouch()"
+				"hooktype"		"entity"
+				"return"		"void"
+				"this"			"entity"
+				"arguments"
+				{
+					"other"
+					{
+						"type"	"cbaseentity"
+					}
+				}
+			}
 			"CTFFlameThrower::SecondaryAttack()"
 			{
 				"signature"		"CTFFlameThrower::SecondaryAttack()"
@@ -658,6 +672,14 @@
 				"linux"		"@_ZN16CObjectSentrygun11SentryThinkEv"
 				"windows"	"\x55\x8B\xEC\x51\x56\x8B\xF1\x57\x80\xBE\x2A\x2A\x00\x00\x00\xC7\x86\x2A\x2A\x00\x00\x00\x80\x89\x44"
 			}
+			"CObjectTeleporter::FindMatch()"
+			{
+				// called in CObjectSapper::OnTakeDamage(), xref "set_dmg_apply_to_sapper"
+				// it's a ways down within a branch
+				"library"	"server"
+				"linux"		"@_ZN17CObjectTeleporter9FindMatchEv"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x0C\x53\x8B\xD9\x56\x8B\x03"
+			}
 			"CTFFlameThrower::SecondaryAttack()"
 			{
 				// find "set_charged_airblast", "set_buff_type", and "mult_airblast_cost" in same block
@@ -901,10 +923,28 @@
 				"windows"	"228"
 				"linux"		"229"
 			}
+			"CBaseObject::CanBeUpgraded(CTFPlayer)"
+			{
+				// note: windows offsets aren't correct on the vtable dumper
+				"windows"	"375"
+				"linux"		"376"
+			}
 			"CBaseObject::ChangeTeam()"
 			{
 				"windows"	"91"
 				"linux"		"92"
+			}
+			"CBaseObject::GetMaxUpgradeLevel()"
+			{
+				// note: windows offsets aren't correct on the vtable dumper
+				"windows"	"380"
+				"linux"		"381"
+			}
+			"CBaseObject::StartUpgrading()"
+			{
+				// note: windows offsets aren't correct on the vtable dumper
+				"windows"	"376"
+				"linux"		"377"
 			}
 			"CBaseGrenade::GetDamageRadius()"
 			{

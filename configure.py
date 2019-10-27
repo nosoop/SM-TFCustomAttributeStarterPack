@@ -39,13 +39,16 @@ plugins = [
   'mod_crit_type_on_hitgroup.sp',
   'mod_crit_type_vs_disguised_players.sp',
   'mod_crit_type_vs_sentry_targets.sp',
+  'mult_damage_vs_sappers.sp',
   'mult_basegrenade_explode_radius.sp',
   'override_building_health.sp',
   'preserve_rage.sp',
   'projectile_heal_on_teammate_contact.sp',
   'projectile_override_energy_ball.sp',
+  'projectile_upgrades_buildings.sp',
   'stack_grenade_damage_custom.sp',
   'tag_last_enemy_hit.sp',
+  'unsap_metal_cost.sp',
 ]
 
 plugins += map(lambda p: os.path.join('buff_overrides', p), [
@@ -81,6 +84,7 @@ copy_files = [
 	'configs/customweapons/primed_directive.cfg',
 	'configs/customweapons/subjugated_saboteur.cfg',
 	'configs/customweapons/talos.cfg',
+	'configs/customweapons/welder.cfg',
 	'configs/customweapons/wunderwaffe.cfg',
 	
 	'gamedata/tf2.cattr_starterpack.txt',
