@@ -69,11 +69,13 @@ public MRESReturn OnMinigunPostFramePre(int minigun) {
 	
 	int shieldLevel = ReadIntVar(attr, "level", 1);
 	float flMinRage = ReadFloatVar(attr, "min_rage", 0.0);
+	bool redeployable = !!ReadIntVar(attr, "rage_redeployable", false);
 	bool cancelable = !!ReadIntVar(attr, "rage_cancelable", false);
 	
 	switch (iWeaponState) {
 		case AC_STATE_SPINNING, AC_STATE_FIRING, AC_STATE_DRYFIRE: {
-			if (GetEntPropFloat(owner, Prop_Send, "m_flRageMeter") / 100.0 >= flMinRage) {
+			if (GetEntPropFloat(owner, Prop_Send, "m_flRageMeter") / 100.0 >= flMinRage
+					|| (redeployable && GetEntProp(owner, Prop_Send, "m_bRageDraining"))) {
 				AttachProjectileShield(owner);
 				
 				if (shieldLevel > 1) {
