@@ -11,14 +11,14 @@ I'll move the other ones eventually&hellip;
 
 This repository contains attributes I've written.  I don't run a Custom Weapon server, so most
 of the plugins are made through work-for-hire.  If you'd like a custom attribute created, feel
-free to [contact me on AlliedModders][privmsg].
+free to [contact me on AlliedModders][am-prof].
 
 The [wiki][] documents the available custom attributes.
 
 Special thanks to Karma Charger for allowing the release of the stuff I've written for him;
 a lot of the plugins available here were created for his videos.
 
-[privmsg]: https://forums.alliedmods.net/private.php?do=newpm&u=252787
+[am-prof]: https://forums.alliedmods.net/member.php?u=252787
 [wiki]: https://github.com/nosoop/SM-TFCustomAttributeStarterPack/wiki/Custom-Attribute-List
 
 ## Installation
