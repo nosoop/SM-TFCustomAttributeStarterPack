@@ -204,9 +204,8 @@ public MRESReturn OnFlamethrowerSecondaryAttack(int weapon) {
 		return MRES_Supercede;
 	}
 	
-	int iAmmoUse = RoundFloat(
-			FindConVar("tf_flamethrower_burstammo").IntValue
-			* GetAirblastCostMultiplier(weapon));
+	int iAmmoUse = TF2Attrib_HookValueInt(FindConVar("tf_flamethrower_burstammo").IntValue, 
+			"mult_airblast_cost", weapon);
 	
 	int iAmmoCount = TF2_GetWeaponAmmo(weapon);
 	if (iAmmoUse > iAmmoCount) {
@@ -214,8 +213,8 @@ public MRESReturn OnFlamethrowerSecondaryAttack(int weapon) {
 	}
 	TF2_SetWeaponAmmo(weapon, iAmmoCount - iAmmoUse);
 	
-	SetEntPropFloat(weapon, Prop_Data, "m_flNextSecondaryAttack", GetGameTime()
-			+ (1.0 * GetAirblastRefireScale(weapon)));
+	SetEntPropFloat(weapon, Prop_Data, "m_flNextSecondaryAttack",
+			GetGameTime() + TF2Attrib_HookValueFloat(1.0, "mult_airblast_refire_time", weapon));
 	
 	LeakOil(weapon);
 	
@@ -601,34 +600,4 @@ void GetProjectileDynamics(int client, float vecSpawnOrigin[3], float vecSpawnAn
 
 int FindEntityInSphere(int startEntity, const float vecPosition[3], float flRadius) {
 	return SDKCall(g_SDKCallFindEntityInSphere, startEntity, vecPosition, flRadius);
-}
-
-float GetAirblastCostMultiplier(int weapon) {
-	float flResultValue = 1.0;
-	Address pAttribute;
-	
-	pAttribute = TF2Attrib_GetByName(weapon, "airblast cost increased");
-	if (pAttribute) {
-		flResultValue *= TF2Attrib_GetValue(pAttribute);
-	}
-	
-	pAttribute = TF2Attrib_GetByName(weapon, "airblast cost decreased");
-	if (pAttribute) {
-		flResultValue *= TF2Attrib_GetValue(pAttribute);
-	}
-	
-	pAttribute = TF2Attrib_GetByName(weapon, "airblast cost scale hidden");
-	if (pAttribute) {
-		flResultValue *= TF2Attrib_GetValue(pAttribute);
-	}
-	
-	return flResultValue;
-}
-
-float GetAirblastRefireScale(int weapon) {
-	Address pAttribute = TF2Attrib_GetByName(weapon, "mult airblast refire time");
-	if (pAttribute) {
-		return TF2Attrib_GetValue(pAttribute);
-	}
-	return 1.0;
 }

@@ -86,7 +86,8 @@ public MRESReturn OnBaseGunFireProjectilePre(int weapon, Handle hParams) {
 			vecOffset[2], vecSrc, angBaseAim, false, 1100.0);
 	GetAngleVectors(angBaseAim, vecFwdBaseAim, NULL_VECTOR, NULL_VECTOR);
 	
-	ScaleVector(vecFwdBaseAim, 1100.0 * GetProjectileSpeedMultiplier(weapon));
+	ScaleVector(vecFwdBaseAim,
+			TF2Attrib_HookValueFloat(1100.0, "mult_projectile_speed", weapon));
 	
 	// base damage is based on weapon
 	int energyBall = SDKCall(g_SDKCallFireEnergyBall, weapon, owner, false);
@@ -96,24 +97,4 @@ public MRESReturn OnBaseGunFireProjectilePre(int weapon, Handle hParams) {
 	
 	// TF2_SetWeaponAmmo(weapon, TF2_GetWeaponAmmo(weapon) - 1);
 	return MRES_Supercede;
-}
-
-float GetProjectileSpeedMultiplier(int weapon) {
-	// preferably we'd use applyattributefloat or whatever, but this is what we've got for now
-	float result = 1.0;
-	
-	Address pAttribute;
-	if (!!(pAttribute = TF2Attrib_GetByName(weapon, "Projectile speed increased"))) {
-		result *= TF2Attrib_GetValue(pAttribute);
-	}
-	
-	if (!!(pAttribute = TF2Attrib_GetByName(weapon, "Projectile speed decreased"))) {
-		result *= TF2Attrib_GetValue(pAttribute);
-	}
-	
-	if (!!(pAttribute = TF2Attrib_GetByName(weapon, "Projectile speed increased HIDDEN"))) {
-		result *= TF2Attrib_GetValue(pAttribute);
-	}
-	
-	return result;
 }
