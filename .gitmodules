@@ -1,0 +1,3 @@
+[submodule "third_party/submodules/stocksoup"]
+	path = third_party/submodules/stocksoup
+	url = https://github.com/nosoop/stocksoup

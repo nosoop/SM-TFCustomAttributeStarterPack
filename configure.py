@@ -86,6 +86,11 @@ copy_files = [
 	'gamedata/tf2.cattr_starterpack.txt',
 ]
 
+include_dirs = [
+	'third_party/vendored/',
+	'third_party/submodules/',
+]
+
 ########################
 # build.ninja script generation below.
 
@@ -116,8 +121,10 @@ with contextlib.closing(ninja_syntax.Writer(open('build.ninja', 'wt'))) as build
 		'root': '.',
 		'builddir': 'build',
 		'spcomp': os.path.join(args.spcomp_dir, 'spcomp.exe'),
-		'spcflags': '-i${root}/scripting/include -h -v0'
+		'spcflags': [ '-i${root}/scripting/include', '-h', '-v0' ]
 	}
+	
+	vars['spcflags'] += ('-i{}'.format(d) for d in include_dirs)
 	
 	for key, value in vars.items():
 		build.variable(key, value)
