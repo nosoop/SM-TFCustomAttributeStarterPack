@@ -11,7 +11,7 @@ I'll move the other ones eventually&hellip;
 
 This repository contains attributes I've written.  I don't run a Custom Weapon server, so most
 of the plugins are made through work-for-hire.  If you'd like a custom attribute created, feel
-free to [contact me on AlliedModders][am-prof].
+free to [contact me on AlliedModders][am-prof] &mdash; I'm open to inquiries.
 
 The [wiki][] documents the available custom attributes.
 
@@ -28,10 +28,8 @@ provide free personalized support in that regard, unfortunately &mdash; read up 
 your own TF2 server.
 
 As mentioned, this uses my own [Custom Attribute framework][custattr], so you'll want to follow
-the instructions for [applying custom attributes][apply-custom].
-
-(I still need to add vendored includes and a dependency list to make this fully compilable per
-issue #9, so if you're not a programmer you'll have to wait a bit more for those; apologies.)
+the instructions for [applying custom attributes][apply-custom].  The [Custom Weapons plugin][]
+works well with the available adapter.
 
 [Custom Weapons plugin]: https://forums.alliedmods.net/showthread.php?t=285258
 [apply-custom]: https://github.com/nosoop/SM-TFCustAttr/wiki/Applying-Custom-Attributes
@@ -42,11 +40,11 @@ This project can be built in a reproductive manner with [Ninja](https://ninja-bu
 `git`, and Python 3.
 
 1.  Clone the repository and its submodules: `git clone --recurse-submodules ...`
-2.  Execute `python3 configure.py --spcomp-dir ${PATH}`, where `${PATH}` is the path to the
-directory containing `spcomp`.  Verified working against 1.9 and 1.10.
-3.  Run `ninja`.
+2.  Execute `python3 configure.py --spcomp-dir ${PATH}` within the repo, where `${PATH}` is the
+path to the directory containing `spcomp`.  Verified working against 1.9 and 1.10.
+3.  Run `ninja`.  Output will be available under `build/`.
 
-# Dependencies
+## Dependencies
 
 This project uses a bunch of external tooling.  Not all plugins use every dependency.
 Includes are bundled in the `third_party/` subdirectory.
