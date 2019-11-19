@@ -384,6 +384,24 @@
 				"return"		"bool"
 				"this"			"entity"
 			}
+			"CTFWeaponBaseMelee::OnEntityHit()"
+			{
+				"offset"		"CTFWeaponBaseMelee::OnEntityHit()"
+				"hooktype"		"entity"
+				"return"		"void"
+				"this"			"entity"
+				"arguments"
+				{
+					"target"
+					{
+						"type"	"cbaseentity"
+					}
+					"damage_info"
+					{
+						"type"	"int"
+					}
+				}
+			}
 			"CTFWeaponBase::DeflectEntity()"
 			{
 				"offset"		"CTFWeaponBase::DeflectEntity()"
@@ -995,6 +1013,11 @@
 			{
 				"windows"	"470"
 				"linux"		"477"
+			}
+			"CTFWeaponBaseMelee::OnEntityHit()"
+			{
+				"windows"	"469"
+				"linux"		"476"
 			}
 			
 			// member offsets

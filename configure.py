@@ -53,6 +53,7 @@ plugins = [
   'stack_grenade_damage_custom.sp',
   'tag_last_enemy_hit.sp',
   'unsap_metal_cost.sp',
+  'weapon_rate_buff_ally.sp',
 ]
 
 plugins += map(lambda p: os.path.join('buff_overrides', p), [
@@ -70,6 +71,7 @@ plugins += map(lambda p: os.path.join('drink_effects', p), [
 copy_files = [
 	'configs/customweapons/air_lock.cfg',
 	'configs/customweapons/apollo_pack.cfg',
+	'configs/customweapons/backfill_backslap.cfg',
 	'configs/customweapons/bloodhound_5000.cfg',
 	'configs/customweapons/bonk_sugar_frenzy.cfg',
 	'configs/customweapons/brainteaser.cfg',
