@@ -10,6 +10,7 @@
 #pragma newdecls required
 #include <stocksoup/tf/entity_prop_stocks>
 #include <tf_custom_attributes>
+#include <tf2attributes>
 
 #define PLUGIN_VERSION "1.1.1"
 public Plugin myinfo = {
@@ -118,8 +119,13 @@ public MRESReturn OnPulseRageBuffPre(Address pPlayerShared, Handle hParams) {
 		return MRES_Supercede;
 	}
 	
-	float flRadiusSq = Pow(SOLDIER_BUFF_RADIUS, 2.0);
-	// TODO there is a mod_soldier_buff_range attribute class but it's not present in items_game
+	// there is a mod_soldier_buff_range attribute class but it's not present in items_game
+	// regardless, implement it here
+	float flRadius = TF2Attrib_HookValueFloat(SOLDIER_BUFF_RADIUS, "mod_soldier_buff_range",
+			buffItem);
+	flRadius *= TF2CustAttr_GetFloat(buffItem, "mult soldier custom buff range", 1.0);
+	
+	float flRadiusSq = Pow(flRadius, 2.0);
 	
 	float vecBuffOrigin[3];
 	GetClientAbsOrigin(client, vecBuffOrigin);
