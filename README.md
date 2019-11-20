@@ -34,6 +34,11 @@ works well with the available adapter.
 [Custom Weapons plugin]: https://forums.alliedmods.net/showthread.php?t=285258
 [apply-custom]: https://github.com/nosoop/SM-TFCustAttr/wiki/Applying-Custom-Attributes
 
+## Custom Weapon Configs
+
+The included configuration files are provided as-is for attribute demonstration purposes and not
+intended to showcase completely balanced weapons.
+
 ## Building
 
 This project can be built in a reproductive manner with [Ninja](https://ninja-build.org/),
