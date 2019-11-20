@@ -57,6 +57,7 @@ plugins = [
 plugins += map(lambda p: os.path.join('buff_overrides', p), [
   'buff_control_rockets.sp',
   'buff_crit_and_mark_for_death.sp',
+  'buff_enable_tag_players.sp',
   'sniper_rage_smokeout_spies.sp',
 ])
 
@@ -87,6 +88,7 @@ copy_files = [
 	'configs/customweapons/moonbeam.cfg',
 	'configs/customweapons/plastic_pisstol.cfg',
 	'configs/customweapons/primed_directive.cfg',
+	'configs/customweapons/public_address.cfg',
 	'configs/customweapons/subjugated_saboteur.cfg',
 	'configs/customweapons/talos.cfg',
 	'configs/customweapons/welder.cfg',
