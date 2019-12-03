@@ -1,5 +1,5 @@
 /**
- * Sourcemod 1.7 Plugin Template
+ * Handles lunchbox-related buffs (for drinks and Sandvich-likes)
  */
 #pragma semicolon 1
 #include <sourcemod>
@@ -13,7 +13,7 @@
 #include <stocksoup/tf/entity_prop_stocks>
 #include <tf_custom_attributes>
 
-#define CUSTOM_DRINK_EFFECT_MAX_NAME_LENGTH 64
+#define CUSTOM_LUNCHBOX_EFFECT_MAX_NAME_LENGTH 64
 
 enum eTFTauntAttack {
 	TF_TAUNTATTACK_LUNCHBOX = 5
@@ -24,8 +24,10 @@ int offs_CTFPlayer_iTauntAttack;
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) {
 	RegPluginLibrary("cattr-custom-drink");
+	CreateNative("TF2CustomAttrDrink_Register", RegisterCustomLunchboxEffect);
 	
-	CreateNative("TF2CustomAttrDrink_Register", RegisterCustomDrinkEffect);
+	RegPluginLibrary("cattr-custom-lunchbox");
+	CreateNative("TF2CustomAttrLunchbox_Register", RegisterCustomLunchboxEffect);
 }
 
 public void OnPluginStart() {
@@ -37,6 +39,10 @@ public void OnPluginStart() {
 	Handle dtLunchBoxPrimaryAttack =
 			DHookCreateFromConf(hGameConf, "CTFPlayer::DoTauntAttack()");
 	DHookEnableDetour(dtLunchBoxPrimaryAttack, false, OnDoTauntAttackPre);
+	
+	Handle dtLunchBoxOnBiteEffect =
+			DHookCreateFromConf(hGameConf, "CTFLunchBox::ApplyBiteEffects()");
+	DHookEnableDetour(dtLunchBoxOnBiteEffect, false, OnLunchBoxApplyBiteEffects);
 	
 	Address pTauntAttackInfo = GameConfGetAddress(hGameConf,
 			"CTFPlayer::DoTauntAttack()::TauntAttackOffset");
@@ -51,8 +57,8 @@ public void OnPluginStart() {
 	g_DrinkForwards = new StringMap();
 }
 
-public int RegisterCustomDrinkEffect(Handle plugin, int argc) {
-	char buffName[CUSTOM_DRINK_EFFECT_MAX_NAME_LENGTH];
+public int RegisterCustomLunchboxEffect(Handle plugin, int argc) {
+	char buffName[CUSTOM_LUNCHBOX_EFFECT_MAX_NAME_LENGTH];
 	GetNativeString(1, buffName, sizeof(buffName));
 	if (!buffName[0]) {
 		ThrowNativeError(1, "Cannot have an empty custom drink effect name.");
@@ -73,22 +79,37 @@ public MRESReturn OnDoTauntAttackPre(int client) {
 	
 	int weapon = TF2_GetClientActiveWeapon(client);
 	
-	char attr[64];
-	if (!IsValidEntity(weapon)
-			|| !TF2CustAttr_GetString(weapon, "custom drink effect", attr, sizeof(attr))) {
+	if (!IsValidEntity(weapon)) {
 		return MRES_Ignored;
 	}
 	
-	HandleCustomDrinkEffect(client, weapon, attr);
+	char attr[64];
+	if (!TF2CustAttr_GetString(weapon, "custom drink effect", attr, sizeof(attr))
+			&& !TF2CustAttr_GetString(weapon, "custom lunchbox effect", attr, sizeof(attr))) {
+		return MRES_Ignored;
+	}
+	
+	HandleCustomLunchboxEffect(client, weapon, attr);
 	
 	return MRES_Supercede;
 }
 
-void HandleCustomDrinkEffect(int client, int weapon, const char[] effectName) {
+public MRESReturn OnLunchBoxApplyBiteEffects(int weapon, Handle hParams) {
+	char attr[64];
+	if (!IsValidEntity(weapon)
+			|| !TF2CustAttr_GetString(weapon, "custom lunchbox effect", attr, sizeof(attr))) {
+		return MRES_Ignored;
+	}
+	int client = DHookGetParam(hParams, 1);
+	HandleCustomLunchboxEffect(client, weapon, attr);
+	return MRES_Supercede;
+}
+
+void HandleCustomLunchboxEffect(int client, int weapon, const char[] effectName) {
 	// TODO fire off private forward
 	Handle hFwd;
 	if (!g_DrinkForwards.GetValue(effectName, hFwd) || !GetForwardFunctionCount(hFwd)) {
-		LogError("Custom drink effect '%s' is not associated with a plugin", effectName);
+		LogError("Custom lunchbox effect '%s' is not associated with a plugin", effectName);
 		return;
 	}
 	

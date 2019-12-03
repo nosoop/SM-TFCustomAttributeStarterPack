@@ -10,7 +10,7 @@
 
 #include <tf2_stocks>
 #include <tf2attributes>
-#include <tf_cattr_drink_effect>
+#include <tf_cattr_lunch_effect>
 #include <tf_custom_attributes>
 
 #include <stocksoup/var_strings>
@@ -96,8 +96,12 @@ public void SugarFrenzyEffect(int owner, int weapon, const char[] effectName) {
 	 * mult_postfiredelay is cached, so we have to clear the entire cache for that attribute
 	 * when the duration is over -- attribute expiry during that tick still counts here
 	 */
+	if (GetGameTime() > g_flBuffEndTime[owner]) {
+		// only emit sound if the buff isn't already active (for case when drink is available)
+		EmitGameSoundToAll("DisciplineDevice.PowerUp", .entity = owner);
+	}
 	g_flBuffEndTime[owner] = GetGameTime() + flDuration + GetTickInterval();
-	EmitGameSoundToAll("DisciplineDevice.PowerUp", .entity = owner);
+	
 	
 	ClearAttributeCache(owner);
 }

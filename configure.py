@@ -19,7 +19,7 @@ plugins = [
   'cloak_debuff_time_scale.sp',
   'condition_stack_on_hit.sp',
   'crossbow_addcond_on_teammate_hit.sp',
-  'custom_drink_effect.sp',
+  'custom_lunchbox_effect.sp',
   'damage_increase_on_hit.sp',
   'energy_ring_impact_effect.sp',
   'energy_ring_instakill_radius.sp',
@@ -63,7 +63,7 @@ plugins += map(lambda p: os.path.join('buff_overrides', p), [
   'sniper_rage_smokeout_spies.sp',
 ])
 
-plugins += map(lambda p: os.path.join('drink_effects', p), [
+plugins += map(lambda p: os.path.join('lunchbox_effects', p), [
   'sugar_frenzy.sp',
 ])
 

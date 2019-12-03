@@ -151,6 +151,20 @@
 					}
 				}
 			}
+			"CTFLunchBox::ApplyBiteEffects()"
+			{
+				"signature"		"CTFLunchBox::ApplyBiteEffects()"
+				"callconv"		"thiscall"
+				"return"		"void"
+				"this"			"entity"
+				"arguments"
+				{
+					"target"
+					{
+						"type"	"cbaseentity"
+					}
+				}
+			}
 			"CTFLunchBox::SecondaryAttack()"
 			{
 				"signature"		"CTFLunchBox::SecondaryAttack()"
@@ -718,6 +732,13 @@
 				"library"	"server"
 				"linux"		"@_ZN12CTFGameRules29ApplyOnDamageAliveModifyRulesERK15CTakeDamageInfoP11CBaseEntityRNS_20DamageModifyExtras_tE"
 				"windows"	"\x55\x8B\xEC\x81\xEC\xD0\x00\x00\x00\x53\x8B\x5D\x0C"
+			}
+			"CTFLunchBox::ApplyBiteEffects()"
+			{
+				// xref unique "lunchbox_healing_scale"
+				"library"	"server"
+				"linux"		"@_ZN11CTFLunchBox16ApplyBiteEffectsEP9CTFPlayer"
+				"windows"	"\x55\x8B\xEC\x51\x53\x8B\xD9\x56\x57\x6A\x01"
 			}
 			"CTFLunchBox::SecondaryAttack()"
 			{
