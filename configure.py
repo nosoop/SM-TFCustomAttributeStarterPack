@@ -72,6 +72,7 @@ plugins += map(lambda p: os.path.join('buff_overrides', p), [
 
 plugins += map(lambda p: os.path.join('lunchbox_effects', p), [
   'sugar_frenzy.sp',
+  'temp_mod_crit_chance.sp',
 ])
 
 # files to copy to builddir, relative to root
@@ -79,6 +80,7 @@ copy_files = [
 	'configs/customweapons/air_lock.cfg',
 	'configs/customweapons/apollo_pack.cfg',
 	'configs/customweapons/backfill_backslap.cfg',
+	'configs/customweapons/banana_blast.cfg',
 	'configs/customweapons/bloodhound_5000.cfg',
 	'configs/customweapons/bonk_sugar_frenzy.cfg',
 	'configs/customweapons/brainteaser.cfg',
