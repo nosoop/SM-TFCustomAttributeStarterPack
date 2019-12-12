@@ -5,7 +5,6 @@
 #include <tf2_stocks>
 #include <dhooks>
 #include <tf2attributes>
-#include <tf_econ_data>
 
 #pragma newdecls required
 
@@ -39,8 +38,6 @@ ArrayList g_OilPuddleWorldRefs;
 ArrayList g_OilPuddleIgniteRefs;
 
 int offs_CTFMinigun_flNextFireRingTime;
-
-int g_AttrIDSetDamageIgnite;
 
 ConVar g_OilSpillLifetime;
 ConVar g_OilSpillPlayerMaxActive;
@@ -111,11 +108,6 @@ public void OnPluginEnd() {
 		}
 		g_OilPuddleWorldRefs.Erase(0);
 	}
-}
-
-public void OnAllPluginsLoaded() {
-	g_AttrIDSetDamageIgnite =
-			TF2Econ_TranslateAttributeNameToDefinitionIndex("Set DamageType Ignite");
 }
 
 public void OnMapStart() {
@@ -509,7 +501,8 @@ bool ShouldActivateOilTrigger(int weapon, int inflictor, int damagetype) {
 		return true;
 	}
 	
-	if (HasAttributeByID(weapon, g_AttrIDSetDamageIgnite)) {
+	// weapons that ignite on hit (SVF and potential custom weapons)
+	if (TF2Attrib_HookValueInt(0, "set_dmgtype_ignite", weapon)) {
 		return true;
 	}
 	
@@ -519,33 +512,6 @@ bool ShouldActivateOilTrigger(int weapon, int inflictor, int damagetype) {
 		return true;
 	}
 	
-	return false;
-}
-
-bool HasAttributeByID(int weapon, int attribid) {
-	if (!IsValidEntity(weapon)) {
-		return false;
-	}
-	
-	Address pAttrib = TF2Attrib_GetByDefIndex(weapon, attribid);
-	if (pAttrib) {
-		// runtime attribute supercedes static
-		if (TF2Attrib_GetValue(pAttrib) != 0.0) {
-			return true;
-		}
-	} else {
-		ArrayList staticAttributes =
-				TF2Econ_GetItemStaticAttributes(TF2_GetItemDefinitionIndexSafe(weapon));
-		if (staticAttributes) {
-			bool bHasIgniteDamage = staticAttributes.FindValue(attribid) != -1;
-			
-			delete staticAttributes;
-			
-			if (bHasIgniteDamage) {
-				return true;
-			}
-		}
-	}
 	return false;
 }
 
