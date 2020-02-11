@@ -52,11 +52,10 @@ path to the directory containing `spcomp`.  Verified working against 1.9 and 1.1
 ## Dependencies
 
 This project uses a bunch of external tooling.  Not all plugins use every dependency.
-Includes are bundled in the `third_party/` subdirectory.
+To run the plugins from this project, you will need the compiled releases of the following:
 
 - [TF2Attributes (my fork)][tf2attributes]:  interoperation with game attributes
 - [DHooks with detour support][dynhooks]:  engine-level hooks
-- [stocksoup][]:  personal library for reusable SourceMod functions
 - [Custom Status HUD][]:  unified HUD library for drawing text elements on-screen
 - [TF2 Max Speed Detour][maxspeed-ext]:  allows plugins to transform player maximum speed
 before application
@@ -65,6 +64,13 @@ for manipulating (mini-)crits
 - [Source Scramble][]:  memory-level tweaking, for when DHooks isn't enough
 - [TF2 Wearable Tools][]:  checks for wearables
 - [TF2 Econ Data][]: identifies loadout slots for weapons, among other things
+
+The following is only used when building from source; if you're just running the plugins, you do
+not need these:
+
+- [stocksoup][]:  personal library for reusable SourceMod functions
+
+Includes are bundled in the `third_party/` subdirectory to ensure builds are consistent.
 
 [tf2attributes]: https://github.com/nosoop/tf2attributes
 [dynhooks]: https://forums.alliedmods.net/showpost.php?p=2588686&postcount=589
