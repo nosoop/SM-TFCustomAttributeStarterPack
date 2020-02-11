@@ -1,3 +1,9 @@
+/**
+ * The game applies a set decrease on each "debuff" condition's timer while the player is
+ * cloaked during CTFPlayerShared::UpdateCloakMeter().  This plugin patches the value so we can
+ * substitute it with our own value.
+ */
+
 #pragma semicolon 1
 #include <sourcemod>
 
@@ -65,6 +71,13 @@ public void OnPluginStart() {
 	delete hGameConf;
 }
 
+/**
+ * Computes the "reduction rate" (which is the amount of time decremented per second), caching
+ * it so we don't have to pull the attribute value on every frame that the player is cloaked.
+ * 
+ * As of this writing, the game reduces debuffs by 0.75s per second (~42% debuff duration
+ * reduction).
+ */
 public MRESReturn OnSetCloakRatesPre(int invisWatch) {
 	int owner = TF2_GetEntityOwner(invisWatch);
 	if (owner < 1 || owner > MaxClients) {
@@ -78,6 +91,9 @@ public MRESReturn OnSetCloakRatesPre(int invisWatch) {
 	return MRES_Ignored;
 }
 
+/**
+ * Patches the per-client unique reduction rate into the function.
+ */
 public MRESReturn OnUpdateCloakMeterPre(Address pShared) {
 	int client = GetClientFromPlayerShared(pShared);
 	UpdateCloakDebuffAmount(g_flComputedDefuffRates[client]);
