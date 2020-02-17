@@ -55,6 +55,7 @@ plugins = [
   'syringegun_poison_on_hit.sp',
   'tag_last_enemy_hit.sp',
   'unsap_metal_cost.sp',
+  'weapon_overheat.sp',
   'weapon_rate_buff_ally.sp',
 ]
 

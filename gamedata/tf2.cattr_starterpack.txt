@@ -101,6 +101,13 @@
 					}
 				}
 			}
+			"CTFMinigun::SharedAttack()"
+			{
+				"signature"		"CTFMinigun::SharedAttack()"
+				"callconv"		"thiscall"
+				"return"		"void"
+				"this"			"entity"
+			}
 			"CTFMinigun::ActivatePushBackAttackMode()"
 			{
 				"signature"		"CTFMinigun::ActivatePushBackAttackMode()"
@@ -761,6 +768,18 @@
 				"linux"		"@_ZN10CTFMinigun16RingOfFireAttackEi"
 				"windows"	"\x55\x8B\xEC\x81\xEC\x2A\x2A\x00\x00\x53\x8B\xD9\x56\x57\xF3\x0F\x10\x83"
 			}
+			"CTFMinigun::SharedAttack()"
+			{
+				"library"	"server"
+				"linux"		"@_ZN10CTFMinigun12SharedAttackEv"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x10\x53\x57\x8B\xF9"
+			}
+			"CTFMinigun::WindDown()"
+			{
+				"library"	"server"
+				"linux"		"@_ZN10CTFMinigun8WindDownEv"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x08\x56\x57\x8B\xF9\xE8\x2A\x2A\x2A\x2A\x8B\xF0\x85\xF6\x0F\x84\x2A\x2A\x2A\x2A\x8B\x16\x8B\xCE\x8B\x92\x40\x01\x00\x00\xFF\xD2\x84\xC0\x0F\x84\x2A\x2A\x2A\x2A\x8B\x07\x8B\xCF\x53"
+			}
 			"CTFPlayer::ApplyPushFromDamage()"
 			{
 				// unuqie x-ref "damage_blast_push"
@@ -1050,6 +1069,7 @@
 			}
 			"CTFPlayerShared::m_pOuter"
 			{
+				// checked in CTFPlayerShared::HasDemoShieldEquipped()
 				"linux"		"400"
 				"windows"	"400"
 			}
