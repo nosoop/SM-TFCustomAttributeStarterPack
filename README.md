@@ -81,3 +81,11 @@ Includes are bundled in the `third_party/` subdirectory to ensure builds are con
 [Source Scramble]: https://github.com/nosoop/SMExt-SourceScramble
 [TF2 Wearable Tools]: https://github.com/nosoop/sourcemod-tf2wearables
 [TF2 Econ Data]: https://github.com/nosoop/SM-TFEconData
+
+## License
+
+This project uses the MIT license.  Do note that once compiled, SourceMod plugins are still
+bound to GPLv3, but you're welcome to use the code as reference in other projects under the more
+permissive license.
+
+The software is provided "as is", and there is no real guarantee of support.
