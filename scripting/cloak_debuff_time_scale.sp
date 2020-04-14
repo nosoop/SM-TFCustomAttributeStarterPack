@@ -121,7 +121,6 @@ void UpdateCloakDebuffAmount(float flValue) {
 }
 
 static int GetClientFromPlayerShared(Address pPlayerShared) {
-	Address pOuter = view_as<Address>(LoadFromAddress(
-			pPlayerShared + g_offset_CTFPlayerShared_pOuter, NumberType_Int32));
+	Address pOuter = DereferencePointer(pPlayerShared + g_offset_CTFPlayerShared_pOuter);
 	return GetEntityFromAddress(pOuter);
 }

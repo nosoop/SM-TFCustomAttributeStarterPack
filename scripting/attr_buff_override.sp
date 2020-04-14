@@ -8,6 +8,7 @@
 #include <dhooks>
 
 #pragma newdecls required
+#include <stocksoup/memory>
 #include <stocksoup/tf/entity_prop_stocks>
 #include <tf_custom_attributes>
 #include <tf2attributes>
@@ -26,7 +27,6 @@ public Plugin myinfo = {
 
 #define CUSTOM_SOLDIER_BUFF_MAX_NAME_LENGTH 64
 
-Handle g_SDKCallGetBaseEntity;
 Handle g_DHookOnModifyRage;
 
 static Address g_offset_CTFPlayerShared_pOuter;
@@ -48,11 +48,6 @@ public void OnPluginStart() {
 	
 	g_DHookOnModifyRage = DHookCreateFromConf(hGameConf, "CTFPlayerShared::PulseRageBuff()");
 	DHookEnableDetour(g_DHookOnModifyRage, false, OnPulseRageBuffPre);
-	
-	StartPrepSDKCall(SDKCall_Raw);
-	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual, "CBaseEntity::GetBaseEntity()");
-	PrepSDKCall_SetReturnInfo(SDKType_CBaseEntity, SDKPass_Pointer);
-	g_SDKCallGetBaseEntity = EndPrepSDKCall();
 	
 	g_offset_CTFPlayerShared_pOuter =
 			view_as<Address>(GameConfGetOffset(hGameConf, "CTFPlayerShared::m_pOuter"));
@@ -155,11 +150,6 @@ public MRESReturn OnPulseRageBuffPre(Address pPlayerShared, Handle hParams) {
 }
 
 static int GetClientFromPlayerShared(Address pPlayerShared) {
-	Address pOuter = view_as<Address>(LoadFromAddress(
-			pPlayerShared + g_offset_CTFPlayerShared_pOuter, NumberType_Int32));
+	Address pOuter = DereferencePointer(pPlayerShared + g_offset_CTFPlayerShared_pOuter);
 	return GetEntityFromAddress(pOuter);
-}
-
-static int GetEntityFromAddress(Address pEntity) {
-	return SDKCall(g_SDKCallGetBaseEntity, pEntity);
 }

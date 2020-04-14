@@ -9,7 +9,7 @@
 
 #pragma newdecls required
 #include <tf_custom_attributes>
-#include <stocksoup/log_server>
+#include <stocksoup/memory>
 
 #define PLUGIN_VERSION "1.0.0"
 public Plugin myinfo = {
@@ -20,7 +20,6 @@ public Plugin myinfo = {
 	url = "https://github.com/nosoop"
 }
 
-Handle g_SDKCallGetBaseEntity;
 Handle g_DHookOnModifyRage;
 
 static Address g_offset_CTFPlayerShared_pOuter;
@@ -32,11 +31,6 @@ public void OnPluginStart() {
 	
 	DHookEnableDetour(g_DHookOnModifyRage, false, OnModifyRagePre);
 	
-	StartPrepSDKCall(SDKCall_Raw);
-	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual, "CBaseEntity::GetBaseEntity()");
-	PrepSDKCall_SetReturnInfo(SDKType_CBaseEntity, SDKPass_Pointer);
-	g_SDKCallGetBaseEntity = EndPrepSDKCall();
-	
 	g_offset_CTFPlayerShared_pOuter =
 			view_as<Address>(GameConfGetOffset(hGameConf, "CTFPlayerShared::m_pOuter"));
 	
@@ -44,8 +38,7 @@ public void OnPluginStart() {
 }
 
 public MRESReturn OnModifyRagePre(Address pPlayerShared, Handle hParams) {
-	Address pOuter = view_as<Address>(LoadFromAddress(
-			pPlayerShared + g_offset_CTFPlayerShared_pOuter, NumberType_Int32));
+	Address pOuter = DereferencePointer(pPlayerShared + g_offset_CTFPlayerShared_pOuter);
 	int client = GetEntityFromAddress(pOuter);
 	
 	// LogServer("updating rage");
@@ -78,8 +71,4 @@ public MRESReturn OnModifyRagePre(Address pPlayerShared, Handle hParams) {
 	// LogServer("orig delta: %f", flDelta);
 	DHookSetParam(hParams, 1, flDelta * flMultiplier);
 	return MRES_ChangedHandled;
-}
-
-int GetEntityFromAddress(Address pEntity) {
-	return SDKCall(g_SDKCallGetBaseEntity, pEntity);
 }
