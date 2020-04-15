@@ -39,6 +39,7 @@ ArrayList g_OilPuddleIgniteRefs;
 
 int offs_CTFMinigun_flNextFireRingTime;
 
+ConVar g_OilSpillSelfDmg;
 ConVar g_OilSpillLifetime;
 ConVar g_OilSpillPlayerMaxActive;
 ConVar g_OilSpillDamagePerTick;
@@ -88,6 +89,9 @@ public void OnPluginStart() {
 	
 	g_OilPuddleWorldRefs = new ArrayList();
 	g_OilPuddleIgniteRefs = new ArrayList();
+	
+	g_OilSpillSelfDmg = CreateConVar("cattr_flamethrower_oil_selfdmg", "1.0",
+			"Multiplier for self-inflicted oil damage.");
 	
 	g_OilSpillLifetime = CreateConVar("cattr_flamethrower_oil_lifetime", "10.0",
 			"Number of seconds that oil puddles will be live.");
@@ -436,11 +440,15 @@ void OilPuddleIgniteThink(int oilpuddle) {
 			OIL_PUDDLE_BASE_SIZE * OIL_PUDDLE_SCALE)) != -1) {
 		// damage players
 		if (entity > 0 && entity <= MaxClients) {
+			// ignore teammates (hit self)
 			if (owner != entity && TF2_GetClientTeam(owner) == TF2_GetClientTeam(entity)) {
 				continue;
 			}
 			
-			SDKHooks_TakeDamage(entity, oilpuddle, owner, g_OilSpillDamagePerTick.FloatValue,
+			float flDamageScale = owner == entity? g_OilSpillSelfDmg.FloatValue : 1.0;
+			
+			SDKHooks_TakeDamage(entity, oilpuddle, owner,
+					g_OilSpillDamagePerTick.FloatValue * flDamageScale,
 					DMG_PLASMA | DMG_PREVENT_PHYSICS_FORCE, weapon);
 			
 			if (!TF2_IsPlayerInCondition(entity, TFCond_OnFire)) {
