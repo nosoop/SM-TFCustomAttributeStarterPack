@@ -126,7 +126,7 @@ public MRESReturn OnSniperRifleAttackPost(int sniperrifle) {
 
 public void OnTakeDamageAlivePost(int victim, int attacker, int inflictor, float damage,
 		int damagetype, int weapon, const float damageForce[3], const float damagePosition[3]) {
-	if (!IsValidEntity(weapon)) {
+	if (!weapon || !IsValidEntity(weapon)) {
 		return; 
 	}
 	

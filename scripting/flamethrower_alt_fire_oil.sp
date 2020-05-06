@@ -510,7 +510,8 @@ bool ShouldActivateOilTrigger(int weapon, int inflictor, int damagetype) {
 	}
 	
 	// weapons that ignite on hit (SVF and potential custom weapons)
-	if (TF2Attrib_HookValueInt(0, "set_dmgtype_ignite", weapon)) {
+	if (weapon && IsValidEntity(weapon)
+			&& TF2Attrib_HookValueInt(0, "set_dmgtype_ignite", weapon)) {
 		return true;
 	}
 	
