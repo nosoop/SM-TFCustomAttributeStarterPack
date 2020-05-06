@@ -21,6 +21,15 @@ a lot of the plugins available here were created for his videos.
 [am-prof]: https://forums.alliedmods.net/member.php?u=252787
 [wiki]: https://github.com/nosoop/SM-TFCustomAttributeStarterPack/wiki/Custom-Attribute-List
 
+### Microframeworks
+
+Some attributes are libraries that can be hooked onto by other plugin developers to implement
+their own behaviors.  These include:
+
+- `custom lunchbox effect`:  Replaces lunchbox effects &mdash; Sandvich, Bonk!, etc.
+- `custom buff type`:  Replaces rage effects &mdash; currently only tested on Soldier's banners
+and Sniper's Heatmaker, but should work on other weapons that use the rage system
+
 ## Installation
 
 It's assumed that you're a server operator and are familiar with how SourceMod works.  I can't
@@ -31,15 +40,21 @@ As mentioned, this uses my own [Custom Attribute framework][custattr], so you'll
 the instructions for [applying custom attributes][apply-custom].  The [Custom Weapons plugin][]
 works well with the available adapter.
 
+Precompiled builds (which may or may not be stale) are available in the [releases][] section;
+download the latest `package.zip` and unpack in `addons/sourcemod/`.  You'll also need to
+install the [runtime dependencies](#Dependencies) for the plugins you want to run (if you're not
+sure, all of them).
+
 [Custom Weapons plugin]: https://forums.alliedmods.net/showthread.php?t=285258
 [apply-custom]: https://github.com/nosoop/SM-TFCustAttr/wiki/Applying-Custom-Attributes
+[releases]: https://github.com/nosoop/SM-TFCustomAttributeStarterPack/releases
 
-## Custom Weapon Configs
+### Custom Weapon Configs
 
 The included configuration files are provided as-is for attribute demonstration purposes and not
 intended to showcase completely balanced weapons.
 
-## Building
+### Building
 
 This project can be built in a reproductive manner with [Ninja](https://ninja-build.org/),
 `git`, and Python 3.
