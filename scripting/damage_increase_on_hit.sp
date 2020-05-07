@@ -140,6 +140,10 @@ public void OnClientPostThinkPost(int client) {
 
 int GetWeaponLoadoutSlot(int weapon) {
 	int client = TF2_GetEntityOwner(weapon);
+	if (!IsValidEntity(client)) {
+		return -1;
+	}
+	
 	return TF2Econ_GetItemSlot(TF2_GetItemDefinitionIndexSafe(weapon),
 			TF2_GetPlayerClass(client));
 }
