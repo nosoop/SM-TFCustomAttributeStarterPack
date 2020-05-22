@@ -21,6 +21,7 @@ plugins = [
   'crossbow_addcond_on_teammate_hit.sp',
   'custom_lunchbox_effect.sp',
   'damage_increase_on_hit.sp',
+  'disable_sniper_unzoom.sp',
   'energy_ring_impact_effect.sp',
   'energy_ring_instakill_radius.sp',
   'energy_ring_speed_mult.sp',
@@ -64,6 +65,7 @@ plugins += map(lambda p: os.path.join('buff_overrides', p), [
   'buff_control_rockets.sp',
   'buff_crit_and_mark_for_death.sp',
   'buff_enable_tag_players.sp',
+  'sniper_rage_buff_reload.sp',
   'sniper_rage_smokeout_spies.sp',
 ])
 
@@ -83,6 +85,7 @@ copy_files = [
 	'configs/customweapons/classic_nailgun.cfg',
 	'configs/customweapons/councilman.cfg',
 	'configs/customweapons/crop_killer.cfg',
+	'configs/customweapons/county_killer.cfg',
 	'configs/customweapons/dead_finger.cfg',
 	'configs/customweapons/der_schmerzschild.cfg',
 	'configs/customweapons/drive_by.cfg',
