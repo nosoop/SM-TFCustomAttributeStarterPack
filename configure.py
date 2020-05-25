@@ -113,25 +113,38 @@ include_dirs = [
 	'third_party/submodules/',
 ]
 
+spcomp_min_version = (1, 9)
+
 ########################
 # build.ninja script generation below.
 
 import contextlib
 import misc.ninja_syntax as ninja_syntax
+import misc.spcomp_util
 import os
 import sys
 import argparse
 import platform
+import shutil
 
 parser = argparse.ArgumentParser('Configures the project.')
-parser.add_argument('--spcomp-dir', help = 'Directory with the SourcePawn compiler.')
+parser.add_argument('--spcomp-dir',
+		help = 'Directory with the SourcePawn compiler.  Will check PATH if not specified.')
 
 args = parser.parse_args()
 
-print('Checking for SourcePawn compiler...')
-if not args.spcomp_dir or not os.path.exists(os.path.join(args.spcomp_dir, 'spcomp.exe')):
+print("""Checking for SourcePawn compiler...""")
+spcomp = shutil.which('spcomp', path = args.spcomp_dir)
+if not spcomp:
 	raise FileNotFoundError('Could not find SourcePawn compiler.')
-print('Found SourcePawn compiler.')
+
+available_version = misc.spcomp_util.extract_version(spcomp)
+version_string = '.'.join(map(str, available_version))
+print('Found SourcePawn compiler version', version_string, 'at', os.path.abspath(spcomp))
+
+if spcomp_min_version > available_version:
+	raise ValueError("Failed to meet required compiler version "
+			+ '.'.join(map(str, spcomp_min_version)))
 
 with contextlib.closing(ninja_syntax.Writer(open('build.ninja', 'wt'))) as build:
 	build.comment('This file is used to build SourceMod plugins with ninja.')
@@ -142,7 +155,7 @@ with contextlib.closing(ninja_syntax.Writer(open('build.ninja', 'wt'))) as build
 		'configure_args': sys.argv[1:],
 		'root': '.',
 		'builddir': 'build',
-		'spcomp': os.path.join(args.spcomp_dir, 'spcomp.exe'),
+		'spcomp': spcomp,
 		'spcflags': [ '-i${root}/scripting/include', '-h', '-v0' ]
 	}
 	
@@ -154,7 +167,7 @@ with contextlib.closing(ninja_syntax.Writer(open('build.ninja', 'wt'))) as build
 	
 	build.comment("""Regenerate build files if build script changes.""")
 	build.rule('configure',
-			command = '${configure_env}python ${root}/configure.py ${configure_args}',
+			command = sys.executable + ' ${root}/configure.py ${configure_args}',
 			description = 'Reconfiguring build', generator = 1)
 	
 	build.build('build.ninja', 'configure',
@@ -168,7 +181,8 @@ with contextlib.closing(ninja_syntax.Writer(open('build.ninja', 'wt'))) as build
 	
 	# Platform-specific copy instructions
 	if platform.system() == "Windows":
-		build.rule('copy', command = 'cmd /c copy ${in} ${out} > NUL', description = 'Copying ${out}')
+		build.rule('copy', command = 'cmd /c copy ${in} ${out} > NUL',
+				description = 'Copying ${out}')
 	elif platform.system() == "Linux":
 		build.rule('copy', command = 'cp ${in} ${out}', description = 'Copying ${out}')
 	build.newline()
@@ -191,6 +205,7 @@ with contextlib.closing(ninja_syntax.Writer(open('build.ninja', 'wt'))) as build
 		build.build(dist_sp, 'copy', sp_file)
 	build.newline()
 	
+	build.comment("""Copy other files from source tree""")
 	for filepath in copy_files:
 		build.build(os.path.normpath(os.path.join('$builddir', filepath)), 'copy',
 				os.path.normpath(os.path.join('$root', filepath)))
