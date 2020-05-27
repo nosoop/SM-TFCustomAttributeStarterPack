@@ -447,15 +447,10 @@ void OilPuddleIgniteThink(int oilpuddle) {
 			
 			float flDamageScale = owner == entity? g_OilSpillSelfDmg.FloatValue : 1.0;
 			
+			TF2_AddCondition(entity, TFCond_BurningPyro, .inflictor = owner);
 			SDKHooks_TakeDamage(entity, oilpuddle, owner,
 					g_OilSpillDamagePerTick.FloatValue * flDamageScale,
 					DMG_PLASMA | DMG_PREVENT_PHYSICS_FORCE, weapon);
-			
-			if (!TF2_IsPlayerInCondition(entity, TFCond_OnFire)) {
-				TF2_AddCondition(entity, TFCond_BurningPyro, .inflictor = owner);
-				TF2_IgnitePlayer(entity, owner);
-			}
-			
 			continue;
 		}
 		
