@@ -68,7 +68,7 @@ public MRESReturn OnApplyOnDamageModifyRulesPre(Address pGameRules, Handle hRetu
 	g_PatchDisableHeavyRageDamagePenalty.Disable();
 	
 	Address pTakeDamageInfo = DHookGetParam(hParams, 1);
-	int weapon = LoadEntityHandleFromAddress(pTakeDamageInfo + view_as<Address>(0x44));
+	int weapon = LoadEntityHandleFromAddress(pTakeDamageInfo + view_as<Address>(0x2C));
 	
 	if (!HasGenerateRageOnDamage(weapon)) {
 		return MRES_Ignored;
@@ -89,7 +89,7 @@ public MRESReturn OnApplyPushFromDamagePre(int client, Handle hParams) {
 	g_PatchDisableHeavyRageKnockback.Disable();
 	
 	Address pTakeDamageInfo = DHookGetParam(hParams, 1);
-	int weapon = LoadEntityHandleFromAddress(pTakeDamageInfo + view_as<Address>(0x44));
+	int weapon = LoadEntityHandleFromAddress(pTakeDamageInfo + view_as<Address>(0x2C));
 	
 	if (!HasGenerateRageOnDamage(weapon)) {
 		return MRES_Ignored;
