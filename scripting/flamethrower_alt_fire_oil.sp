@@ -283,6 +283,9 @@ void LeakOil(int weapon) {
 	float vecSpawnOrigin[3], vecSpawnAngles[3], vecVelocity[3], vecAngVelocity[3];
 	GetProjectileDynamics(owner, vecSpawnOrigin, vecSpawnAngles, vecVelocity, vecAngVelocity);
 	
+	// use builtin mult_projectile_range to shoot far
+	ScaleVector(vecVelocity, TF2Attrib_HookValueFloat(1.0, "mult_projectile_range", weapon));
+	
 	SetEntPropEnt(oilprojectile, Prop_Data, "m_hThrower", owner);
 	
 	DispatchSpawn(oilprojectile);
