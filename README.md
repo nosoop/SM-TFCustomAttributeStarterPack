@@ -30,20 +30,24 @@ their own behaviors.  These include:
 - `custom buff type`:  Replaces rage effects &mdash; currently only tested on Soldier's banners
 and Sniper's Heatmaker, but should work on other weapons that use the rage system
 
+The API for those frameworks are provided in `scripting/include/` and examples are available in
+the subfolders of `scripting/`.
+
 ## Installation
 
-It's assumed that you're a server operator and are familiar with how SourceMod works.  I can't
-provide free personalized support in that regard, unfortunately &mdash; read up on how to set up
-your own TF2 server.
+These installation steps assume that you're a server operator and are familiar with how
+SourceMod works.
 
-As mentioned, this uses my own [Custom Attribute framework][custattr], so you'll want to follow
-the instructions for [applying custom attributes][apply-custom].  The [Custom Weapons plugin][]
-works well with the available adapter.
+1.  Install the required runtime dependencies.
+2.  [Download the latest `package.zip`][releases] (possibly stale) and unpack, or manually build
+the latest commit.
+3.  Copy the resulting `gamedata/`, and `plugins/` folders into your TF2 server's
+`addons/sourcemod/` folder.
+4.  [Apply custom attributes][apply-custom] to your weapons.
 
-Precompiled builds (which may or may not be stale) are available in the [releases][] section;
-download the latest `package.zip` and unpack in `addons/sourcemod/`.  You'll also need to
-install the [runtime dependencies](#Dependencies) for the plugins you want to run (if you're not
-sure, all of them).
+The plugins of any attributes that aren't in use can be safely removed from the server; the
+project is designed to let you choose what attributes are running (though it does make
+development easier at the same time).
 
 [Custom Weapons plugin]: https://forums.alliedmods.net/showthread.php?t=285258
 [apply-custom]: https://github.com/nosoop/SM-TFCustAttr/wiki/Applying-Custom-Attributes
@@ -51,8 +55,8 @@ sure, all of them).
 
 ### Custom Weapon Configs
 
-The included configuration files are provided as-is for attribute demonstration purposes and not
-intended to showcase completely balanced weapons.
+The included CW3 configuration files are provided as-is for attribute demonstration purposes and
+not intended to showcase completely balanced weapons.
 
 ### Building
 
