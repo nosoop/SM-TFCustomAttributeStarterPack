@@ -966,6 +966,11 @@
 				"windows"	"5"
 				"linux"		"6"
 			}
+			"CBaseEntity::GetEnemy()"
+			{
+				"windows"	"96"
+				"linux"		"96"
+			}
 			"CBaseEntity::IsBaseCombatWeapon()"
 			{
 				"windows"	"86"
