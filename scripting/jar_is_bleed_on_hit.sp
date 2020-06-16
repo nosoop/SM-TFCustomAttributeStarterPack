@@ -71,6 +71,11 @@ public MRESReturn OnJarExplodePre(Handle hParams) {
 	s_iTomatoWeapon = EntIndexToEntRef(originalLauncher);
 	s_JarCondition = view_as<TFCond>(DHookGetParam(hParams, 8));
 	s_flJarDuration = DHookGetParam(hParams, 9);
+	
+	// zero out duration so we don't have to remove the condition ourselves
+	// (removing the condition for TF_COND_URINE starts a new usermessage)
+	DHookSetParam(hParams, 9, 0.0);
+	
 	return MRES_ChangedHandled;
 }
 
@@ -88,8 +93,6 @@ public Action OnPlayerJarated(UserMsg msg_id, BfRead msg, const int[] players, i
 	
 	int client = msg.ReadByte();
 	int victim = msg.ReadByte();
-	
-	TF2_RemoveCondition(victim, s_JarCondition);
 	
 	ApplyEffect(victim, s_flJarDuration,
 			TF2CustAttr_GetFloat(s_iTomatoWeapon, "jar is bleed on hit"));
