@@ -1,5 +1,7 @@
 /**
- * Sourcemod 1.7 Plugin Template
+ * "weapon overheat" attribute
+ * 
+ * Disables a weapon for a time if it was used extensively.
  */
 #pragma semicolon 1
 #include <sourcemod>
@@ -11,6 +13,7 @@
 #pragma newdecls required
 
 #include <tf2attributes>
+#include <tf2wearables>
 #include <tf_custom_attributes>
 
 #include <stocksoup/math>
@@ -269,7 +272,10 @@ float ApplyOverheat(int weapon, float amount, float decayTime, float decayRate) 
 		return 0.0;
 	}
 	
-	int slot = GetWeaponSlot(weapon);
+	int slot;
+	if (!HasWeaponSlot(weapon, slot)) {
+		return 0.0;
+	}
 	
 	// clear overheat to be safe
 	if (g_flOverheatAmount[owner][slot] >= 1.0
@@ -290,22 +296,21 @@ float ApplyOverheat(int weapon, float amount, float decayTime, float decayRate) 
 
 void SetOverheatClearTime(int weapon, float time) {
 	int owner = TF2_GetEntityOwner(weapon);
-	if (!IsValidEntity(owner)) {
+	int slot;
+	if (!IsValidEntity(owner) || !HasWeaponSlot(weapon, slot)) {
 		return;
 	}
 	
-	int slot = GetWeaponSlot(weapon);
 	g_flOverheatClearTime[owner][slot] = time;
 	g_flOverheatDecayRate[owner][slot] = 0.0; // disable decay
 }
 
 float GetOverheatAmount(int weapon) {
 	int owner = TF2_GetEntityOwner(weapon);
-	if (!IsValidEntity(owner)) {
+	int slot;
+	if (!IsValidEntity(owner) || !HasWeaponSlot(weapon, slot)) {
 		return 0.0;
 	}
-	
-	int slot = GetWeaponSlot(weapon);
 	return g_flOverheatAmount[owner][slot];
 }
 
@@ -346,7 +351,10 @@ public Action OnCustomStatusHUDUpdate(int client, StringMap entries) {
 		return Plugin_Continue;
 	}
 	
-	int slot = GetWeaponSlot(activeWeapon);
+	int slot;
+	if (!HasWeaponSlot(activeWeapon, slot)) {
+		return Plugin_Continue;
+	}
 	
 	char entry[64];
 	switch (g_ConVarMeterRender.IntValue) {
@@ -367,8 +375,12 @@ public Action OnCustomStatusHUDUpdate(int client, StringMap entries) {
 	return Plugin_Changed;
 }
 
-int GetWeaponSlot(int weapon) {
-	return SDKCall(g_SDKCallWeaponGetSlot, weapon);
+bool HasWeaponSlot(int weapon, int &slot) {
+	if (TF2_IsWearable(weapon)) {
+		return false;
+	}
+	slot = SDKCall(g_SDKCallWeaponGetSlot, weapon);
+	return true;
 }
 
 void UpdateWeaponResetParity(int weapon) {
