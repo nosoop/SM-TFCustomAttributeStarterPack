@@ -71,7 +71,8 @@ public void OnPluginStart() {
 public void OnMapStart() {
 	int entity = -1;
 	while ((entity = FindEntityByClassname(entity, "*")) != -1) {
-		if (entity && IsEntityWeapon(entity)) {
+		if (entity && IsEntityWeapon(entity)
+				&& GetWeaponSlot(weapon) < sizeof(g_flGunThrowRegenerateTime[])) {
 			DHookEntity(g_DHookSecondaryAttack, false, entity, .callback = OnSecondaryAttackPre);
 		}
 	}
@@ -93,7 +94,8 @@ public void OnClientPutInServer(int client) {
 }
 
 public void OnEntityCreated(int entity, const char[] className) {
-	if (entity && IsEntityWeapon(entity)) {
+	if (entity && IsEntityWeapon(entity)
+			&& GetWeaponSlot(weapon) < sizeof(g_flGunThrowRegenerateTime[])) {
 		DHookEntity(g_DHookSecondaryAttack, false, entity, .callback = OnSecondaryAttackPre);
 	}
 }
@@ -123,7 +125,8 @@ public MRESReturn OnSecondaryAttackPre(int weapon) {
 	}
 	
 	int slot = GetWeaponSlot(weapon);
-	if (g_flGunThrowRegenerateTime[owner][slot] > GetGameTime()) {
+	if (slot >= sizeof(g_flGunThrowRegenerateTime[])
+			|| g_flGunThrowRegenerateTime[owner][slot] > GetGameTime()) {
 		return MRES_Ignored;
 	}
 	
