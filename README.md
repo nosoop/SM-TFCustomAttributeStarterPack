@@ -36,11 +36,13 @@ the subfolders of `scripting/`.
 ## Installation
 
 These installation steps assume that you're a server operator and are familiar with how
-SourceMod works.
+SourceMod works.  I can't provide individualized support on configuration; if you're running
+into issues, please look at the [Troubleshooting page][trouble] first.
 
 1.  Install the required runtime dependencies.
 2.  [Download the latest `package.zip`][releases] (possibly stale) and unpack, or manually build
-the latest commit.
+the latest commit.  Do *not* click the green "Clone or download" button unless you intend to
+build the project from yourself; that only gives you the source repository.
 3.  Copy the resulting `gamedata/`, and `plugins/` folders into your TF2 server's
 `addons/sourcemod/` folder.
 4.  [Apply custom attributes][apply-custom] to your weapons.
@@ -52,6 +54,7 @@ development easier at the same time).
 [Custom Weapons plugin]: https://forums.alliedmods.net/showthread.php?t=285258
 [apply-custom]: https://github.com/nosoop/SM-TFCustAttr/wiki/Applying-Custom-Attributes
 [releases]: https://github.com/nosoop/SM-TFCustomAttributeStarterPack/releases
+[trouble]: https://github.com/nosoop/SM-TFCustomAttributeStarterPack/wiki/Troubleshooting
 
 ### Custom Weapon Configs
 
@@ -73,6 +76,8 @@ path to the directory containing `spcomp`.  Verified working against 1.9 and 1.1
 This project uses a bunch of external tooling.  Not all plugins use every dependency.
 To run the plugins from this project, you will need the compiled releases of the following:
 
+- [TF2 Custom Attributes][custattr]:  the core plugin, keeps track of equipment and their
+associated key / value "attribute" pairs
 - [TF2Attributes (my fork)][tf2attributes]:  interoperation with game attributes
 - [DHooks with detour support][dynhooks]:  engine-level hooks
 - [Custom Status HUD][]:  unified HUD library for drawing text elements on-screen
@@ -107,4 +112,6 @@ This project uses the MIT license.  Do note that once compiled, SourceMod plugin
 bound to GPLv3, but you're welcome to use the code as reference in other projects under the more
 permissive license.
 
-The software is provided "as is", and there is no real guarantee of support.
+The software is provided "as is", and there is no real guarantee of support.  While I will make
+an effort to maintain the plugins in response to game updates out of goodwill, it is at my
+discretion &mdash; I can't afford to do so in perpetuity.
