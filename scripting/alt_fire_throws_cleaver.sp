@@ -72,7 +72,7 @@ public void OnMapStart() {
 	int entity = -1;
 	while ((entity = FindEntityByClassname(entity, "*")) != -1) {
 		if (entity && IsEntityWeapon(entity)
-				&& GetWeaponSlot(weapon) < sizeof(g_flGunThrowRegenerateTime[])) {
+				&& GetWeaponSlot(entity) < sizeof(g_flGunThrowRegenerateTime[])) {
 			DHookEntity(g_DHookSecondaryAttack, false, entity, .callback = OnSecondaryAttackPre);
 		}
 	}
@@ -95,7 +95,7 @@ public void OnClientPutInServer(int client) {
 
 public void OnEntityCreated(int entity, const char[] className) {
 	if (entity && IsEntityWeapon(entity)
-			&& GetWeaponSlot(weapon) < sizeof(g_flGunThrowRegenerateTime[])) {
+			&& GetWeaponSlot(entity) < sizeof(g_flGunThrowRegenerateTime[])) {
 		DHookEntity(g_DHookSecondaryAttack, false, entity, .callback = OnSecondaryAttackPre);
 	}
 }
