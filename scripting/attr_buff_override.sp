@@ -126,7 +126,7 @@ public MRESReturn OnPulseRageBuffPre(Address pPlayerShared, Handle hParams) {
 	GetClientAbsOrigin(client, vecBuffOrigin);
 	
 	for (int i = 1; i <= MaxClients; i++) {
-		if (!IsClientConnected(i) || !IsPlayerAlive(i)) {
+		if (!IsClientInGame(i) || !IsPlayerAlive(i)) {
 			continue;
 		}
 		
