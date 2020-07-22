@@ -14,8 +14,10 @@
 
 #include <custom_status_hud>
 
-float g_flBonusDamageDecayStartTime[MAXPLAYERS + 1][3];
-float g_flBonusDamage[MAXPLAYERS + 1][3];
+#define NUM_ATTR_SLOTS 3
+
+float g_flBonusDamageDecayStartTime[MAXPLAYERS + 1][NUM_ATTR_SLOTS];
+float g_flBonusDamage[MAXPLAYERS + 1][NUM_ATTR_SLOTS];
 
 public void OnPluginStart() {
 	HookEvent("player_spawn", OnPlayerSpawn);
@@ -43,6 +45,7 @@ public void OnPlayerSpawn(Event event, const char[] name, bool dontBroadcast) {
 	
 	for (int i; i < sizeof(g_flBonusDamageDecayStartTime[]); i++) {
 		g_flBonusDamageDecayStartTime[client][i] = 0.0;
+		g_flBonusDamage[client][i] = 0.0;
 	}
 }
 
