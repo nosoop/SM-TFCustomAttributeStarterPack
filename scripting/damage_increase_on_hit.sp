@@ -21,6 +21,7 @@ float g_flBonusDamage[MAXPLAYERS + 1][NUM_ATTR_SLOTS];
 
 public void OnPluginStart() {
 	HookEvent("player_spawn", OnPlayerSpawn);
+	// TODO should we hook post_inventory_application and reset bonus damage there too?
 }
 
 public void OnMapStart() {
@@ -60,6 +61,13 @@ public Action OnTakeDamageAlive(int victim, int& attacker, int& inflictor, float
 		return Plugin_Continue;
 	}
 	
+	// validate bonus damage attribute on weapon
+	// slight perf hit since we need to check the attrib twice for paired call correctness
+	char buffer[4];
+	if (!TF2CustAttr_GetString(weapon, "damage increase mult on hit", buffer, sizeof(buffer))) {
+		return Plugin_Continue;
+	}
+	
 	float flBonusDamage = g_flBonusDamage[attacker][slot];
 	if (!flBonusDamage) {
 		return Plugin_Continue;
@@ -67,8 +75,6 @@ public Action OnTakeDamageAlive(int victim, int& attacker, int& inflictor, float
 	damage *= 1.0 + flBonusDamage;
 	return Plugin_Changed;
 }
-
-#include <stocksoup/log_server>
 
 public void OnTakeDamageAlivePost(int victim, int attacker, int inflictor, float damage,
 		int damagetype, int weapon, const float damageForce[3], const float damagePosition[3]) {
@@ -130,7 +136,9 @@ public void OnClientPostThinkPost(int client) {
 		
 		char buffer[256];
 		if (!TF2CustAttr_GetString(weapon, "damage increase on hit", buffer, sizeof(buffer))) {
-			return;
+			g_flBonusDamageDecayStartTime[client][i] = 0.0;
+			g_flBonusDamage[client][i] = 0.0;
+			continue;
 		}
 		
 		float flDecayPerSecond = ReadFloatVar(buffer, "decay_per_second", 0.0);
