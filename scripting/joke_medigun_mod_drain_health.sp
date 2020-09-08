@@ -22,7 +22,8 @@ Handle g_SDKCallFindEntityInSphere;
 Handle g_SDKCallGetCombatCharacterPtr;
 
 // read from CTFPlayer::DeathSound() disasm
-int offs_CTFPlayer_LastDamageType = 0x215C;
+// TODO actually read from gameconf? have to find windows sigs if I did
+int offs_CTFPlayer_LastDamageType = 0x2168;
 
 char g_MedicScripts[][] = {
 	"medic_sf13_influx_big03",
