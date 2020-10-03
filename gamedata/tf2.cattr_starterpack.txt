@@ -656,13 +656,13 @@
 				"signature"			"HandleRageGain()"
 				"linux"
 				{
-					"offset"		"1125"
+					"offset"		"480h"
 					"verify"		"\x0F\x84"
 					"patch"			"\x0F\x81"
 				}
 				"windows"
 				{
-					"offset"		"16Ch"
+					"offset"		"19Fh"
 					"verify"		"\x74"
 					"patch"			"\xEB" // unconditional JMP
 				}
