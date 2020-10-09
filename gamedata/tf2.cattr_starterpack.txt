@@ -247,7 +247,7 @@
 					}
 					"damagecustom"
 					{
-						"type"	"bool"
+						"type"	"int"
 					}
 					"crit_on_hard_hit"
 					{
