@@ -738,7 +738,7 @@
 				// unique x-ref "mult_dmgtaken_active"
 				"library"	"server"
 				"linux"		"@_ZN12CTFGameRules29ApplyOnDamageAliveModifyRulesERK15CTakeDamageInfoP11CBaseEntityRNS_20DamageModifyExtras_tE"
-				"windows"	"\x55\x8B\xEC\x81\xEC\xD0\x00\x00\x00\x53\x8B\x5D\x0C"
+				"windows"	"\x55\x8B\xEC\x81\xEC\x2A\x00\x00\x00\x53\x8B\x5D\x0C\x89\x4D\xE8\x56\x57"
 			}
 			"CTFLunchBox::ApplyBiteEffects()"
 			{
