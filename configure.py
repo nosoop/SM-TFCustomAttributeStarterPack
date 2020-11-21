@@ -118,6 +118,7 @@ copy_files = [
 include_dirs = [
 	'third_party/vendored/',
 	'third_party/submodules/',
+	'third_party/submodules/smlib/scripting/include/',
 ]
 
 spcomp_min_version = (1, 9)

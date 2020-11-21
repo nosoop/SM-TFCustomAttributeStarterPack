@@ -1,3 +1,6 @@
 [submodule "third_party/submodules/stocksoup"]
 	path = third_party/submodules/stocksoup
 	url = https://github.com/nosoop/stocksoup
+[submodule "third_party/submodules/smlib"]
+	path = third_party/submodules/smlib
+	url = https://github.com/bcserv/smlib.git

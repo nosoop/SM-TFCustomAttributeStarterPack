@@ -19,6 +19,8 @@
 #include <stocksoup/var_strings>
 #include <stocksoup/value_remap>
 
+#include <smlib/clients>
+
 Handle g_SDKCallFindEntityInSphere;
 Handle g_SDKCallGetCombatCharacterPtr;
 
@@ -197,53 +199,4 @@ static int FindEntityInSphere(int startEntity, const float vecPosition[3], float
 
 static bool IsEntityCombatCharacter(int entity) {
 	return SDKCall(g_SDKCallGetCombatCharacterPtr, entity) != Address_Null;
-}
-
-
-#define	SHAKE_START					0			// Starts the screen shake for all players within the radius.
-#define	SHAKE_STOP					1			// Stops the screen shake for all players within the radius.
-#define	SHAKE_AMPLITUDE				2			// Modifies the amplitude of an active screen shake for all players within the radius.
-#define	SHAKE_FREQUENCY				3			// Modifies the frequency of an active screen shake for all players within the radius.
-#define	SHAKE_START_RUMBLEONLY		4			// Starts a shake effect that only rumbles the controller, no screen effect.
-#define	SHAKE_START_NORUMBLE		5			// Starts a shake that does NOT rumble the controller.
-
-/**
- * Shakes a client's screen with the specified amptitude,
- * frequency & duration.
- * 
- * @param client		Client Index.
- * @param command		Shake Mode, use one of the SHAKE_ definitions.
- * @param amplitude		Shake magnitude/amplitude.
- * @param frequency		Shake noise frequency.
- * @param duration		Shake lasts this long.
- * @return				True on success, false otherwise.
- */
-stock bool Client_Shake(int client, int command = SHAKE_START, float amplitude = 50.0,
-		float frequency = 150.0, float duration = 3.0) {
-	if (command == SHAKE_STOP) {
-		amplitude = 0.0;
-	} else if (amplitude <= 0.0) {
-		return false;
-	}
-	
-	Handle userMessage = StartMessageOne("Shake", client);
-	
-	if (userMessage == INVALID_HANDLE) {
-		return false;
-	}
-	
-	if (GetFeatureStatus(FeatureType_Native, "GetUserMessageType") == FeatureStatus_Available
-			&& GetUserMessageType() == UM_Protobuf) {
-		PbSetInt(userMessage, "command", command);
-		PbSetFloat(userMessage, "local_amplitude", amplitude);
-		PbSetFloat(userMessage, "frequency", frequency);
-		PbSetFloat(userMessage, "duration", duration);
-	} else {
-		BfWriteByte(userMessage, command);
-		BfWriteFloat(userMessage, amplitude);
-		BfWriteFloat(userMessage, frequency);
-		BfWriteFloat(userMessage, duration);
-	}
-	EndMessage();
-	return true;
 }

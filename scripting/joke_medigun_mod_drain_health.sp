@@ -16,6 +16,7 @@
 #include <stocksoup/tf/client>
 #include <stocksoup/tf/entity_prop_stocks>
 #include <stocksoup/tf/tempents_stocks>
+#include <smlib/clients>
 
 Handle g_DHookWeaponPostFrame;
 Handle g_SDKCallFindEntityInSphere;
@@ -256,57 +257,6 @@ void MedicDetonate(int medigun) {
 
 static int FindEntityInSphere(int startEntity, const float vecPosition[3], float flRadius) {
 	return SDKCall(g_SDKCallFindEntityInSphere, startEntity, vecPosition, flRadius);
-}
-
-// pulled from smlib
-// I don't actually have an implementation in stocksoup
-
-#define	SHAKE_START					0			// Starts the screen shake for all players within the radius.
-#define	SHAKE_STOP					1			// Stops the screen shake for all players within the radius.
-#define	SHAKE_AMPLITUDE				2			// Modifies the amplitude of an active screen shake for all players within the radius.
-#define	SHAKE_FREQUENCY				3			// Modifies the frequency of an active screen shake for all players within the radius.
-#define	SHAKE_START_RUMBLEONLY		4			// Starts a shake effect that only rumbles the controller, no screen effect.
-#define	SHAKE_START_NORUMBLE		5			// Starts a shake that does NOT rumble the controller.
-
-/**
- * Shakes a client's screen with the specified amptitude,
- * frequency & duration.
- * 
- * @param client		Client Index.
- * @param command		Shake Mode, use one of the SHAKE_ definitions.
- * @param amplitude		Shake magnitude/amplitude.
- * @param frequency		Shake noise frequency.
- * @param duration		Shake lasts this long.
- * @return				True on success, false otherwise.
- */
-stock bool Client_Shake(int client, int command = SHAKE_START, float amplitude = 50.0,
-		float frequency = 150.0, float duration = 3.0) {
-	if (command == SHAKE_STOP) {
-		amplitude = 0.0;
-	} else if (amplitude <= 0.0) {
-		return false;
-	}
-	
-	Handle userMessage = StartMessageOne("Shake", client);
-	
-	if (userMessage == INVALID_HANDLE) {
-		return false;
-	}
-	
-	if (GetFeatureStatus(FeatureType_Native, "GetUserMessageType") == FeatureStatus_Available
-			&& GetUserMessageType() == UM_Protobuf) {
-		PbSetInt(userMessage, "command", command);
-		PbSetFloat(userMessage, "local_amplitude", amplitude);
-		PbSetFloat(userMessage, "frequency", frequency);
-		PbSetFloat(userMessage, "duration", duration);
-	} else {
-		BfWriteByte(userMessage, command);
-		BfWriteFloat(userMessage, amplitude);
-		BfWriteFloat(userMessage, frequency);
-		BfWriteFloat(userMessage, duration);
-	}
-	EndMessage();
-	return true;
 }
 
 bool IsEntityCombatCharacter(int entity) {
