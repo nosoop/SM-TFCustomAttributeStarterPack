@@ -18,8 +18,14 @@ The [wiki][] documents the available custom attributes.
 Special thanks to Karma Charger for allowing the release of the stuff I've written for him;
 a lot of the plugins available here were created for his videos.
 
+If you like this project, you may also want to check out its sibling project:
+
+- [TF2 Attribute Extended Support][attrsupport], a zero-configuration plugin that improves
+interactions in the game's native attributes.
+
 [am-prof]: https://forums.alliedmods.net/member.php?u=252787
 [wiki]: https://github.com/nosoop/SM-TFCustomAttributeStarterPack/wiki/Custom-Attribute-List
+[attrsupport]: https://github.com/nosoop/SM-TFAttributeSupport
 
 ### Microframeworks
 
@@ -31,7 +37,7 @@ their own behaviors.  These include:
 and Sniper's Heatmaker, but should work on other weapons that use the rage system
 
 The API for those frameworks are provided in `scripting/include/` and examples are available in
-the subfolders of `scripting/`.
+`scripting/{buff_overrides,lunchbox_effects}`.
 
 ## Installation
 
@@ -41,8 +47,8 @@ into issues, please look at the [Troubleshooting page][trouble] first.
 
 1.  Install the required runtime dependencies.
 2.  [Download the latest `package.zip`][releases] (possibly stale) and unpack, or manually build
-the latest commit.  Do *not* click the green "Clone or download" button unless you intend to
-build the project from yourself; that only gives you the source repository.
+the latest commit.  Do *not* click the green "Code" button with the download-like icon.
+If you intend to build from source, refer to the [Building](#Building) section below.
 3.  Copy the resulting `gamedata/`, and `plugins/` folders into your TF2 server's
 `addons/sourcemod/` folder.
 4.  [Apply custom attributes][apply-custom] to your weapons.
@@ -70,6 +76,11 @@ This project can be built in a reproductive manner with [Ninja](https://ninja-bu
 2.  Execute `python3 configure.py --spcomp-dir ${PATH}` within the repo, where `${PATH}` is the
 path to the directory containing `spcomp`.  Verified working against 1.9 and 1.10.
 3.  Run `ninja`.  Output will be available under `build/`.
+
+(If you'd like to use a similar build system for your project,
+[the template project is available here][ninjatemplate].)
+
+[ninjatemplate]: https://github.com/nosoop/NinjaBuild-SMPlugin
 
 ## Dependencies
 
