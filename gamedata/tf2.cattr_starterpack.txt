@@ -59,6 +59,28 @@
 				"return"		"float"
 				"this"			"entity"
 			}
+			"CBasePlayer::OnEmitFootstepSound()"
+			{
+				"offset"		"CBasePlayer::OnEmitFootstepSound()"
+				"callconv"		"thiscall"
+				"return"		"void"
+				"this"			"entity"
+				"arguments"
+				{
+					"sound_params"
+					{
+						"type"	"int" // ptr
+					}
+					"origin"
+					{
+						"type"	"vectorptr"
+					}
+					"volume"
+					{
+						"type"	"float"
+					}
+				}
+			}
 			"CObjectSentrygun::SentryThink()"
 			{
 				"signature"		"CObjectSentrygun::SentryThink()"
@@ -1018,6 +1040,11 @@
 			{
 				"windows"	"236"
 				"linux"		"238"
+			}
+			"CBasePlayer::OnEmitFootstepSound()"
+			{
+				"windows"	"368"
+				"linux"		"369"
 			}
 			"CTFBaseProjectile::ProjectileTouch()"
 			{
