@@ -98,12 +98,14 @@ before application
 for manipulating (mini-)crits
 - [Source Scramble][]:  memory-level tweaking, for when DHooks isn't enough
 - [TF2 Wearable Tools][]:  checks for wearables
-- [TF2 Econ Data][]: identifies loadout slots for weapons, among other things
+- [TF2 Econ Data][]:  identifies loadout slots for weapons, among other things
+- [TF2Utils][]:  wrappers around some game functions / memory accessors
 
 The following is only used when building from source; if you're just running the plugins, you do
 not need these:
 
 - [stocksoup][]:  personal library for reusable SourceMod functions
+- [smlib][]:  massive community-created function stock library
 
 Includes are bundled in the `third_party/` subdirectory to ensure builds are consistent.
 
@@ -116,6 +118,8 @@ Includes are bundled in the `third_party/` subdirectory to ensure builds are con
 [Source Scramble]: https://github.com/nosoop/SMExt-SourceScramble
 [TF2 Wearable Tools]: https://github.com/nosoop/sourcemod-tf2wearables
 [TF2 Econ Data]: https://github.com/nosoop/SM-TFEconData
+[TF2Utils]: https://github.com/nosoop/SM-TFUtils
+[smlib]: https://github.com/bcserv/smlib
 
 ## License
 
