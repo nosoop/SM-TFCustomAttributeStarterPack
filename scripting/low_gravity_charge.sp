@@ -6,10 +6,10 @@
 
 #include <tf2>
 #include <sdkhooks>
-#include <sdktools>
 
 #pragma newdecls required
 
+#include <tf2utils>
 #include <tf2wearables>
 #include <tf_custom_attributes>
 #include <stocksoup/var_strings>
@@ -17,22 +17,6 @@
 
 bool g_bAppliedGravityCharge[MAXPLAYERS + 1];
 bool g_bShouldCritWhileAirborne[MAXPLAYERS + 1];
-
-Handle g_SDKCallGetWeaponSlot;
-
-public void OnPluginStart() {
-	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
-	if (!hGameConf) {
-		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
-	}
-	
-	StartPrepSDKCall(SDKCall_Entity);
-	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual, "CBaseCombatWeapon::GetSlot()");
-	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
-	g_SDKCallGetWeaponSlot = EndPrepSDKCall();
-	
-	delete hGameConf;
-}
 
 public void OnMapStart() {
 	for (int i = 1; i <= MaxClients; i++) {
@@ -87,13 +71,9 @@ void UpdateChargingWeaponCritState(int client, int weapon) {
 		return;
 	}
 	
-	if (IsValidEntity(weapon) && GetWeaponSlot(weapon) == TFWeaponSlot_Melee) {
+	if (IsValidEntity(weapon) && TF2Util_GetWeaponSlot(weapon) == TFWeaponSlot_Melee) {
 		TF2_AddCondition(client, TFCond_CritRuneTemp);
 	} else {
 		TF2_RemoveCondition(client, TFCond_CritRuneTemp);
 	}
-}
-
-int GetWeaponSlot(int weapon) {
-	return SDKCall(g_SDKCallGetWeaponSlot, weapon);
 }

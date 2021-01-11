@@ -6,14 +6,12 @@
 
 #pragma newdecls required
 
+#include <tf2utils>
 #include <dhooks>
 #include <tf2attributes>
 #include <tf_custom_attributes>
 #include <stocksoup/var_strings>
 #include <stocksoup/tf/entity_prop_stocks>
-
-Handle g_SDKCallIsWeapon;
-Handle g_SDKCallGetWeaponSlot;
 
 Handle g_DHookOnMeleeEntityHit;
 
@@ -27,16 +25,6 @@ public void OnPluginStart() {
 	
 	g_DHookOnMeleeEntityHit = DHookCreateFromConf(hGameConf,
 			"CTFWeaponBaseMelee::OnEntityHit()");
-	
-	StartPrepSDKCall(SDKCall_Entity);
-	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual, "CBaseEntity::IsBaseCombatWeapon()");
-	PrepSDKCall_SetReturnInfo(SDKType_Bool, SDKPass_Plain);
-	g_SDKCallIsWeapon = EndPrepSDKCall();
-	
-	StartPrepSDKCall(SDKCall_Entity);
-	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual, "CBaseCombatWeapon::GetSlot()");
-	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
-	g_SDKCallGetWeaponSlot = EndPrepSDKCall();
 	
 	delete hGameConf;
 }
@@ -131,7 +119,6 @@ void ModWeaponRate(int client, float scale, float duration) {
 	 */
 	g_flBuffEndTime[client] = GetGameTime() + duration + GetTickInterval();
 	
-	
 	ClearAttributeCache(client);
 }
 
@@ -152,6 +139,6 @@ void UpdateWeaponResetParity(int weapon) {
 }
 
 bool IsEntityMeleeWeapon(int entity) {
-	return SDKCall(g_SDKCallIsWeapon, entity)
-			&& SDKCall(g_SDKCallGetWeaponSlot, entity) == TFWeaponSlot_Melee;
+	return TF2Util_IsEntityWeapon(entity)
+			&& TF2Util_GetWeaponSlot(entity) == TFWeaponSlot_Melee;
 }

@@ -12,6 +12,7 @@
 
 #pragma newdecls required
 
+#include <tf2utils>
 #include <tf2attributes>
 #include <tf2wearables>
 #include <tf_custom_attributes>
@@ -24,7 +25,6 @@
 
 Handle g_DHookPrimaryAttack;
 
-Handle g_SDKCallWeaponGetSlot;
 Handle g_SDKCallMinigunWindDown;
 
 float g_flOverheatAmount[MAXPLAYERS + 1][NUM_WEAPON_SLOTS];
@@ -33,7 +33,7 @@ float g_flOverheatDecayTime[MAXPLAYERS + 1][NUM_WEAPON_SLOTS];
 float g_flOverheatDecayRate[MAXPLAYERS + 1][NUM_WEAPON_SLOTS];
 
 // minigun weapon states
-enum eMinigunState {
+enum {
 	AC_STATE_IDLE = 0,
 	AC_STATE_STARTFIRING,
 	AC_STATE_FIRING,
@@ -50,11 +50,6 @@ public void OnPluginStart() {
 	}
 	
 	g_DHookPrimaryAttack = DHookCreateFromConf(hGameConf, "CTFWeaponBase::PrimaryAttack()");
-	
-	StartPrepSDKCall(SDKCall_Entity);
-	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual, "CBaseCombatWeapon::GetSlot()");
-	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
-	g_SDKCallWeaponGetSlot = EndPrepSDKCall();
 	
 	Handle dtMinigunSharedAttack = DHookCreateFromConf(hGameConf, "CTFMinigun::SharedAttack()");
 	DHookEnableDetour(dtMinigunSharedAttack, false, OnMinigunAttackPre);
@@ -379,7 +374,7 @@ bool HasWeaponSlot(int weapon, int &slot) {
 	if (TF2_IsWearable(weapon)) {
 		return false;
 	}
-	slot = SDKCall(g_SDKCallWeaponGetSlot, weapon);
+	slot = TF2Util_GetWeaponSlot(weapon);
 	return true;
 }
 

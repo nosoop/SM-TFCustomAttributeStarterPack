@@ -5,9 +5,9 @@
 #include <sourcemod>
 
 #include <sdkhooks>
-#include <sdktools>
 #pragma newdecls required
 
+#include <tf2utils>
 #include <stocksoup/var_strings>
 #include <tf_calcmaxspeed>
 #include <tf_custom_attributes>
@@ -23,22 +23,6 @@ public Plugin myinfo = {
 
 float g_flNailgunStunTime[MAXPLAYERS + 1];
 float g_flNailgunSpeedRatio[MAXPLAYERS + 1];
-
-// TODO maybe have an arraylist with stun amounts, 
-Handle g_SDKCallUpdatePlayerSpeed;
-
-public void OnPluginStart() {
-	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
-	if (!hGameConf) {
-		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
-	}
-	
-	StartPrepSDKCall(SDKCall_Player);
-	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CTFPlayer::TeamFortress_SetSpeed()");
-	g_SDKCallUpdatePlayerSpeed = EndPrepSDKCall();
-	
-	delete hGameConf;
-}
 
 public void OnMapStart() {
 	for (int i = 1; i <= MaxClients; i++) {
@@ -65,7 +49,7 @@ public void OnClientPreThinkPost(int client) {
 	if (g_flNailgunStunTime[client] <= 0.0) {
 		g_flNailgunStunTime[client] = 0.0;
 		g_flNailgunSpeedRatio[client] = 1.0;
-		TF2_UpdatePlayerSpeed(client);
+		TF2Util_UpdatePlayerSpeed(client);
 	}
 }
 
@@ -104,7 +88,7 @@ public void OnClientTakeDamageAlivePost(int victim, int attacker, int inflictor,
 	float flNewSlowDuration = g_flNailgunStunTime[victim] + flSlowAdditive;
 	g_flNailgunStunTime[victim] = (flNewSlowDuration > flSlowMaxTime)?
 			flSlowMaxTime : flNewSlowDuration;
-	TF2_UpdatePlayerSpeed(victim);
+	TF2Util_UpdatePlayerSpeed(victim);
 }
 
 public Action TF2_OnCalculateMaxSpeed(int client, float &flMaxSpeed) {
@@ -114,8 +98,4 @@ public Action TF2_OnCalculateMaxSpeed(int client, float &flMaxSpeed) {
 	
 	flMaxSpeed *= g_flNailgunSpeedRatio[client];
 	return Plugin_Changed;
-}
-
-static void TF2_UpdatePlayerSpeed(int client) {
-	SDKCall(g_SDKCallUpdatePlayerSpeed, client);
 }

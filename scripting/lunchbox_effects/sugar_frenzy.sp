@@ -8,6 +8,7 @@
 
 #pragma newdecls required
 
+#include <tf2utils>
 #include <tf2_stocks>
 #include <tf2attributes>
 #include <tf_cattr_lunch_effect>
@@ -19,19 +20,6 @@
 Handle g_SDKCallUpdatePlayerSpeed;
 
 float g_flBuffEndTime[MAXPLAYERS + 1];
-
-public void OnPluginStart() {
-	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
-	if (!hGameConf) {
-		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
-	}
-	
-	StartPrepSDKCall(SDKCall_Player);
-	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CTFPlayer::TeamFortress_SetSpeed()");
-	g_SDKCallUpdatePlayerSpeed = EndPrepSDKCall();
-	
-	delete hGameConf;
-}
 
 public void OnMapStart() {
 	PrecacheScriptSound("DisciplineDevice.PowerUp");
@@ -65,7 +53,7 @@ public void OnClientPostThinkPost(int client) {
 	
 	ClearAttributeCache(client);
 	
-	TF2_UpdatePlayerSpeed(client);
+	TF2Util_UpdatePlayerSpeed(client);
 	EmitGameSoundToAll("Scout.DodgeTired", client);
 	EmitGameSoundToAll("DisciplineDevice.PowerDown", .entity = client);
 	
@@ -102,7 +90,6 @@ public void SugarFrenzyEffect(int owner, int weapon, const char[] effectName) {
 	}
 	g_flBuffEndTime[owner] = GetGameTime() + flDuration + GetTickInterval();
 	
-	
 	ClearAttributeCache(owner);
 }
 
@@ -113,7 +100,7 @@ public Action ClearAttributeCacheTimer(Handle timer, int clientserial) {
 	}
 	
 	ClearAttributeCache(client);
-	TF2_UpdatePlayerSpeed(client);
+	TF2Util_UpdatePlayerSpeed(client);
 	return Plugin_Handled;
 }
 
@@ -131,10 +118,6 @@ void ClearAttributeCache(int client) {
 			TF2Attrib_ClearCache(weapon);
 		}
 	}
-}
-
-static void TF2_UpdatePlayerSpeed(int client) {
-	SDKCall(g_SDKCallUpdatePlayerSpeed, client);
 }
 
 public Action OnCustomStatusHUDUpdate(int client, StringMap entries) {

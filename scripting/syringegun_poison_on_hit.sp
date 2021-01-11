@@ -10,6 +10,7 @@
 
 #pragma newdecls required
 
+#include <tf2utils>
 #include <tf_econ_data>
 #include <tf_custom_attributes>
 #include <stocksoup/tf/econ>
@@ -28,9 +29,6 @@ int g_iPoisonDmgPerTick[MAXPLAYERS + 1];
 float g_flPoisonDmgInterval[MAXPLAYERS + 1];
 
 Handle g_DHookWeaponSecondaryAttack;
-Handle g_SDKCallUpdatePlayerSpeed;
-
-Handle g_SDKCallIsWeapon;
 
 public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
@@ -40,15 +38,6 @@ public void OnPluginStart() {
 	
 	g_DHookWeaponSecondaryAttack = 
 			DHookCreateFromConf(hGameConf, "CBaseCombatWeapon::SecondaryAttack()");
-	
-	StartPrepSDKCall(SDKCall_Entity);
-	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual, "CBaseEntity::IsBaseCombatWeapon()");
-	PrepSDKCall_SetReturnInfo(SDKType_Bool, SDKPass_Plain);
-	g_SDKCallIsWeapon = EndPrepSDKCall();
-	
-	StartPrepSDKCall(SDKCall_Player);
-	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CTFPlayer::TeamFortress_SetSpeed()");
-	g_SDKCallUpdatePlayerSpeed = EndPrepSDKCall();
 	
 	delete hGameConf;
 }
@@ -169,7 +158,7 @@ public void OnClientPostThinkPost(int client) {
 	}
 	
 	UTIL_ScreenFade(client, { 0, 0, 0, 0 }, 1.5, 1.5, FFADE_PURGE | FFADE_OUT);
-	SDKCall(g_SDKCallUpdatePlayerSpeed, client);
+	TF2Util_UpdatePlayerSpeed(client);
 }
 
 void ApplyPoisonEffect(int client, int damagePerTick, float damageTickInterval, float duration,
@@ -186,7 +175,7 @@ void ApplyPoisonEffect(int client, int damagePerTick, float damageTickInterval, 
 	
 	EmitGameSoundToAll("Player.DrownStart", client);
 	
-	SDKCall(g_SDKCallUpdatePlayerSpeed, client);
+	TF2Util_UpdatePlayerSpeed(client);
 }
 
 public Action TF2_OnCalculateMaxSpeed(int client, float &speed) {
@@ -197,12 +186,8 @@ public Action TF2_OnCalculateMaxSpeed(int client, float &speed) {
 	return Plugin_Continue;
 }
 
-bool IsEntityWeapon(int entity) {
-	return SDKCall(g_SDKCallIsWeapon, entity);
-}
-
 bool IsMedicWeapon(int entity) {
-	if (!IsEntityWeapon(entity)) {
+	if (!TF2Util_IsEntityWeapon(entity)) {
 		return false;
 	}
 	

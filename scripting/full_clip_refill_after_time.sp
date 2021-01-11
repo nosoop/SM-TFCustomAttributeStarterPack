@@ -7,12 +7,13 @@
 
 #pragma newdecls required
 
+#include <tf2utils>
 #include <tf_custom_attributes>
 #include <stocksoup/tf/entity_prop_stocks>
 #include <custom_status_hud>
 
 Handle g_DHookPrimaryAttack;
-Handle g_SDKCallGetWeaponSlot, g_SDKCallGetMaxClip1;
+Handle g_SDKCallGetMaxClip1;
 
 float g_flFullClipRefillTime[MAXPLAYERS + 1][3];
 
@@ -23,11 +24,6 @@ public void OnPluginStart() {
 	}
 	
 	g_DHookPrimaryAttack = DHookCreateFromConf(hGameConf, "CTFWeaponBase::PrimaryAttack()");
-	
-	StartPrepSDKCall(SDKCall_Entity);
-	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual, "CBaseCombatWeapon::GetSlot()");
-	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
-	g_SDKCallGetWeaponSlot = EndPrepSDKCall();
 	
 	StartPrepSDKCall(SDKCall_Entity);
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual, "CBaseCombatWeapon::GetMaxClip1()");
@@ -111,7 +107,7 @@ public MRESReturn OnWeaponPrimaryAttackPost(int weapon) {
 		return MRES_Ignored;
 	}
 	
-	int slot = GetWeaponSlot(weapon);
+	int slot = TF2Util_GetWeaponSlot(weapon);
 	if (slot < 0 || slot > sizeof(g_flFullClipRefillTime[])) {
 		// TODO note that slot is invalid
 		return MRES_Ignored;
@@ -128,10 +124,6 @@ public MRESReturn OnWeaponPrimaryAttackPost(int weapon) {
 
 void FullRefillWeaponClip(int weapon) {
 	SetEntProp(weapon, Prop_Data, "m_iClip1", GetMaxPrimaryClip(weapon));
-}
-
-int GetWeaponSlot(int weapon) {
-	return SDKCall(g_SDKCallGetWeaponSlot, weapon);
 }
 
 int GetMaxPrimaryClip(int weapon) {

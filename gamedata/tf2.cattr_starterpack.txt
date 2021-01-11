@@ -854,13 +854,6 @@
 				"linux"			"@_ZN9CTFPlayer10RegenThinkEv"
 				"windows"		"\x55\x8B\xEC\x83\xEC\x74\x57\x8B\xF9\x8B\x07"
 			}
-			"CTFPlayer::TeamFortress_SetSpeed()"
-			{
-				// function is x-ref to CTFPlayer::TeamFortress_CalculateMaxSpeed
-				"library"		"server"
-				"linux"			"@_ZN9CTFPlayer21TeamFortress_SetSpeedEv"
-				"windows"		"\x55\x8B\xEC\xA1\x2A\x2A\x2A\x2A\x83\xEC\x1C\x53"
-			}
 			"CTFPlayerShared::ActivateRageBuff()"
 			{
 				// containing non-unique string "mod_buff_duration"
@@ -963,11 +956,6 @@
 		
 		"Offsets"
 		{
-			"CBaseCombatWeapon::GetSlot()"
-			{
-				"windows"	"326"
-				"linux"		"332"
-			}
 			"CBaseCombatWeapon::GetMaxClip1()"
 			{
 				"windows"	"317"
@@ -992,11 +980,6 @@
 			{
 				"windows"	"96"
 				"linux"		"96"
-			}
-			"CBaseEntity::IsBaseCombatWeapon()"
-			{
-				"windows"	"86"
-				"linux"		"87"
 			}
 			"CBaseEntity::MyCombatCharacterPointer()"
 			{

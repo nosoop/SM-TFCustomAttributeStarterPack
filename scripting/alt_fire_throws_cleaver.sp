@@ -10,14 +10,13 @@
 
 #pragma newdecls required
 
+#include <tf2utils>
 #include <stocksoup/var_strings>
 #include <stocksoup/tf/entity_prop_stocks>
 #include <tf_custom_attributes>
 #include <custom_status_hud>
 
 Handle g_SDKCallInitGrenade;
-Handle g_SDKCallIsEntityWeapon;
-Handle g_SDKCallGetWeaponSlot;
 Handle g_DHookSecondaryAttack;
 Handle g_SDKCallWeaponSwitch;
 
@@ -28,16 +27,6 @@ public void OnPluginStart() {
 	if (!hGameConf) {
 		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
 	}
-	
-	StartPrepSDKCall(SDKCall_Entity);
-	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual, "CBaseEntity::IsBaseCombatWeapon()");
-	PrepSDKCall_SetReturnInfo(SDKType_Bool, SDKPass_Plain);
-	g_SDKCallIsEntityWeapon = EndPrepSDKCall();
-	
-	StartPrepSDKCall(SDKCall_Entity);
-	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual, "CBaseCombatWeapon::GetSlot()");
-	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
-	g_SDKCallGetWeaponSlot = EndPrepSDKCall();
 	
 	StartPrepSDKCall(SDKCall_Entity);
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual,
@@ -71,8 +60,8 @@ public void OnPluginStart() {
 public void OnMapStart() {
 	int entity = -1;
 	while ((entity = FindEntityByClassname(entity, "*")) != -1) {
-		if (entity && IsEntityWeapon(entity)
-				&& GetWeaponSlot(entity) < sizeof(g_flGunThrowRegenerateTime[])) {
+		if (entity && TF2Util_IsEntityWeapon(entity)
+				&& TF2Util_GetWeaponSlot(entity) < sizeof(g_flGunThrowRegenerateTime[])) {
 			DHookEntity(g_DHookSecondaryAttack, false, entity, .callback = OnSecondaryAttackPre);
 		}
 	}
@@ -94,8 +83,8 @@ public void OnClientPutInServer(int client) {
 }
 
 public void OnEntityCreated(int entity, const char[] className) {
-	if (entity && IsEntityWeapon(entity)
-			&& GetWeaponSlot(entity) < sizeof(g_flGunThrowRegenerateTime[])) {
+	if (entity && TF2Util_IsEntityWeapon(entity)
+			&& TF2Util_GetWeaponSlot(entity) < sizeof(g_flGunThrowRegenerateTime[])) {
 		DHookEntity(g_DHookSecondaryAttack, false, entity, .callback = OnSecondaryAttackPre);
 	}
 }
@@ -124,7 +113,7 @@ public MRESReturn OnSecondaryAttackPre(int weapon) {
 		return MRES_Ignored;
 	}
 	
-	int slot = GetWeaponSlot(weapon);
+	int slot = TF2Util_GetWeaponSlot(weapon);
 	if (slot >= sizeof(g_flGunThrowRegenerateTime[])
 			|| g_flGunThrowRegenerateTime[owner][slot] > GetGameTime()) {
 		return MRES_Ignored;
@@ -202,10 +191,6 @@ void GetCleaverAngularImpulse(float vecAngImpulse[3]) {
 	vecAngImpulse[2] = 0.0;
 }
 
-bool IsEntityWeapon(int entity) {
-	return SDKCall(g_SDKCallIsEntityWeapon, entity);
-}
-
 public Action OnCustomStatusHUDUpdate(int client, StringMap entries) {
 	bool changed;
 	for (int i; i < sizeof(g_flGunThrowRegenerateTime[]); i++) {
@@ -240,7 +225,7 @@ public Action OnCustomStatusHUDUpdate(int client, StringMap entries) {
 }
 
 public Action OnClientWeaponCanSwitchTo(int client, int weapon) {
-	int slot = GetWeaponSlot(weapon);
+	int slot = TF2Util_GetWeaponSlot(weapon);
 	if (slot < 0 || slot >= sizeof(g_flGunThrowRegenerateTime[])) {
 		return Plugin_Continue;
 	}
@@ -251,10 +236,6 @@ public Action OnClientWeaponCanSwitchTo(int client, int weapon) {
 	
 	EmitGameSoundToClient(client, "Player.DenyWeaponSelection");
 	return Plugin_Handled;
-}
-
-int GetWeaponSlot(int weapon) {
-	return SDKCall(g_SDKCallGetWeaponSlot, weapon);
 }
 
 void SetActiveWeapon(int client, int weapon) {
