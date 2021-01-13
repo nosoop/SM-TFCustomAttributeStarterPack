@@ -997,11 +997,6 @@
 		
 		"Offsets"
 		{
-			"CBaseCombatWeapon::GetMaxClip1()"
-			{
-				"windows"	"317"
-				"linux"		"323"
-			}
 			"CBaseCombatWeapon::ItemPostFrame()"
 			{
 				"windows"	"265"
