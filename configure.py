@@ -200,14 +200,6 @@ with contextlib.closing(ninja_syntax.Writer(open('build.ninja', 'wt'))) as build
 		build.rule('copy', command = 'cp ${in} ${out}', description = 'Copying ${out}')
 	build.newline()
 	
-	# Generate archive package for releases
-	build.rule('package', command = sys.executable + ' ${root}/misc/build_dist_zip.py ${out} ${in}',
-			description = "Generating package ${out}")
-	build.newline()
-	
-	# package build outputs
-	outputs = [ ]
-	
 	build.comment("""Compile plugins specified in `plugins` list""")
 	for plugin in plugins:
 		smx_plugin = os.path.splitext(plugin)[0] + '.smx'
@@ -215,7 +207,7 @@ with contextlib.closing(ninja_syntax.Writer(open('build.ninja', 'wt'))) as build
 		sp_file = os.path.normpath(os.path.join('$root', 'scripting', plugin))
 		
 		smx_file = os.path.normpath(os.path.join('$builddir', 'plugins', 'custom-attr-starter-pack', smx_plugin))
-		outputs += build.build(smx_file, 'spcomp', sp_file)
+		build.build(smx_file, 'spcomp', sp_file)
 	build.newline()
 	
 	build.comment("""Copy plugin sources to build output""")
@@ -223,14 +215,10 @@ with contextlib.closing(ninja_syntax.Writer(open('build.ninja', 'wt'))) as build
 		sp_file = os.path.normpath(os.path.join('$root', 'scripting', plugin))
 		
 		dist_sp = os.path.normpath(os.path.join('$builddir', 'scripting', plugin))
-		outputs += build.build(dist_sp, 'copy', sp_file)
+		build.build(dist_sp, 'copy', sp_file)
 	build.newline()
 	
 	build.comment("""Copy other files from source tree""")
 	for filepath in copy_files:
-		outputs += build.build(os.path.normpath(os.path.join('$builddir', filepath)), 'copy',
+		build.build(os.path.normpath(os.path.join('$builddir', filepath)), 'copy',
 				os.path.normpath(os.path.join('$root', filepath)))
-	build.newline()
-	
-	build.comment("""Package all files for distribution""")
-	build.build(os.path.normpath(os.path.join('$builddir', 'package.zip')), 'package', outputs)
