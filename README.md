@@ -100,6 +100,9 @@ for manipulating (mini-)crits
 - [TF2 Wearable Tools][]:  checks for wearables
 - [TF2 Econ Data][]:  identifies loadout slots for weapons, among other things
 - [TF2Utils][]:  wrappers around some game functions / memory accessors
+- [TF2 DamageInfo Tools][]:  additional wrapper solely for radius damage, because bomb entities
+just don't work exactly right for custom explosions.  Uses Source Scramble's `MemoryBlock`
+handles for struct allocation.
 
 The following is only used when building from source; if you're just running the plugins, you do
 not need these:
@@ -120,6 +123,7 @@ Includes are bundled in the `third_party/` subdirectory to ensure builds are con
 [TF2 Econ Data]: https://github.com/nosoop/SM-TFEconData
 [TF2Utils]: https://github.com/nosoop/SM-TFUtils
 [smlib]: https://github.com/bcserv/smlib
+[TF2 DamageInfo Tools]: https://github.com/nosoop/SM-TFDamageInfo
 
 ## License
 
