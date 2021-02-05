@@ -116,6 +116,13 @@
 				"return"		"void"
 				"this"			"entity"
 			}
+			"CTFMechanicalArm::ShockAttack()"
+			{
+				"signature"		"CTFMechanicalArm::ShockAttack()"
+				"callconv"		"thiscall"
+				"return"		"bool"
+				"this"			"entity"
+			}
 			"CTFMinigun::RingOfFireAttack()"
 			{
 				"signature"		"CTFMinigun::RingOfFireAttack()"
@@ -795,6 +802,14 @@
 				"library"	"server"
 				"linux"		"@_ZN11CTFLunchBox16ApplyBiteEffectsEP9CTFPlayer"
 				"windows"	"\x55\x8B\xEC\x51\x53\x8B\xD9\x56\x57\x6A\x01"
+			}
+			"CTFMechanicalArm::ShockAttack()"
+			{
+				// ah geez.
+				// on windows, called within a function containing xref "tf_projectile_mechanicalarmorb" before the long trace-related block
+				"library"	"server"
+				"linux"		"@_ZN16CTFMechanicalArm11ShockAttackEv"
+				"windows"	"\x56\x57\x8B\xF9\xE8\x2A\x2A\x2A\x2A\x8B\xF0\x85\xF6\x74\x2A\x8B\x16\x8B\xCE\x8B\x92\x40\x01\x00\x00\xFF\xD2\x84\xC0\x74\x2A\x80\xBE\x0B\x02\x00\x00\x03"
 			}
 			"CTFLunchBox::SecondaryAttack()"
 			{

@@ -24,6 +24,7 @@
 #define NUM_WEAPON_SLOTS 5
 
 Handle g_DHookPrimaryAttack;
+Handle g_DHookSecondaryAttack;
 
 Handle g_SDKCallMinigunWindDown;
 
@@ -50,6 +51,8 @@ public void OnPluginStart() {
 	}
 	
 	g_DHookPrimaryAttack = DHookCreateFromConf(hGameConf, "CTFWeaponBase::PrimaryAttack()");
+	g_DHookSecondaryAttack = DHookCreateFromConf(hGameConf,
+			"CBaseCombatWeapon::SecondaryAttack()");
 	
 	Handle dtMinigunSharedAttack = DHookCreateFromConf(hGameConf, "CTFMinigun::SharedAttack()");
 	DHookEnableDetour(dtMinigunSharedAttack, false, OnMinigunAttackPre);
@@ -58,6 +61,12 @@ public void OnPluginStart() {
 	StartPrepSDKCall(SDKCall_Entity);
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CTFMinigun::WindDown()");
 	g_SDKCallMinigunWindDown = EndPrepSDKCall();
+	
+	Handle dtMechanicalArmShockAttack = DHookCreateFromConf(hGameConf, "CTFMechanicalArm::ShockAttack()");
+	if (!dtMechanicalArmShockAttack) {
+		SetFailState("Failed to create detour %s", "CTFMechanicalArm::ShockAttack()");
+	}
+	DHookEnableDetour(dtMechanicalArmShockAttack, true, OnMechanicalArmShockAttackPost);
 	
 	delete hGameConf;
 	
@@ -101,6 +110,9 @@ static void HookWeaponEntity(int weapon) {
 	if (!StrEqual(cname, "tf_weapon_minigun")) {
 		DHookEntity(g_DHookPrimaryAttack, true, weapon, .callback = OnPrimaryAttackPost);
 		DHookEntity(g_DHookPrimaryAttack, false, weapon, .callback = OnPrimaryAttackPre);
+		
+		DHookEntity(g_DHookSecondaryAttack, false, weapon, .callback = OnSecondaryAttackPre);
+		DHookEntity(g_DHookSecondaryAttack, true, weapon, .callback = OnSecondaryAttackPost);
 	}
 	
 	if (HasEntProp(weapon, Prop_Data, "CTFWeaponBaseGunZoomOutIn")) {
@@ -191,14 +203,78 @@ public MRESReturn OnPrimaryAttackPost(int weapon) {
 	return MRES_Ignored;
 }
 
+static bool s_bSecondaryAttackAvailable;
+static bool s_bShockAttackActivated;
+public MRESReturn OnSecondaryAttackPre(int weapon) {
+	float flNextSecondaryAttack = GetEntPropFloat(weapon, Prop_Send, "m_flNextSecondaryAttack");
+	s_bSecondaryAttackAvailable = flNextSecondaryAttack <= GetGameTime();
+	s_bShockAttackActivated = false;
+}
+
+public MRESReturn OnMechanicalArmShockAttackPost(int weapon, Handle hReturn) {
+	bool success = DHookGetReturn(hReturn);
+	s_bShockAttackActivated = success;
+}
+
+public MRESReturn OnSecondaryAttackPost(int weapon) {
+	if (!s_bSecondaryAttackAvailable) {
+		return MRES_Ignored;
+	}
+	
+	if (TF2Util_GetWeaponID(weapon) == TF_WEAPON_MECHANICAL_ARM && !s_bShockAttackActivated) {
+		// special case for the Short Circuit
+		// we check for shock attack activation since we get a delay even with insufficent ammo
+		return MRES_Ignored;
+	}
+	
+	char buffer[512];
+	if (!TF2CustAttr_GetString(weapon, "weapon overheat", buffer, sizeof(buffer))) {
+		return MRES_Ignored;
+	}
+	
+	float flOverheat = ReadFloatVar(buffer, "heat_rate_alt", 0.0);
+	if (flOverheat <= 0.0) {
+		return MRES_Ignored;
+	}
+	
+	float flCooldown = ReadFloatVar(buffer, "cooldown", 0.0);
+	float flDecayTime = ReadFloatVar(buffer, "decay_time", 0.0);
+	float flDecayRate = ReadFloatVar(buffer, "decay_rate", 0.0);
+	
+	float overheat = ApplyOverheat(weapon, flOverheat, flDecayTime, flDecayRate);
+	
+	float flSpreadMod = ReadFloatVar(buffer, "overheat_spread_scale", 1.0);
+	if (flSpreadMod != 1.0) {
+		// this needs to be lag compensated so we do need to apply this modifier
+		float spread = LerpFloat(GetOverheatAmount(weapon), 1.0, flSpreadMod);
+		TF2Attrib_SetByName(weapon, "weapon spread bonus", spread);
+	}
+	
+	if (overheat >= 1.0) {
+		float flCooldownEnd = GetGameTime() + flCooldown;
+		
+		SetOverheatClearTime(weapon, flCooldownEnd);
+		SetEntPropFloat(weapon, Prop_Data, "m_flNextPrimaryAttack", flCooldownEnd);
+		SetEntPropFloat(weapon, Prop_Data, "m_flNextSecondaryAttack", flCooldownEnd);
+		
+		if (!PlayCustomOverheatSound(weapon)) {
+			EmitGameSoundToAll("TFPlayer.FlameOut", .entity = weapon);
+		}
+		
+		UpdateWeaponResetParity(weapon);
+	}
+	return MRES_Ignored;
+}
+
 public MRESReturn OnMinigunAttackPre(int weapon) {
 	float flNextPrimaryAttack = GetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack");
 	s_bPrimaryAttackAvailable = flNextPrimaryAttack <= GetGameTime();
 }
 
 public MRESReturn OnMinigunAttackPost(int weapon) {
+	int state = GetEntProp(weapon, Prop_Send, "m_iWeaponState");
 	if (!s_bPrimaryAttackAvailable
-			|| GetEntProp(weapon, Prop_Send, "m_iWeaponState") != AC_STATE_FIRING) {
+			|| (state != AC_STATE_FIRING && state != AC_STATE_SPINNING)) {
 		return MRES_Ignored;
 	}
 	
@@ -211,8 +287,16 @@ public MRESReturn OnMinigunAttackPost(int weapon) {
 	float flCooldown = ReadFloatVar(buffer, "cooldown", 0.0);
 	float flDecayTime = ReadFloatVar(buffer, "decay_time", 0.0);
 	float flDecayRate = ReadFloatVar(buffer, "decay_rate", 0.0);
+	float flPassiveOverheat = ReadFloatVar(buffer, "heat_rate_alt", 0.0);
 	
-	float overheat = ApplyOverheat(weapon, flOverheat, flDecayTime, flDecayRate);
+	float overheat;
+	if (state != AC_STATE_SPINNING) {
+		overheat = ApplyOverheat(weapon, flOverheat, flDecayTime, flDecayRate);
+	} else {
+		// use if in spinup state but not firing
+		overheat = ApplyOverheat(weapon, flPassiveOverheat * GetGameFrameTime(),
+				flDecayTime, flDecayRate, true);
+	}
 	
 	float flSpreadMod = ReadFloatVar(buffer, "overheat_spread_scale", 1.0);
 	if (flSpreadMod != 1.0) {
@@ -256,9 +340,10 @@ bool PlayCustomOverheatSound(int weapon) {
 	return true;
 }
 
-float ApplyOverheat(int weapon, float amount, float decayTime, float decayRate) {
+float ApplyOverheat(int weapon, float amount, float decayTime, float decayRate,
+		bool bIgnoreNextPrimaryAttack = false) {
 	float flNextPrimaryAttack = GetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack");
-	if (amount <= 0.0 || flNextPrimaryAttack <= GetGameTime()) {
+	if (amount <= 0.0 || (!bIgnoreNextPrimaryAttack && flNextPrimaryAttack <= GetGameTime())) {
 		return 0.0;
 	}
 	
