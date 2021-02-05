@@ -17,6 +17,18 @@
 					"offset"		"78"
 				}
 			}
+			"CTFProjectile_Flare::Explode_Air()::SelfDamageRadius"
+			{
+				"signature"		"CTFProjectile_Flare::Explode_Air()"
+				"windows"
+				{
+					"offset"	"541" // 0x21D, validate that address contains 100.0
+				}
+				"linux"
+				{
+					"offset"	"1133" // 0x46D
+				}
+			}
 		}
 		"Functions"
 		{
@@ -419,6 +431,28 @@
 				"callconv"		"thiscall"
 				"return"		"void"
 				"this"			"address"
+			}
+			"CTFProjectile_Flare::Explode_Air()"
+			{
+				"signature"		"CTFProjectile_Flare::Explode_Air()"
+				"callconv"		"thiscall"
+				"return"		"void"
+				"this"			"entity"
+				"arguments"
+				{
+					"trace"
+					{
+						"type"	"int"
+					}
+					"damagetype"
+					{
+						"type"	"int"
+					}
+					"self"
+					{
+						"type"	"bool"
+					}
+				}
 			}
 			"CTFProjectile_HealingBolt::ImpactTeamPlayer()"
 			{
@@ -938,6 +972,13 @@
 				"library"		"server"
 				"linux"			"@_ZN15CTFPlayerShared16UpdateCloakMeterEv"
 				"windows"		"\x55\x8B\xEC\x83\xEC\x18\x56\x8B\xF1\x6A\x08"
+			}
+			"CTFProjectile_Flare::Explode_Air()"
+			{
+				// contains unique xref "ExplosionCore_MidAir_Flare"
+				"library"	"server"
+				"linux"		"@_ZN19CTFProjectile_Flare11Explode_AirEP10CGameTraceib"
+				"windows"	"\x55\x8B\xEC\x81\xEC\xCC\x00\x00\x00\x53\x56"
 			}
 			"CTFProjectile_HealingBolt::ImpactTeamPlayer()"
 			{
