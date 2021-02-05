@@ -145,17 +145,9 @@ public void OnObjectSapped(Event event, const char[] name, bool dontBroadcast) {
 	
 	int sapper = GetPlayerWeaponSlot(attacker, view_as<int>(TF2ItemSlot_Sapper));
 	
-	KeyValues attr = TF2CustAttr_GetAttributeKeyValues(sapper);
-	if (!attr) {
-		// no custom attributes
-		return;
-	}
-	
 	char reprogrammerProps[512];
-	attr.GetString("sapper reprograms buildings", reprogrammerProps, sizeof(reprogrammerProps));
-	delete attr;
-	
-	if (!reprogrammerProps[0]) {
+	if (!TF2CustAttr_GetString(sapper, "sapper reprograms buildings", reprogrammerProps,
+			sizeof(reprogrammerProps))) {
 		// not a reprogramming sapper
 		return;
 	}

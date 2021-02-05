@@ -60,20 +60,9 @@ public void OnClientTakeDamageAlivePost(int victim, int attacker, int inflictor,
 		return;
 	}
 	
-	KeyValues attr = TF2CustAttr_GetAttributeKeyValues(weapon);
-	if (!attr) {
-		return;
-	}
-	
-	/**
-	 * we really should have a native for the attribute getters so we don't need to do all these
-	 * checks every single time
-	 */
 	char nailgunProps[512];
-	attr.GetString("nailgun custom slow", nailgunProps, sizeof(nailgunProps));
-	delete attr;
-	
-	if (!nailgunProps[0]) {
+	if (!TF2CustAttr_GetString(weapon, "nailgun custom slow",
+			nailgunProps, sizeof(nailgunProps))) {
 		return;
 	}
 	
