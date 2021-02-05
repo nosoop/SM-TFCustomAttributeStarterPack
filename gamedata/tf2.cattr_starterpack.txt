@@ -488,13 +488,6 @@
 				"return"		"void"
 				"this"			"entity"
 			}
-			"CTFWeaponBase::Reload()"
-			{
-				"offset"		"CTFWeaponBase::Reload()"
-				"hooktype"		"entity"
-				"return"		"bool"
-				"this"			"entity"
-			}
 			"CTFWeaponBase::FinishReload()"
 			{
 				"offset"		"CTFWeaponBase::FinishReload()"
@@ -1104,11 +1097,6 @@
 			{
 				"windows"	"274"
 				"linux"		"280"
-			}
-			"CTFWeaponBase::Reload()"
-			{
-				"windows"	"276"
-				"linux"		"282"
 			}
 			"CTFWeaponBaseGun::FireEnergyBall()"
 			{
