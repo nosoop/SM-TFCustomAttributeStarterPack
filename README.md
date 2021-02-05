@@ -127,16 +127,19 @@ This project uses the MIT license.  Do note that once compiled, SourceMod plugin
 bound to GPLv3, but you're welcome to use the code as reference in other projects under the more
 permissive license.
 
-The following is a non-exhaustive list of what you're allowed to do:
+The following is a non-exhaustive list of what you're allowed / required to do (that said, this
+is not legal advice):
 
 - You can modify / use any of the code provided under the MIT license.  You may use the code as
 reference documentation for things like MetaMod:Source bindings under that license.
 - If you provide a compiled SourceMod plugin to another person, you MUST include the source code
 with your modifications per GPLv3+.  (This applies to all SourceMod code / plugins in general.)
-- If you run the code on a server you own, modified or not, you are under no further obligation
-to provide any source code to any end-users.
-- Attribution is nice, but not required.  If you do feel like providing a URL for attribution of
-any custom attributes available here, linking to this repository is preferred.
+- If you run a compiled SourceMod plugin on a server you own, modified or not, you are under no
+further obligation to provide any source code to any end-users.
+	- Attribution is nice, but not required if you're simply running the code.  I couldn't care
+	less, really.  If you do feel like providing a URL for attribution of any custom attributes
+	available here that you are using, linking to this repository is preferred.  If you need
+	a name to credit, "nosoop" is acceptable.  (I do have a number of other aliases.)
 
 The software is provided "as is", and there is no real guarantee of support.  While I will make
 an effort to maintain the plugins in response to game updates out of goodwill, it is at my
