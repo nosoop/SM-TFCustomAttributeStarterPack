@@ -119,6 +119,9 @@ static void HookWeaponEntity(int weapon) {
 	}
 }
 
+/**
+ * Reset cooldown.
+ */
 public void OnInventoryAppliedPost(Event event, const char[] name, bool dontBroadcast) {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	for (int i; i < NUM_WEAPON_SLOTS; i++) {
@@ -128,7 +131,12 @@ public void OnInventoryAppliedPost(Event event, const char[] name, bool dontBroa
 	}
 }
 
+/**
+ * Process overheat amount for a player.
+ */
 public void OnClientPostThinkPost(int client) {
+	// TODO would OnGameFrame be better suited for this?
+	
 	for (int i; i < NUM_WEAPON_SLOTS; i++) {
 		// no overheat to deal with
 		if (g_flOverheatAmount[client][i] <= 0.0) {
@@ -157,14 +165,14 @@ public void OnClientPostThinkPost(int client) {
 // check when weapon is fired
 // determine overheat amount, add to float
 
-static bool s_bPrimaryAttackAvailable;
+static bool s_bPrimaryAttackAvailableInPre;
 public MRESReturn OnPrimaryAttackPre(int weapon) {
 	float flNextPrimaryAttack = GetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack");
-	s_bPrimaryAttackAvailable = flNextPrimaryAttack <= GetGameTime();
+	s_bPrimaryAttackAvailableInPre = flNextPrimaryAttack <= GetGameTime();
 }
 
 public MRESReturn OnPrimaryAttackPost(int weapon) {
-	if (!s_bPrimaryAttackAvailable) {
+	if (!s_bPrimaryAttackAvailableInPre) {
 		return MRES_Ignored;
 	}
 	
@@ -193,11 +201,13 @@ public MRESReturn OnPrimaryAttackPost(int weapon) {
 	return MRES_Ignored;
 }
 
-static bool s_bSecondaryAttackAvailable;
+// check if we can attack in the pre-hook
+static bool s_bSecondaryAttackAvailableInPre;
+
 static bool s_bShockAttackActivated;
 public MRESReturn OnSecondaryAttackPre(int weapon) {
 	float flNextSecondaryAttack = GetEntPropFloat(weapon, Prop_Send, "m_flNextSecondaryAttack");
-	s_bSecondaryAttackAvailable = flNextSecondaryAttack <= GetGameTime();
+	s_bSecondaryAttackAvailableInPre = flNextSecondaryAttack <= GetGameTime();
 	s_bShockAttackActivated = false;
 }
 
@@ -207,13 +217,16 @@ public MRESReturn OnMechanicalArmShockAttackPost(int weapon, Handle hReturn) {
 }
 
 public MRESReturn OnSecondaryAttackPost(int weapon) {
-	if (!s_bSecondaryAttackAvailable) {
+	if (!s_bSecondaryAttackAvailableInPre) {
 		return MRES_Ignored;
 	}
 	
 	if (TF2Util_GetWeaponID(weapon) == TF_WEAPON_MECHANICAL_ARM && !s_bShockAttackActivated) {
 		// special case for the Short Circuit
 		// we check for shock attack activation since we get a delay even with insufficent ammo
+		
+		// we don't perform cooldown logic post ShockAttack() because the attack timers are
+		// updated at the end of SecondaryAttack()
 		return MRES_Ignored;
 	}
 	
@@ -235,7 +248,7 @@ public MRESReturn OnSecondaryAttackPost(int weapon) {
 	
 	float flSpreadMod = ReadFloatVar(buffer, "overheat_spread_scale", 1.0);
 	if (flSpreadMod != 1.0) {
-		// this needs to be lag compensated so we do need to apply this modifier
+		// we want client prediction to show mostly-correct bullet spread so we set this
 		float spread = LerpFloat(GetOverheatAmount(weapon), 1.0, flSpreadMod);
 		TF2Attrib_SetByName(weapon, "weapon spread bonus", spread);
 	}
@@ -248,12 +261,12 @@ public MRESReturn OnSecondaryAttackPost(int weapon) {
 
 public MRESReturn OnMinigunAttackPre(int weapon) {
 	float flNextPrimaryAttack = GetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack");
-	s_bPrimaryAttackAvailable = flNextPrimaryAttack <= GetGameTime();
+	s_bPrimaryAttackAvailableInPre = flNextPrimaryAttack <= GetGameTime();
 }
 
 public MRESReturn OnMinigunAttackPost(int weapon) {
 	int state = GetEntProp(weapon, Prop_Send, "m_iWeaponState");
-	if (!s_bPrimaryAttackAvailable
+	if (!s_bPrimaryAttackAvailableInPre
 			|| (state != AC_STATE_FIRING && state != AC_STATE_SPINNING)) {
 		return MRES_Ignored;
 	}
@@ -263,24 +276,24 @@ public MRESReturn OnMinigunAttackPost(int weapon) {
 		return MRES_Ignored;
 	}
 	
-	float flOverheat = ReadFloatVar(buffer, "heat_rate", 0.0);
 	float flCooldown = ReadFloatVar(buffer, "cooldown", 0.0);
 	float flDecayTime = ReadFloatVar(buffer, "decay_time", 0.0);
 	float flDecayRate = ReadFloatVar(buffer, "decay_rate", 0.0);
-	float flPassiveOverheat = ReadFloatVar(buffer, "heat_rate_alt", 0.0);
 	
 	float overheat;
 	if (state != AC_STATE_SPINNING) {
-		overheat = ApplyOverheat(weapon, flOverheat, flDecayTime, flDecayRate);
+		float flOverheatRate = ReadFloatVar(buffer, "heat_rate", 0.0);
+		overheat = ApplyOverheat(weapon, flOverheatRate, flDecayTime, flDecayRate);
 	} else {
-		// use if in spinup state but not firing
-		overheat = ApplyOverheat(weapon, flPassiveOverheat * GetGameFrameTime(),
+		// use heat_rate_alt if in spinup state but not firing
+		float flPassiveOverheatRate = ReadFloatVar(buffer, "heat_rate_alt", 0.0);
+		overheat = ApplyOverheat(weapon, flPassiveOverheatRate * GetGameFrameTime(),
 				flDecayTime, flDecayRate, true);
 	}
 	
 	float flSpreadMod = ReadFloatVar(buffer, "overheat_spread_scale", 1.0);
 	if (flSpreadMod != 1.0) {
-		// this needs to be lag compensated so we do need to apply this modifier
+		// we want client prediction to show mostly-correct bullet spread so we set this
 		float spread = LerpFloat(GetOverheatAmount(weapon), 1.0, flSpreadMod);
 		TF2Attrib_SetByName(weapon, "weapon spread bonus", spread);
 	}
@@ -293,7 +306,8 @@ public MRESReturn OnMinigunAttackPost(int weapon) {
 }
 
 /**
- * Prevents a weapon from firing for the specified amount of time.
+ * Prevents a weapon from firing for the specified amount of time, and updates the overheat
+ * clearing timer so it resets overheat when the weapon can be used again.
  */
 void ForceWeaponCooldown(int weapon, float flCooldown) {
 	float flCooldownEnd = GetGameTime() + flCooldown;
@@ -313,6 +327,11 @@ void ForceWeaponCooldown(int weapon, float flCooldown) {
 	}
 }
 
+/**
+ * Checks if the weapon has a custom overheat sound that overrides the builtin.
+ * 
+ * @return True if a valid sound was provided and played.
+ */
 bool PlayCustomOverheatSound(int weapon) {
 	char overheatSound[PLATFORM_MAX_PATH];
 	if (!TF2CustAttr_GetString(weapon, "weapon overheat sound", overheatSound,
@@ -331,6 +350,11 @@ bool PlayCustomOverheatSound(int weapon) {
 	return true;
 }
 
+/**
+ * Adds overheat to the given weapon, updating the decay time / rate.
+ * 
+ * @return New overheat amount, or 0.0 if no overheat was added.
+ */
 float ApplyOverheat(int weapon, float amount, float decayTime, float decayRate,
 		bool bIgnoreNextPrimaryAttack = false) {
 	float flNextPrimaryAttack = GetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack");
@@ -356,6 +380,7 @@ float ApplyOverheat(int weapon, float amount, float decayTime, float decayRate,
 	
 	g_flOverheatAmount[owner][slot] += amount;
 	
+	// we just used our weapon, so push back the time we can start decaying overheat
 	g_flOverheatDecayTime[owner][slot] = GetGameTime() + decayTime;
 	g_flOverheatDecayRate[owner][slot] = decayRate;
 	
@@ -385,6 +410,9 @@ float GetOverheatAmount(int weapon) {
 	return g_flOverheatAmount[owner][slot];
 }
 
+/**
+ * Hook that applies a damage modifier based on how heated the attacker's weapon is.
+ */
 public Action OnTakeDamageAlive(int victim, int &attacker, int &inflictor, float &damage,
 		int &damagetype, int &weapon, float damageForce[3], float damagePosition[3]) {
 	if (!IsValidEntity(weapon)) {
