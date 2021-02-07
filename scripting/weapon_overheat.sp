@@ -188,17 +188,7 @@ public MRESReturn OnPrimaryAttackPost(int weapon) {
 	}
 	
 	if (overheat >= 1.0) {
-		float flCooldownEnd = GetGameTime() + flCooldown;
-		
-		SetOverheatClearTime(weapon, flCooldownEnd);
-		SetEntPropFloat(weapon, Prop_Data, "m_flNextPrimaryAttack", flCooldownEnd);
-		SetEntPropFloat(weapon, Prop_Data, "m_flNextSecondaryAttack", flCooldownEnd);
-		
-		if (!PlayCustomOverheatSound(weapon)) {
-			EmitGameSoundToAll("TFPlayer.FlameOut", .entity = weapon);
-		}
-		
-		UpdateWeaponResetParity(weapon);
+		ForceWeaponCooldown(weapon, flCooldown);
 	}
 	return MRES_Ignored;
 }
@@ -251,17 +241,7 @@ public MRESReturn OnSecondaryAttackPost(int weapon) {
 	}
 	
 	if (overheat >= 1.0) {
-		float flCooldownEnd = GetGameTime() + flCooldown;
-		
-		SetOverheatClearTime(weapon, flCooldownEnd);
-		SetEntPropFloat(weapon, Prop_Data, "m_flNextPrimaryAttack", flCooldownEnd);
-		SetEntPropFloat(weapon, Prop_Data, "m_flNextSecondaryAttack", flCooldownEnd);
-		
-		if (!PlayCustomOverheatSound(weapon)) {
-			EmitGameSoundToAll("TFPlayer.FlameOut", .entity = weapon);
-		}
-		
-		UpdateWeaponResetParity(weapon);
+		ForceWeaponCooldown(weapon, flCooldown);
 	}
 	return MRES_Ignored;
 }
@@ -306,20 +286,31 @@ public MRESReturn OnMinigunAttackPost(int weapon) {
 	}
 	
 	if (overheat >= 1.0) {
-		float flCooldownEnd = GetGameTime() + flCooldown;
-		
-		SetOverheatClearTime(weapon, flCooldownEnd);
-		SetEntPropFloat(weapon, Prop_Data, "m_flNextPrimaryAttack", flCooldownEnd);
-		SetEntPropFloat(weapon, Prop_Data, "m_flNextSecondaryAttack", flCooldownEnd);
-		
-		if (!PlayCustomOverheatSound(weapon)) {
-			EmitGameSoundToAll("TFPlayer.FlameOut", .entity = weapon);
-		}
-		
-		SDKCall(g_SDKCallMinigunWindDown, weapon);
+		ForceWeaponCooldown(weapon, flCooldown);
 	}
 	
 	return MRES_Ignored;
+}
+
+/**
+ * Prevents a weapon from firing for the specified amount of time.
+ */
+void ForceWeaponCooldown(int weapon, float flCooldown) {
+	float flCooldownEnd = GetGameTime() + flCooldown;
+	
+	SetOverheatClearTime(weapon, flCooldownEnd);
+	SetEntPropFloat(weapon, Prop_Data, "m_flNextPrimaryAttack", flCooldownEnd);
+	SetEntPropFloat(weapon, Prop_Data, "m_flNextSecondaryAttack", flCooldownEnd);
+	
+	if (!PlayCustomOverheatSound(weapon)) {
+		EmitGameSoundToAll("TFPlayer.FlameOut", .entity = weapon);
+	}
+	
+	if (TF2Util_GetWeaponID(weapon) == TF_WEAPON_MINIGUN) {
+		SDKCall(g_SDKCallMinigunWindDown, weapon);
+	} else {
+		UpdateWeaponResetParity(weapon);
+	}
 }
 
 bool PlayCustomOverheatSound(int weapon) {
