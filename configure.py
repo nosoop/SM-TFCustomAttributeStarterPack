@@ -44,7 +44,6 @@ plugins = [
   'minigun_vacuum.sp',
   'mod_crit_type_on_hitgroup.sp',
   'mod_crit_type_vs_condition.sp',
-  'mod_crit_type_vs_disguised_players.sp',
   'mod_crit_type_vs_sentry_targets.sp',
   'mult_damage_vs_sappers.sp',
   'mult_basegrenade_explode_radius.sp',
