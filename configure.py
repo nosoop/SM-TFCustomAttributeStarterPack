@@ -25,7 +25,6 @@ plugins = [
   'disorient_on_hit.sp',
   'energy_ring_impact_effect.sp',
   'energy_ring_instakill_radius.sp',
-  'energy_ring_speed_mult.sp',
   'explosive_shield_bash.sp',
   'flamethrower_alt_fire_oil.sp',
   'flare_mods.sp',
