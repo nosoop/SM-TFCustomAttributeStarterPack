@@ -21,7 +21,6 @@
 #include <stocksoup/tf/hud_notify>
 
 #include <tf_custom_attributes>
-#include <tf2_morestocks>
 
 #pragma newdecls required
 #include <stocksoup/log_server>
@@ -268,7 +267,7 @@ public void OnObjectSapped(Event event, const char[] name, bool dontBroadcast) {
 		return;
 	}
 	
-	int sapper = GetPlayerWeaponSlot(attacker, view_as<int>(TF2ItemSlot_Sapper));
+	int sapper = GetPlayerWeaponSlot(attacker, TFWeaponSlot_Secondary);
 	
 	char reprogrammerProps[512];
 	if (!TF2CustAttr_GetString(sapper, "sapper reprograms buildings", reprogrammerProps,

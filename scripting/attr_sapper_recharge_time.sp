@@ -6,7 +6,6 @@
 
 #include <sdkhooks>
 #include <tf2_stocks>
-#include <tf2_morestocks>
 
 #include <tf_custom_attributes>
 
@@ -79,7 +78,7 @@ public void OnObjectSapped(Event event, const char[] name, bool dontBroadcast) {
 		return;
 	}
 	
-	int sapper = GetPlayerWeaponSlot(attacker, view_as<int>(TF2ItemSlot_Sapper));
+	int sapper = GetPlayerWeaponSlot(attacker, TFWeaponSlot_Secondary);
 	
 	float flRechargeTime = TF2CustAttr_GetFloat(sapper, "sapper recharge time", 0.0);
 	if (flRechargeTime <= 0.0) {
@@ -96,7 +95,7 @@ public void OnObjectSapped(Event event, const char[] name, bool dontBroadcast) {
 void SetSapperCooldownTimer(int client, float cooldown) {
 	float regenTime = GetGameTime() + cooldown;
 	
-	int sapper = GetPlayerWeaponSlot(client, view_as<int>(TF2ItemSlot_Sapper));
+	int sapper = GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary);
 	SetEntPropFloat(sapper, Prop_Send, "m_flEffectBarRegenTime", regenTime);
 	g_flClientSapLockTime[client] = regenTime;
 	
@@ -108,8 +107,8 @@ void SetSapperCooldownTimer(int client, float cooldown) {
 
 void ForceSwitchFromSecondaryWeapon(int client) {
 	int weapon = INVALID_ENT_REFERENCE;
-	if (IsValidEntity((weapon = GetPlayerWeaponSlot(client, view_as<int>(TF2ItemSlot_Melee))))
-			|| IsValidEntity((weapon = GetPlayerWeaponSlot(client, view_as<int>(TF2ItemSlot_Primary))))) {
+	if (IsValidEntity((weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Melee)))
+			|| IsValidEntity((weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Primary)))) {
 		SetActiveWeapon(client, weapon);
 	}
 }
@@ -132,7 +131,7 @@ public Action OnSapperCooldownEnd(Handle timer, DataPack pack) {
  * Called when attempting to switch weapons.  Deny switching to sapper if not allowed.
  */
 public Action OnClientWeaponCanSwitchTo(int client, int weapon) {
-	if (weapon != GetPlayerWeaponSlot(client, view_as<int>(TF2ItemSlot_Sapper))
+	if (weapon != GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary)
 			|| g_flClientSapLockTime[client] < GetGameTime()) {
 		return Plugin_Continue;
 	}
