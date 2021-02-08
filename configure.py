@@ -35,7 +35,6 @@ plugins = [
   'jar_is_poison.sp',
   'jar_is_bleed_on_hit.sp',
   'joke_medigun_mod_drain_health.sp',
-  'keep_disguise_on_attack.sp',
   'low_gravity_charge.sp',
   'lunchbox_override_pickup_type.sp',
   'minigun_burst_shot_rage.sp',
