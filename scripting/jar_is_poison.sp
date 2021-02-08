@@ -70,7 +70,7 @@ public void OnClientPutInServer(int client) {
 }
 
 static int s_iJarWeapon;
-static float s_flJarDuration;
+
 public MRESReturn OnJarExplodePre(Handle hParams) {
 	s_iJarWeapon = INVALID_ENT_REFERENCE;
 	
@@ -111,7 +111,7 @@ public Action OnPlayerJarated(UserMsg msg_id, BfRead msg, const int[] players, i
 	
 	char buffer[64];
 	if (!TF2CustAttr_GetString(s_iJarWeapon, "jar is poison", buffer, sizeof(buffer))) {
-		return MRES_Ignored;
+		return Plugin_Continue;
 	}
 	
 	int posionDamage = ReadIntVar(buffer, "dmg_per_tick");

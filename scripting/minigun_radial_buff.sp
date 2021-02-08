@@ -17,7 +17,7 @@
 #include <stocksoup/tf/weapon>
 #include <stocksoup/tf/tempents_stocks>
 
-enum eMinigunState {
+enum {
 	AC_STATE_IDLE = 0,
 	AC_STATE_STARTFIRING,
 	AC_STATE_FIRING,

@@ -17,8 +17,6 @@
 #include <stocksoup/var_strings>
 #include <custom_status_hud>
 
-Handle g_SDKCallUpdatePlayerSpeed;
-
 float g_flBuffEndTime[MAXPLAYERS + 1];
 
 public void OnMapStart() {

@@ -58,7 +58,6 @@ public void OnClientPutInServer(int client) {
 }
 
 static int s_iTomatoWeapon;
-static TFCond s_JarCondition;
 static float s_flJarDuration;
 public MRESReturn OnJarExplodePre(Handle hParams) {
 	s_iTomatoWeapon = INVALID_ENT_REFERENCE;
@@ -69,7 +68,6 @@ public MRESReturn OnJarExplodePre(Handle hParams) {
 	}
 	
 	s_iTomatoWeapon = EntIndexToEntRef(originalLauncher);
-	s_JarCondition = view_as<TFCond>(DHookGetParam(hParams, 8));
 	s_flJarDuration = DHookGetParam(hParams, 9);
 	
 	// zero out duration so we don't have to remove the condition ourselves

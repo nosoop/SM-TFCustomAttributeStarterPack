@@ -37,7 +37,7 @@ float g_flBoostPenaltyExpired[MAXPLAYERS + 1];
 float g_flBoostPenaltyDecayRate[MAXPLAYERS + 1];
 
 // minigun weapon states
-enum eMinigunState {
+enum {
 	AC_STATE_IDLE = 0,
 	AC_STATE_STARTFIRING,
 	AC_STATE_FIRING,
