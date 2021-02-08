@@ -85,7 +85,7 @@ public void OnMapStart() {
 	
 	int entity = -1;
 	while ((entity = FindEntityByClassname(entity, "*")) != -1) {
-		if (HasEntProp(entity, Prop_Data, "m_flNextPrimaryAttack")) {
+		if (TF2Util_IsEntityWeapon(entity)) {
 			HookWeaponEntity(entity);
 		}
 	}
@@ -97,25 +97,19 @@ public void OnClientPutInServer(int client) {
 }
 
 public void OnEntityCreated(int entity, const char[] name) {
-	if (HasEntProp(entity, Prop_Data, "m_flNextPrimaryAttack")) {
+	if (TF2Util_IsEntityWeapon(entity)) {
 		HookWeaponEntity(entity);
 	}
 }
 
 static void HookWeaponEntity(int weapon) {
-	char cname[64];
-	GetEntityClassname(weapon, cname, sizeof(cname));
-	
-	// miniguns are handled on CTFMinigun::SharedAttack
-	if (!StrEqual(cname, "tf_weapon_minigun")) {
+	// miniguns are handled on the CTFMinigun::SharedAttack() detour
+	if (TF2Util_GetWeaponID(weapon) != TF_WEAPON_MINIGUN) {
 		DHookEntity(g_DHookPrimaryAttack, true, weapon, .callback = OnPrimaryAttackPost);
 		DHookEntity(g_DHookPrimaryAttack, false, weapon, .callback = OnPrimaryAttackPre);
 		
 		DHookEntity(g_DHookSecondaryAttack, false, weapon, .callback = OnSecondaryAttackPre);
 		DHookEntity(g_DHookSecondaryAttack, true, weapon, .callback = OnSecondaryAttackPost);
-	}
-	
-	if (HasEntProp(weapon, Prop_Data, "CTFWeaponBaseGunZoomOutIn")) {
 	}
 }
 
