@@ -473,7 +473,7 @@ bool HasWeaponSlot(int weapon, int &slot) {
 		return false;
 	}
 	slot = TF2Util_GetWeaponSlot(weapon);
-	return true;
+	return slot < NUM_WEAPON_SLOTS;
 }
 
 void UpdateWeaponResetParity(int weapon) {
