@@ -8,6 +8,8 @@
 
 #pragma newdecls required
 
+int offs_CTFPlayer_iClass;
+
 public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
@@ -18,6 +20,8 @@ public void OnPluginStart() {
 	
 	DHookEnableDetour(dtRegenThink, false, OnPlayerRegenThinkPre);
 	DHookEnableDetour(dtRegenThink, true, OnPlayerRegenThinkPost);
+	
+	offs_CTFPlayer_iClass = FindSendPropInfo("CTFPlayer", "m_iClass");
 	
 	delete hGameConf;
 }
@@ -48,17 +52,14 @@ public MRESReturn OnPlayerRegenThinkPre(int client) {
 			!!TF2CustAttr_GetInt(hActiveWeapon, "disable medic regen while active", false);
 	
 	if (s_bContextBypassMedicRegen) {
-		Address m_iClass = view_as<Address>(FindSendPropInfo("CTFPlayer", "m_iClass"));
-		StoreToAddress(GetEntityAddress(client) + m_iClass, 0, NumberType_Int32);
+		SetEntData(client, offs_CTFPlayer_iClass, view_as<int>(TFClass_Unknown));
 	}
 	return MRES_Ignored;
 }
 
 public MRESReturn OnPlayerRegenThinkPost(int client) {
 	if (s_bContextBypassMedicRegen) {
-		Address m_iClass = view_as<Address>(FindSendPropInfo("CTFPlayer", "m_iClass"));
-		StoreToAddress(GetEntityAddress(client) + m_iClass, view_as<int>(TFClass_Medic),
-				NumberType_Int32);
+		SetEntData(client, offs_CTFPlayer_iClass, view_as<int>(TFClass_Medic));
 	}
 	s_bContextBypassMedicRegen = false;
 	
