@@ -102,6 +102,7 @@ public void OnMapStart() {
 
 // contains temporary client index
 static int s_ActualBuildingOwner;
+static int s_ActualBuildingBuilder;
 
 /**
  * Overrides the builder on "reprogrammed" buildings only when the sentry is thinking.
@@ -112,7 +113,8 @@ static int s_ActualBuildingOwner;
  * detours handle this case in a much cleaner manner.
  */
 public MRESReturn OnSentryGunThinkPre(int sentry) {
-	s_ActualBuildingOwner = GetEntPropEnt(sentry, Prop_Send, "m_hBuilder");
+	s_ActualBuildingOwner = GetEntPropEnt(sentry, Prop_Send, "m_hOwnerEntity");
+	s_ActualBuildingBuilder = GetEntPropEnt(sentry, Prop_Send, "m_hBuilder");
 	
 	int newOwner = GetModifiedBuildingOwner(sentry);
 	SetEntDataEnt2(sentry, offs_hBuilder, newOwner);
@@ -125,7 +127,7 @@ public MRESReturn OnSentryGunThinkPre(int sentry) {
  * Restores the actual builder on "reprogrammed" buildings.
  */
 public MRESReturn OnSentryGunThinkPost(int sentry) {
-	SetEntDataEnt2(sentry, offs_hBuilder, s_ActualBuildingOwner);
+	SetEntDataEnt2(sentry, offs_hBuilder, s_ActualBuildingBuilder);
 	SetEntDataEnt2(sentry, offs_hOwner, s_ActualBuildingOwner);
 	
 	s_ActualBuildingOwner = INVALID_ENT_REFERENCE;
