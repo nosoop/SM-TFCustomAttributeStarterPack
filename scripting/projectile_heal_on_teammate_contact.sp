@@ -13,6 +13,8 @@
 #include <stocksoup/tf/player>
 #include <stocksoup/var_strings>
 
+#include <tf2utils>
+
 /**
  * we need this to hook the projectile "touch" event
  * you may recall the other day that I mentioned `SDKHook`'s `Touch` event should be fine
@@ -90,7 +92,7 @@ public MRESReturn OnProjectileTouch(int entity, Handle hParams) {
 	}
 	
 	float flOverhealMax = ReadFloatVar(buffer, "overheal_max", 0.0);
-	float flMaxHealAmount = (TF2_GetPlayerMaxHealth(other) * (1.0 + flOverhealMax))
+	float flMaxHealAmount = (TF2Util_GetPlayerMaxHealth(other) * (1.0 + flOverhealMax))
 			- GetClientHealth(other);
 	
 	if (flMaxHealAmount <= 0) {
