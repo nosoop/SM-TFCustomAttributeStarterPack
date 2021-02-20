@@ -17,6 +17,8 @@
 #include <stocksoup/tf/weapon>
 #include <stocksoup/tf/tempents_stocks>
 
+#include <tf2utils>
+
 enum {
 	AC_STATE_IDLE = 0,
 	AC_STATE_STARTFIRING,
@@ -81,7 +83,7 @@ public void OnClientPutInServer(int client) {
 }
 
 public void OnEntityCreated(int entity, const char[] className) {
-	if (StrEqual(className, "tf_weapon_minigun")) {
+	if (TF2Util_IsEntityWeapon(entity) && TF2Util_GetWeaponID(entity) == TF_WEAPON_MINIGUN) {
 		HookMinigun(entity);
 	}
 }

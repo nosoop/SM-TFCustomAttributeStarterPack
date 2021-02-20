@@ -3,6 +3,7 @@
 
 #include <sdktools>
 #include <dhooks>
+#include <tf2utils>
 
 #pragma newdecls required
 
@@ -35,8 +36,12 @@ public void OnMapStart() {
 }
 
 public void OnEntityCreated(int entity, const char[] className) {
-	if (StrEqual(className, "tf_weapon_flamethrower")
-			|| StrEqual(className, "tf_weapon_rocketlauncher_fireball")) {
+	if (!TF2Util_IsEntityWeapon(entity)) {
+		return;
+	}
+	
+	int weaponid = TF2Util_GetWeaponID(entity);
+	if (weaponid == TF_WEAPON_FLAMETHROWER || weaponid == TF_WEAPON_FLAME_BALL) {
 		HookFlamethrower(entity);
 	}
 }

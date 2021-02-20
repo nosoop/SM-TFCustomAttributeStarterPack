@@ -37,7 +37,7 @@ public void OnMapStart() {
 	
 	int entity = -1;
 	while ((entity = FindEntityByClassname(entity, "*")) != -1) {
-		if (HasEntProp(entity, Prop_Data, "m_flNextPrimaryAttack")) {
+		if (TF2Util_IsEntityWeapon(entity)) {
 			HookWeaponEntity(entity);
 		}
 	}
@@ -56,7 +56,7 @@ public void OnClientPutInServer(int client) {
 }
 
 public void OnEntityCreated(int entity, const char[] className) {
-	if (HasEntProp(entity, Prop_Data, "m_flNextPrimaryAttack")) {
+	if (TF2Util_IsEntityWeapon(entity)) {
 		HookWeaponEntity(entity);
 	}
 }
