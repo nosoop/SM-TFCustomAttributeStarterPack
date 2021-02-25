@@ -66,7 +66,7 @@ public void OnMapStart() {
 }
 
 public void OnClientPutInServer(int client) {
-	// SDKHook(client, SDKHook_OnTakeDamageAlive, OnTakeDamageAlive);
+	SDKHook(client, SDKHook_OnTakeDamageAlive, OnTakeDamageAlive);
 }
 
 public Action OnTakeDamageAlive(int victim, int& attacker, int& inflictor, float& damage,
