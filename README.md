@@ -141,7 +141,8 @@ reference documentation for things like MetaMod:Source bindings under that licen
 - If you provide a compiled SourceMod plugin to another person, you MUST include the source code
 with your modifications per GPLv3+.  (This applies to all SourceMod code / plugins in general.)
 - If you run a compiled SourceMod plugin on a server you own, modified or not, you are under no
-further obligation to provide any source code to any end-users.
+further obligation to provide any source code to any end-users (that is, any players on the
+server).
 	- Attribution is nice, but not required if you're simply running the code.  I couldn't care
 	less, really.  If you do feel like providing a URL for attribution of any custom attributes
 	available here that you are using, linking to this repository is preferred.  If you need
