@@ -46,9 +46,11 @@ SourceMod works.  I can't provide individualized support on configuration; if yo
 into issues, please look at the [Troubleshooting page][trouble] first.
 
 1.  Install the required runtime dependencies.
-2.  [Download the latest `package.zip`][releases] (possibly stale) and unpack, or manually build
-the latest commit.  Do *not* click the green "Code" button with the download-like icon.
-If you intend to build from source, refer to the [Building](#Building) section below.
+2.  [Download the latest `package.zip`][releases] and unpack.  Do *not* click the green "Code"
+button with the download-like icon.  If you intend to modify / build from source, refer to the
+[Building](#Building) section below.
+	- Github now builds the entire package on every commit by default, so the latest release
+	should be up-to-date.
 3.  Copy the resulting `gamedata/`, and `plugins/` folders into your TF2 server's
 `addons/sourcemod/` folder.
 4.  [Apply custom attributes][apply-custom] to your weapons.
