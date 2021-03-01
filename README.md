@@ -45,7 +45,7 @@ These installation steps assume that you're a server operator and are familiar w
 SourceMod works.  I can't provide individualized support on configuration; if you're running
 into issues, please look at the [Troubleshooting page][trouble] first.
 
-1.  Install the required runtime dependencies.
+1.  [Install the required runtime dependencies.](#dependencies)
 2.  [Download the latest `package.zip`][releases] and unpack.  Do *not* click the green "Code"
 button with the download-like icon.  If you intend to modify / build from source, refer to the
 [Building](#Building) section below.
