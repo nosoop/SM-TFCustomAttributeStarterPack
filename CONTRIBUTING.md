@@ -12,6 +12,10 @@ I'm open to taking contributions primarily for bug fixes and new features.  That
 I won't take contributions for other reasons, but stylistic / opinionated matters / spelling
 aren't very high on the list of things I care about.
 
+If you've written your own attribute, that's great &mdash; but this repository isn't the place
+for attributes created by other authors.  Create your own repository and post about it in the
+plugin thread or drop me a line; I'd be happy to include your repo in the appropriate listings.
+
 Before opening a pull request with code, do make sure that it compiles using the build process
 described in the "Building" section of the README.  This ensures that you are using the correct
 versions of any dependencies present, as they may or may not be the lastest ones available
