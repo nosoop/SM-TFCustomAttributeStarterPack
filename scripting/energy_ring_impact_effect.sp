@@ -14,7 +14,7 @@
 
 #include <smlib/clients>
 
-#define SOUND_WUNDERWAFFE_IMPACT "weapons/wunderwaffe/wunderwaffe_projectile_impact.wav"
+#define SOUND_WUNDERWAFFE_IMPACT "weapons/physcannon/energy_disintegrate5.wav"
 
 public void OnMapStart() {
 	AddFileToDownloadsTable("sound/" ... SOUND_WUNDERWAFFE_IMPACT);
