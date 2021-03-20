@@ -15,6 +15,7 @@
 #include <tf2_stocks>
 
 #include <stocksoup/datapack>
+#include <stocksoup/memory>
 #include <stocksoup/var_strings>
 #include <stocksoup/tf/tempents_stocks>
 #include <stocksoup/tf/hud_notify>
@@ -48,6 +49,11 @@ Handle g_SDKBuildingSpawnControlPanels, g_SDKBuildingDestroyScreens,
 		g_SDKBuildingSetScreenActive;
 Handle g_SDKBuildingDetonate;
 Handle g_SDKPlayerGetObjectOfType;
+
+int offs_WeaponBase_fnEquip;
+int offs_WeaponBase_fnDetach;
+
+Handle g_SDKWeaponEquip, g_SDKWeaponDetach;
 
 public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
@@ -93,6 +99,9 @@ public void OnPluginStart() {
 			"CTFPlayer::DetonateObjectOfType()");
 	DHookEnableDetour(dtDetonateObjectOfType, false, OnPlayerDetonateBuildingPre);
 	
+	offs_WeaponBase_fnEquip = GameConfGetOffset(hGameConf, "CTFWeaponBase::Equip()");
+	offs_WeaponBase_fnDetach = GameConfGetOffset(hGameConf, "CTFWeaponBase::Detach()");
+	
 	Handle dtRemoveAllObjects = DHookCreateFromConf(hGameConf, "CTFPlayer::RemoveAllObjects()");
 	if (!dtRemoveAllObjects) {
 		SetFailState("Failed to create detour %s", "CTFPlayer::RemoveAllObjects()");
@@ -116,6 +125,51 @@ public void OnPluginStart() {
 
 public void OnMapStart() {
 	g_ConvertedBuildings.Clear();
+	
+	// bunch of stuff we have to resolve at runtime
+	static Handle s_dtWrenchEquip, s_dtWrenchDetach;
+	if (!s_dtWrenchEquip) {
+		int wrench = CreateEntityByName("tf_weapon_wrench");
+		RemoveEntity(wrench);
+		
+		Address pFunction = GetVirtualFnAddressFromEntity(wrench, offs_WeaponBase_fnEquip);
+		s_dtWrenchEquip = DHookCreateDetour(pFunction, CallConv_THISCALL, ReturnType_Void,
+				ThisPointer_CBaseEntity);
+		DHookAddParam(s_dtWrenchEquip, HookParamType_CBaseEntity);
+		DHookEnableDetour(s_dtWrenchEquip, false, OnWrenchEquipPre);
+		
+	}
+	
+	if (!s_dtWrenchDetach) {
+		int wrench = CreateEntityByName("tf_weapon_wrench");
+		RemoveEntity(wrench);
+		
+		Address pFunction = GetVirtualFnAddressFromEntity(wrench, offs_WeaponBase_fnDetach);
+		s_dtWrenchDetach = DHookCreateDetour(pFunction, CallConv_THISCALL, ReturnType_Void,
+				ThisPointer_CBaseEntity);
+		DHookEnableDetour(s_dtWrenchDetach, false, OnWrenchDetachPre);
+	}
+	
+	if (!g_SDKWeaponEquip) {
+		int baseMelee = CreateEntityByName("tf_weaponbase_melee");
+		RemoveEntity(baseMelee);
+		
+		Address pFunction = GetVirtualFnAddressFromEntity(baseMelee, offs_WeaponBase_fnEquip);
+		StartPrepSDKCall(SDKCall_Entity);
+		PrepSDKCall_SetAddress(pFunction);
+		PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer);
+		g_SDKWeaponEquip = EndPrepSDKCall();
+	}
+	
+	if (!g_SDKWeaponDetach) {
+		int baseMelee = CreateEntityByName("tf_weaponbase_melee");
+		RemoveEntity(baseMelee);
+		
+		Address pFunction = GetVirtualFnAddressFromEntity(baseMelee, offs_WeaponBase_fnDetach);
+		StartPrepSDKCall(SDKCall_Entity);
+		PrepSDKCall_SetAddress(pFunction);
+		g_SDKWeaponDetach = EndPrepSDKCall();
+	}
 }
 
 Action SimulateReprogrammedBuilding(int client, int argc) {
@@ -132,7 +186,7 @@ Action SimulateReprogrammedBuilding(int client, int argc) {
 	int ent = -1;
 	while ((ent = FindEntityByClassname(ent, "obj_*")) != -1) {
 		if (!HasEntProp(ent, Prop_Send, "m_iObjectType")
-				|| GetEntProp(ent, Prop_Send, "m_iObjectType") != objectType) {
+				|| GetEntProp(ent, Prop_Send, "m_iObjectType") != view_as<any>(objectType)) {
 			continue;
 		}
 		
@@ -271,15 +325,15 @@ public Action OnReprogrammedBuildingSelfDestruct(Handle timer, int buildingref) 
 }
 
 public MRESReturn OnPlayerDetonateBuildingPre(int client, Handle hParams) {
-	int a = DHookGetParam(hParams, 1);
-	int b = DHookGetParam(hParams, 2);
+	int objectType = DHookGetParam(hParams, 1);
+	int objectMode = DHookGetParam(hParams, 2);
 	bool bForceRemoval = DHookGetParam(hParams, 3);
 	
 	if (bForceRemoval) {
 		return MRES_Ignored;
 	}
 	
-	int building = SDKCall(g_SDKPlayerGetObjectOfType, client, a, b);
+	int building = SDKCall(g_SDKPlayerGetObjectOfType, client, objectType, objectMode);
 	if (!IsValidEntity(building)) {
 		return MRES_Ignored;
 	}
@@ -334,6 +388,38 @@ MRESReturn OnRemoveAllObjectsPre(int client, Handle hParams) {
 		}
 	}
 	
+	return MRES_Supercede;
+}
+
+MRESReturn OnWrenchEquipPre(int wrench, Handle hParams) {
+	int owner = DHookGetParam(hParams, 1);
+	int building = SDKCall(g_SDKPlayerGetObjectOfType, owner, TFObject_Sentry,
+			TFObjectMode_None);
+	if (!IsValidEntity(building) || owner == GetModifiedBuildingOwner(building)) {
+		return MRES_Ignored;
+	}
+	
+	// our building is reprogrammed, don't destroy if we switch to / from gunslinger
+	// still have to call the baseclass ::Equip
+	SDKCall(g_SDKWeaponEquip, wrench, owner);
+	return MRES_Supercede;
+}
+
+MRESReturn OnWrenchDetachPre(int wrench) {
+	int owner = GetEntPropEnt(wrench, Prop_Send, "m_hOwnerEntity");
+	if (owner < 1 || owner >= MaxClients) {
+		return MRES_Ignored;
+	}
+	
+	int building = SDKCall(g_SDKPlayerGetObjectOfType, owner, TFObject_Sentry,
+			TFObjectMode_None);
+	if (!IsValidEntity(building) || owner == GetModifiedBuildingOwner(building)) {
+		return MRES_Ignored;
+	}
+	
+	// don't destroy if we switch to / from gunslinger
+	// still have to call the baseclass ::Detach
+	SDKCall(g_SDKWeaponDetach, wrench);
 	return MRES_Supercede;
 }
 
@@ -403,4 +489,9 @@ void RespawnBuildingScreens(int building) {
 		SDKCall(g_SDKBuildingSpawnControlPanels, building);
 		SDKCall(g_SDKBuildingSetScreenActive, building, true);
 	}
+}
+
+Address GetVirtualFnAddressFromEntity(int entity, int offset) {
+	Address pVTable = DereferencePointer(GetEntityAddress(entity));
+	return DereferencePointer(pVTable + view_as<Address>(offset * 4));
 }

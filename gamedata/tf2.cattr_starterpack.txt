@@ -1166,6 +1166,16 @@
 				"windows"	"413"
 				"linux"		"420"
 			}
+			"CTFWeaponBase::Detach()"
+			{
+				"windows"	"263"
+				"linux"		"269"
+			}
+			"CTFWeaponBase::Equip()"
+			{
+				"windows"	"226"
+				"linux"		"232"
+			}
 			"CTFWeaponBase::GetProjectileFireSetup()"
 			{
 				"windows"	"393"
