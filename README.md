@@ -76,7 +76,7 @@ This project can be built in a reproductive manner with [Ninja](https://ninja-bu
 
 1.  Clone the repository and its submodules: `git clone --recurse-submodules ...`
 2.  Execute `python3 configure.py --spcomp-dir ${PATH}` within the repo, where `${PATH}` is the
-path to the directory containing `spcomp`.  Verified working against 1.9 and 1.10.
+path to the directory containing `spcomp`.  Builds against 1.10.
 3.  Run `ninja`.  Output will be available under `build/`.
 
 (If you'd like to use a similar build system for your project,

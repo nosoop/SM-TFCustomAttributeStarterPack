@@ -130,7 +130,7 @@ include_dirs = [
 	'third_party/submodules/smlib/scripting/include/',
 ]
 
-spcomp_min_version = (1, 9)
+spcomp_min_version = (1, 10)
 
 ########################
 # build.ninja script generation below.

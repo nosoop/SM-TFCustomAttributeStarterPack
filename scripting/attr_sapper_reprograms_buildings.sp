@@ -34,6 +34,11 @@ public Plugin myinfo = {
 	url = "localhost"
 }
 
+enum struct ReprogrammedBuilding {
+	int buildingref;
+	int ownerserial;
+}
+
 ArrayList g_ConvertedBuildings;
 
 static int offs_hBuilder, offs_hOwner;
@@ -98,7 +103,7 @@ public void OnPluginStart() {
 	
 	HookEvent("player_sapped_object", OnObjectSapped);
 	
-	g_ConvertedBuildings = new ArrayList(2);
+	g_ConvertedBuildings = new ArrayList(sizeof(ReprogrammedBuilding));
 	
 	offs_hBuilder = FindSendPropInfo("CBaseObject", "m_hBuilder");
 	offs_hOwner = FindSendPropInfo("CBaseObject", "m_hOwnerEntity");
@@ -336,25 +341,44 @@ MRESReturn OnRemoveAllObjectsPre(int client, Handle hParams) {
  * Adds the new owner to a list for later overwriting in the sentry's think function.
  */
 void AddConvertedBuildingInfo(int building, int attacker) {
-	int index = g_ConvertedBuildings.Push(EntIndexToEntRef(building));
-	g_ConvertedBuildings.Set(index, GetClientSerial(attacker), 1);
+	ReprogrammedBuilding info;
+	info.buildingref = EntIndexToEntRef(building);
+	info.ownerserial = GetClientSerial(attacker);
+	
+	g_ConvertedBuildings.PushArray(info, sizeof(info));
 	
 	// TODO clean up older entries here if you're putting this on a production server
 }
 
 void RemoveConvertedBuildingInfo(int building) {
-	int index = g_ConvertedBuildings.FindValue(EntIndexToEntRef(building), 0);
-	if (index != -1) {
-		g_ConvertedBuildings.Erase(index);
+	int buildingref = EntIndexToEntRef(building);
+	for (int i; i < g_ConvertedBuildings.Length; i++) {
+		ReprogrammedBuilding info;
+		g_ConvertedBuildings.GetArray(i, info, sizeof(info));
+		
+		if (info.buildingref == buildingref) {
+			g_ConvertedBuildings.Erase(i);
+			return;
+		}
 	}
 }
 
+/**
+ * Returns the "reprogrammed" building owner if they exist, otherwise return the original
+ * builder.
+ */
 int GetModifiedBuildingOwner(int building) {
-	int index = g_ConvertedBuildings.FindValue(EntIndexToEntRef(building), 0);
-	if (index != -1) {
-		int client = GetClientFromSerial(g_ConvertedBuildings.Get(index, 1));
-		if (client) {
-			return client;
+	int buildingref = EntIndexToEntRef(building);
+	for (int i; i < g_ConvertedBuildings.Length; i++) {
+		ReprogrammedBuilding info;
+		g_ConvertedBuildings.GetArray(i, info, sizeof(info));
+		
+		if (info.buildingref != buildingref) {
+			continue;
+		}
+		int owner = GetClientFromSerial(info.ownerserial);
+		if (owner) {
+			return owner;
 		}
 	}
 	return GetEntPropEnt(building, Prop_Send, "m_hBuilder");
