@@ -94,10 +94,39 @@ public void OnPluginStart() {
 	if (offs_hBuilder == -1) {
 		SetFailState("Could not find m_hBuilder for CBaseObject");
 	}
+	
+	RegAdminCmd("cattr_reprog_building", SimulateReprogrammedBuilding, ADMFLAG_ROOT);
 }
 
 public void OnMapStart() {
 	g_ConvertedBuildings.Clear();
+}
+
+Action SimulateReprogrammedBuilding(int client, int argc) {
+	char targetName[64], ownerName[64], buildingType[8];
+	GetCmdArg(1, targetName, sizeof(targetName));
+	GetCmdArg(2, ownerName, sizeof(ownerName));
+	GetCmdArg(3, buildingType, sizeof(buildingType));
+	
+	TFObjectType objectType = view_as<TFObjectType>(StringToInt(buildingType));
+	
+	int target = FindTarget(client, targetName, .immunity = false);
+	int owner = FindTarget(client, ownerName, .immunity = false);
+	
+	int ent = -1;
+	while ((ent = FindEntityByClassname(ent, "obj_*")) != -1) {
+		if (!HasEntProp(ent, Prop_Send, "m_iObjectType")
+				|| GetEntProp(ent, Prop_Send, "m_iObjectType") != objectType) {
+			continue;
+		}
+		
+		if (GetEntPropEnt(ent, Prop_Send, "m_hBuilder") != target) {
+			continue;
+		}
+		
+		ReprogramBuilding(ent, owner);
+	}
+	
 }
 
 // contains temporary client index
@@ -180,28 +209,31 @@ public Action OnReprogramComplete(Handle timer, DataPack data) {
 		return Plugin_Handled;
 	}
 	
-	TFTeam attackerTeam = TF2_GetClientTeam(attacker);
 	int building = GetEntPropEnt(sapperattach, Prop_Data, "m_hParent");
+	ReprogramBuilding(building, attacker);
 	
 	RemoveEntity(sapperattach);
 	
+	CreateTimer(flSelfDestructTime, OnReprogrammedBuildingSelfDestruct,
+			EntIndexToEntRef(building), TIMER_FLAG_NO_MAPCHANGE);
+	
+	return Plugin_Handled;
+}
+
+void ReprogramBuilding(int building, int owner) {
 	/**
 	 * properly convert the building to the other team
 	 * 
 	 * m_iTeamNum is enough to change the sentry's own targeting, but other sentries won't
 	 * care as they proceed to get shidded on
 	 */
+	TFTeam attackerTeam = TF2_GetClientTeam(owner);
 	ChangeBuildingTeam(building, attackerTeam);
 	RespawnBuildingScreens(building);
 	
 	SetEntProp(building, Prop_Send, "m_nSkin", attackerTeam == TFTeam_Red? 0 : 1);
 	
-	AddConvertedBuildingInfo(building, attacker);
-	
-	CreateTimer(flSelfDestructTime, OnReprogrammedBuildingSelfDestruct,
-			EntIndexToEntRef(building), TIMER_FLAG_NO_MAPCHANGE);
-	
-	return Plugin_Handled;
+	AddConvertedBuildingInfo(building, owner);
 }
 
 public Action OnReprogrammedBuildingSelfDestruct(Handle timer, int buildingref) {
