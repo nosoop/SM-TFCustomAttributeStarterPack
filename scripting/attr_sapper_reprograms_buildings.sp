@@ -41,6 +41,7 @@ static int offs_hBuilder, offs_hOwner;
 Handle g_SDKChangeObjectTeam;
 Handle g_SDKBuildingSpawnControlPanels, g_SDKBuildingDestroyScreens,
 		g_SDKBuildingSetScreenActive;
+Handle g_SDKBuildingDetonate;
 Handle g_SDKPlayerGetObjectOfType;
 
 public void OnPluginStart() {
@@ -79,9 +80,19 @@ public void OnPluginStart() {
 	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
 	g_SDKChangeObjectTeam = EndPrepSDKCall();
 	
+	StartPrepSDKCall(SDKCall_Entity);
+	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual, "CBaseObject::DetonateObject()");
+	g_SDKBuildingDetonate = EndPrepSDKCall();
+	
 	Handle dtDetonateObjectOfType = DHookCreateFromConf(hGameConf,
 			"CTFPlayer::DetonateObjectOfType()");
 	DHookEnableDetour(dtDetonateObjectOfType, false, OnPlayerDetonateBuildingPre);
+	
+	Handle dtRemoveAllObjects = DHookCreateFromConf(hGameConf, "CTFPlayer::RemoveAllObjects()");
+	if (!dtRemoveAllObjects) {
+		SetFailState("Failed to create detour %s", "CTFPlayer::RemoveAllObjects()");
+	}
+	DHookEnableDetour(dtRemoveAllObjects, false, OnRemoveAllObjectsPre);
 	
 	delete hGameConf;
 	
@@ -123,10 +134,8 @@ Action SimulateReprogrammedBuilding(int client, int argc) {
 		if (GetEntPropEnt(ent, Prop_Send, "m_hBuilder") != target) {
 			continue;
 		}
-		
 		ReprogramBuilding(ent, owner);
 	}
-	
 }
 
 // contains temporary client index
@@ -276,6 +285,50 @@ public MRESReturn OnPlayerDetonateBuildingPre(int client, Handle hParams) {
 	
 	TF_HudNotifyCustom(client, "obj_status_sapper", TF2_GetClientTeam(client),
 			"Cannot destroy reprogrammed building!");
+	return MRES_Supercede;
+}
+
+MRESReturn OnRemoveAllObjectsPre(int client, Handle hParams) {
+	bool detonate = DHookGetParam(hParams, 1);
+	
+	if (GetClientTeam(client) != GetEntProp(client, Prop_Send, "m_iTeamNum")) {
+		return MRES_Ignored;
+	}
+	
+	if (GetEntProp(client, Prop_Send, "m_iDesiredPlayerClass")
+			== GetEntProp(client, Prop_Send, "m_iClass")) {
+		return MRES_Ignored;
+	}
+	
+	// remove non-reprogrammed buildings we own
+	int ent = -1;
+	while ((ent = FindEntityByClassname(ent, "obj_*")) != -1) {
+		if (!HasEntProp(ent, Prop_Send, "m_hBuilder")
+				|| GetEntPropEnt(ent, Prop_Send, "m_hBuilder") != client) {
+			// not a building we own
+			continue;
+		}
+		
+		if (client != GetModifiedBuildingOwner(ent)) {
+			// this was reprogrammed, so don't destroy it
+			continue;
+		}
+		
+		Event event = CreateEvent("object_removed");
+		if (event) {
+			event.SetInt("userid", GetClientUserId(client));
+			event.SetInt("objecttype", view_as<any>(TF2_GetObjectType(ent)));
+			event.SetInt("index", EntRefToEntIndex(ent));
+			event.Fire();
+		}
+		
+		if (detonate) {
+			SDKCall(g_SDKBuildingDetonate, ent);
+		} else {
+			RemoveEntity(ent);
+		}
+	}
+	
 	return MRES_Supercede;
 }
 

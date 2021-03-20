@@ -365,6 +365,20 @@
 					}
 				}
 			}
+			"CTFPlayer::RemoveAllObjects()"
+			{
+				"signature"		"CTFPlayer::RemoveAllObjects()"
+				"callconv"		"thiscall"
+				"return"		"void"
+				"this"			"entity"
+				"arguments"
+				{
+					"detonate"
+					{
+						"type"	"bool"
+					}
+				}
+			}
 			"CTFPlayer::ShouldGib()"
 			{
 				"offset"		"CTFPlayer::ShouldGib()"
@@ -930,6 +944,13 @@
 				"linux"			"@_ZN9CTFPlayer10RegenThinkEv"
 				"windows"		"\x55\x8B\xEC\x83\xEC\x74\x57\x8B\xF9\x8B\x07"
 			}
+			"CTFPlayer::RemoveAllObjects()"
+			{
+				// containing non-unique string "object_removed"
+				"library"		"server"
+				"linux"			"@_ZN9CTFPlayer16RemoveAllObjectsEb"
+				"windows"		"\x55\x8B\xEC\x83\xEC\x08\x8B\xC1\x57"
+			}
 			"CTFPlayerShared::ActivateRageBuff()"
 			{
 				// containing non-unique string "mod_buff_duration"
@@ -1081,6 +1102,12 @@
 				// note: windows offsets aren't correct on the vtable dumper
 				"windows"	"375"
 				"linux"		"376"
+			}
+			"CBaseObject::DetonateObject()"
+			{
+				// these are correct on the vtable dumper
+				"windows"	"344"
+				"linux"		"346"
 			}
 			"CBaseObject::ChangeTeam()"
 			{
