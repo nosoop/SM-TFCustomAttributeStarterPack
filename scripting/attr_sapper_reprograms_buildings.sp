@@ -38,6 +38,10 @@ public Plugin myinfo = {
 enum struct ReprogrammedBuilding {
 	int buildingref;
 	int ownerserial;
+	
+	// if the building can be destroyed when [un]equipping the gunslinger or changing class
+	// buildings can never be destroyed manually
+	bool autodestroyable;
 }
 
 ArrayList g_ConvertedBuildings;
@@ -193,7 +197,7 @@ Action SimulateReprogrammedBuilding(int client, int argc) {
 		if (GetEntPropEnt(ent, Prop_Send, "m_hBuilder") != target) {
 			continue;
 		}
-		ReprogramBuilding(ent, owner);
+		ReprogramBuilding(ent, owner, false);
 	}
 }
 
@@ -253,6 +257,7 @@ public void OnObjectSapped(Event event, const char[] name, bool dontBroadcast) {
 	
 	float flSapTime = ReadFloatVar(reprogrammerProps, "sap_time", 5.0);
 	float flSelfDestructTime = ReadFloatVar(reprogrammerProps, "self_destruct_time", 15.0);
+	int autoRemoveTypes = ReadIntVar(reprogrammerProps, "can_autoremove");
 	
 	TE_SetupTFParticleEffect("bot_radio_waves", NULL_VECTOR, .entity = sapperattach);
 	TE_SendToAll();
@@ -262,6 +267,7 @@ public void OnObjectSapped(Event event, const char[] name, bool dontBroadcast) {
 	
 	WritePackEntity(data, sapperattach);
 	WritePackClient(data, attacker);
+	data.WriteCell(autoRemoveTypes);
 	data.WriteFloat(flSelfDestructTime);
 }
 
@@ -270,15 +276,18 @@ public Action OnReprogramComplete(Handle timer, DataPack data) {
 	
 	int sapperattach = ReadPackEntity(data);
 	int attacker = ReadPackClient(data);
+	int autoRemoveTypes = data.ReadCell();
 	float flSelfDestructTime = data.ReadFloat();
 	
 	if (!IsValidEntity(sapperattach)) {
 		// sapper was destroyed, don't do the sap effect
 		return Plugin_Handled;
 	}
-	
 	int building = GetEntPropEnt(sapperattach, Prop_Data, "m_hParent");
-	ReprogramBuilding(building, attacker);
+	
+	bool allowAutoDestroy =
+			!!(autoRemoveTypes & (1 << view_as<int>(TF2_GetObjectType(building))));
+	ReprogramBuilding(building, attacker, allowAutoDestroy);
 	
 	RemoveEntity(sapperattach);
 	
@@ -288,7 +297,7 @@ public Action OnReprogramComplete(Handle timer, DataPack data) {
 	return Plugin_Handled;
 }
 
-void ReprogramBuilding(int building, int owner) {
+void ReprogramBuilding(int building, int owner, bool destroyable) {
 	/**
 	 * properly convert the building to the other team
 	 * 
@@ -301,7 +310,7 @@ void ReprogramBuilding(int building, int owner) {
 	
 	SetEntProp(building, Prop_Send, "m_nSkin", attackerTeam == TFTeam_Red? 0 : 1);
 	
-	AddConvertedBuildingInfo(building, owner);
+	AddConvertedBuildingInfo(building, owner, destroyable);
 }
 
 public Action OnReprogrammedBuildingSelfDestruct(Handle timer, int buildingref) {
@@ -338,7 +347,7 @@ public MRESReturn OnPlayerDetonateBuildingPre(int client, Handle hParams) {
 		return MRES_Ignored;
 	}
 	
-	if (client == GetModifiedBuildingOwner(building)) {
+	if (CanBuildingDetonate(building, .forced = false)) {
 		return MRES_Ignored;
 	}
 	
@@ -368,7 +377,7 @@ MRESReturn OnRemoveAllObjectsPre(int client, Handle hParams) {
 			continue;
 		}
 		
-		if (client != GetModifiedBuildingOwner(ent)) {
+		if (!CanBuildingDetonate(ent, .forced = true)) {
 			// this was reprogrammed, so don't destroy it
 			continue;
 		}
@@ -395,7 +404,7 @@ MRESReturn OnWrenchEquipPre(int wrench, Handle hParams) {
 	int owner = DHookGetParam(hParams, 1);
 	int building = SDKCall(g_SDKPlayerGetObjectOfType, owner, TFObject_Sentry,
 			TFObjectMode_None);
-	if (!IsValidEntity(building) || owner == GetModifiedBuildingOwner(building)) {
+	if (!IsValidEntity(building) || CanBuildingDetonate(building, .forced = true)) {
 		return MRES_Ignored;
 	}
 	
@@ -413,7 +422,7 @@ MRESReturn OnWrenchDetachPre(int wrench) {
 	
 	int building = SDKCall(g_SDKPlayerGetObjectOfType, owner, TFObject_Sentry,
 			TFObjectMode_None);
-	if (!IsValidEntity(building) || owner == GetModifiedBuildingOwner(building)) {
+	if (!IsValidEntity(building) || CanBuildingDetonate(building, .forced = true)) {
 		return MRES_Ignored;
 	}
 	
@@ -426,10 +435,11 @@ MRESReturn OnWrenchDetachPre(int wrench) {
 /**
  * Adds the new owner to a list for later overwriting in the sentry's think function.
  */
-void AddConvertedBuildingInfo(int building, int attacker) {
+void AddConvertedBuildingInfo(int building, int attacker, bool autodestroyable) {
 	ReprogrammedBuilding info;
 	info.buildingref = EntIndexToEntRef(building);
 	info.ownerserial = GetClientSerial(attacker);
+	info.autodestroyable = autodestroyable;
 	
 	g_ConvertedBuildings.PushArray(info, sizeof(info));
 	
@@ -468,6 +478,27 @@ int GetModifiedBuildingOwner(int building) {
 		}
 	}
 	return GetEntPropEnt(building, Prop_Send, "m_hBuilder");
+}
+
+bool CanBuildingDetonate(int building, bool forced = false) {
+	int buildingref = EntIndexToEntRef(building);
+	for (int i; i < g_ConvertedBuildings.Length; i++) {
+		ReprogrammedBuilding info;
+		g_ConvertedBuildings.GetArray(i, info, sizeof(info));
+		
+		if (info.buildingref != buildingref) {
+			continue;
+		}
+		int owner = GetClientFromSerial(info.ownerserial);
+		if (!owner) {
+			continue;
+		}
+		
+		if (!forced || !info.autodestroyable) {
+			return false;
+		}
+	}
+	return true;
 }
 
 /**
