@@ -10,10 +10,11 @@
 #pragma newdecls required
 
 #include <tf2utils>
-#include <tf2wearables>
 #include <tf_custom_attributes>
 #include <stocksoup/var_strings>
 #include <stocksoup/tf/entity_prop_stocks>
+
+#define TF2LoadoutSlot_Secondary 1
 
 bool g_bAppliedGravityCharge[MAXPLAYERS + 1];
 bool g_bShouldCritWhileAirborne[MAXPLAYERS + 1];
@@ -31,7 +32,7 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 		return;
 	}
 	
-	int weapon = TF2_GetPlayerLoadoutSlot(client, TF2LoadoutSlot_Secondary);
+	int weapon = TF2Util_GetPlayerLoadoutEntity(client, TF2LoadoutSlot_Secondary);
 	
 	char attr[64];
 	if (!IsValidEntity(weapon)

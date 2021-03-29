@@ -2,10 +2,10 @@
 #include <sourcemod>
 
 #include <sdkhooks>
-#include <tf2wearables>
 
 #pragma newdecls required
 
+#include <tf2utils>
 #include <tf_custom_attributes>
 #include <tf_econ_data>
 #include <stocksoup/var_strings>
@@ -129,7 +129,7 @@ public void OnClientPostThinkPost(int client) {
 			continue;
 		}
 		
-		int weapon = TF2_GetPlayerLoadoutSlot(client, view_as<TF2LoadoutSlot>(i));
+		int weapon = TF2Util_GetPlayerLoadoutEntity(client, i);
 		if (!IsValidEntity(weapon)) {
 			continue;
 		}

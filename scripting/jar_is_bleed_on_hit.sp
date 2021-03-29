@@ -11,10 +11,9 @@
 #include <dhooks>
 #include <tf2_stocks>
 #include <tf_custom_attributes>
+#include <tf2utils>
 
 #pragma newdecls required
-
-#include <tf2wearables>
 
 float g_flConditionEnd[MAXPLAYERS + 1];
 float g_flBleedEffectDuration[MAXPLAYERS + 1];
@@ -139,7 +138,7 @@ void ApplyEffect(int client, float duration, float bleedDuration) {
 	GetEntityModelPath(client, model, sizeof(model));
 	SetEntityModel(effect, model);
 	
-	TF2_EquipPlayerWearable(client, effect);
+	TF2Util_EquipPlayerWearable(client, effect);
 	
 	g_iConditionFx[client] = EntIndexToEntRef(effect);
 	

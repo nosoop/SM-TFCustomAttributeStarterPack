@@ -32,7 +32,7 @@
 native int TF2Util_TakeHealth(int client, float flHealth, int bitsHealType = 0);
 
 /**
- * Returns the maximum amount of ammo for the given ammo type.
+ * Returns the maximum amount of ammo a player can hold for the given ammo type.
  * 
  * @param iAmmoIndex      Ammo type.
  * @param playerClass     Player class.  If TFClass_Unknown, use the player's current class.
@@ -59,6 +59,13 @@ native void TF2Util_GetPlayerShootPosition(int client, float result[3]);
  * @error Entity is not valid.
  */
 native bool TF2Util_IsEntityWeapon(int entity);
+
+/**
+ * Returns whether or not the given entity is a wearable.
+ * 
+ * @error Entity is not valid.
+ */
+native bool TF2Util_IsEntityWearable(int entity);
 
 /**
  * Returns the slot for the given weapon entity.
@@ -94,14 +101,57 @@ native int TF2Util_GetPlayerWearable(int client, int index);
 native int TF2Util_GetPlayerWearableCount(int client);
 
 /**
+ * If `includeWearableWeapons` is true, weapon slots (primary, secondary, melee, utility,
+ * building, pda, pda2) are also checked for wearable items.  Otherwise, wearables in those
+ * slots (Sniper / Demoman shields) are ignored.
+ * 
+ * Note that this validates that the player is using a class that can equip the given item; any
+ * items not applicable to the class are ignored.
+ * 
+ * @return Entity on the given client occupying the given loadout slot.
+ */
+native int TF2Util_GetPlayerLoadoutEntity(int client, int loadoutSlot,
+		bool includeWearableWeapons = true);
+
+/**
+ * Equips the given wearable entity onto the given client.
+ * 
+ * @error Client is invalid or entity is not a wearable.
+ */
+native void TF2Util_EquipPlayerWearable(int client, int wearable);
+
+/**
  * Forces an update to the given player's speed.
  * 
- * @param immediate Whether or not the speed is updated immediately.  If this is set to false,
- * the call will be defered in a way that any number of calls to this native in the same frame
- * will only result in at most one update more than the number of immediate calls (intended to
- * reduce the number of calls forwarded to plugins that detour the maximum speed calculation).
+ * @param immediate    Whether or not the speed is updated immediately.  If this is set to
+ *                     false, the call will be defered and batched so all non-immediate calls
+ *                     will only trigger one update to the player's speed at most.  (This is
+ *                     designed to accomodate plugins using detours on player speed
+ *                     calculations.)
  */
 native void TF2Util_UpdatePlayerSpeed(int client, bool immediate = false);
+
+/**
+ * Returns whether or not a position / entity is in an active respawn room.  If an entity is
+ * passed in, this also checks if the entity is touching an active respawn room, instead of just
+ * the given position.
+ * 
+ * @param position             A position to check.  Should be the center / origin of an entity.
+ * @param entity               An optional entity to check.
+ * @param bTouchingSameTeam    Whether or not the respawn room must either match the entity's
+ *                             team, or not be assigned to a team.  Always treated as true if
+ *                             the position is in an active spawn room.  Has no effect if no
+ *                             entity is provided.
+ */
+native bool TF2Util_IsPointInRespawnRoom(const float[3] position,
+		int entity = INVALID_ENT_REFERENCE, bool bRestrictToSameTeam = false);
+
+// compile-time compatibility shim for tf2wearables natives
+#if defined USE_TF2WEARABLE_FUNCTION_SHIMS
+	#define TF2_GetPlayerLoadoutSlot    TF2Util_GetPlayerLoadoutEntity
+	#define TF2_EquipPlayerWearable     TF2Util_EquipPlayerWearable
+	#define TF2_IsWearable              TF2Util_IsEntityWearable
+#endif
 
 public SharedPlugin __pl_tf2utils = {
 	name = "nosoop_tf2utils",

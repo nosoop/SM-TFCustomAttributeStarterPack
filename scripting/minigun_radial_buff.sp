@@ -3,7 +3,6 @@
 
 #include <dhooks>
 #include <sdkhooks>
-#include <tf2wearables>
 
 #pragma newdecls required
 

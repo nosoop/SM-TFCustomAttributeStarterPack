@@ -11,13 +11,13 @@
 #include <sdkhooks> // we don't actually use this except for the DMG_* defines
 #include <dhooks>
 
-#include <tf2wearables>
-
 #include <tf_custom_attributes>
 #include <stocksoup/tf/tempents_stocks>
 #include <stocksoup/var_strings>
 
 #include <tf_damageinfo_tools>
+
+#define TF2LoadoutSlot_Secondary 1
 
 public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
@@ -40,7 +40,7 @@ public void TF2_OnConditionRemoved(int client, TFCond condition) {
 		return;
 	}
 	
-	int shield = TF2_GetPlayerLoadoutSlot(client, TF2LoadoutSlot_Secondary);
+	int shield = TF2Util_GetPlayerLoadoutEntity(client, TF2LoadoutSlot_Secondary);
 	
 	// PrintToServer("shield bashing...");
 	// int client = DHookGetParam(hParams, 1);

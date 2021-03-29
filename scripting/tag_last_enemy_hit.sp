@@ -9,7 +9,7 @@
 
 #pragma newdecls required
 
-#include <tf2wearables>
+#include <tf2utils>
 #include <tf_custom_attributes>
 #include <stocksoup/tf/entity_prefabs>
 #include <stocksoup/tf/teams>
@@ -84,7 +84,7 @@ bool GlowValidOnAttacker(int client) {
 	
 	// client has at least one weapon with the attribute
 	for (int i; i < 3; i++) {
-		int loadoutItem = TF2_GetPlayerLoadoutSlot(client, i);
+		int loadoutItem = TF2Util_GetPlayerLoadoutEntity(client, i);
 		if (IsValidEntity(loadoutItem)
 				&& TF2CustAttr_GetFloat(loadoutItem, "tag last enemy hit") > 0.0) {
 			return true;

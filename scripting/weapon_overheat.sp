@@ -14,7 +14,6 @@
 
 #include <tf2utils>
 #include <tf2attributes>
-#include <tf2wearables>
 #include <tf_custom_attributes>
 
 #include <stocksoup/math>
@@ -469,7 +468,7 @@ public Action OnCustomStatusHUDUpdate(int client, StringMap entries) {
 }
 
 bool HasWeaponSlot(int weapon, int &slot) {
-	if (TF2_IsWearable(weapon)) {
+	if (TF2Util_IsEntityWearable(weapon)) {
 		return false;
 	}
 	slot = TF2Util_GetWeaponSlot(weapon);
