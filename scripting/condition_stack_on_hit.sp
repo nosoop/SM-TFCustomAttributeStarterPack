@@ -54,13 +54,18 @@ public void OnTakeDamagePost(int victim, int attacker, int inflictor, float dama
 		TF2_AddCondition(victim, condition, flDuration, attacker);
 	} else {
 		float flNewDuration = TF2Util_GetPlayerConditionDuration(victim, condition);
-		flNewDuration += flDuration;
 		
-		if (flNewDuration > flMaxDuration) {
-			flNewDuration = flMaxDuration;
+		// don't reduce an existing duration that exceeds the max
+		if (flNewDuration <= flMaxDuration) {
+			flNewDuration += flDuration;
+			
+			if (flNewDuration > flMaxDuration) {
+				flNewDuration = flMaxDuration;
+			}
+			
+			TF2Util_SetPlayerConditionDuration(victim, condition, flNewDuration);
 		}
 		
-		TF2Util_SetPlayerConditionDuration(victim, condition, flNewDuration);
 	}
 }
 
