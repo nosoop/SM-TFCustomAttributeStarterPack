@@ -100,7 +100,7 @@ before application
 for manipulating (mini-)crits
 - [Source Scramble][]:  memory-level tweaking, for when DHooks isn't enough
 - [TF2 Econ Data][]:  identifies loadout slots for weapons, among other things
-- [TF2Utils][]:  wrappers around some game functions / memory accessors (version 0.11.0+)
+- [TF2Utils][]:  wrappers around some game functions / memory accessors (version 0.12.0+)
 - [TF2 DamageInfo Tools][]:  additional wrapper solely for radius damage, because bomb entities
 just don't work exactly right for custom explosions.  Uses Source Scramble's `MemoryBlock`
 handles for struct allocation.

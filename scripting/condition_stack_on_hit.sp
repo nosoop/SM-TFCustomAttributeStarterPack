@@ -6,7 +6,7 @@
 
 #pragma newdecls required
 
-#include <tf_cond_info>
+#include <tf2utils>
 #include <tf_custom_attributes>
 #include <stocksoup/value_remap>
 #include <stocksoup/var_strings>
@@ -53,15 +53,14 @@ public void OnTakeDamagePost(int victim, int attacker, int inflictor, float dama
 	if (!TF2_IsPlayerInCondition(victim, condition) || !additive) {
 		TF2_AddCondition(victim, condition, flDuration, attacker);
 	} else {
-		float flNewDuration = TF2_GetConditionData(victim, condition,
-				ConditionInfo_Duration);
+		float flNewDuration = TF2Util_GetPlayerConditionDuration(victim, condition);
 		flNewDuration += flDuration;
 		
 		if (flNewDuration > flMaxDuration) {
 			flNewDuration = flMaxDuration;
 		}
 		
-		TF2_SetConditionData(victim, condition, ConditionInfo_Duration, flNewDuration);
+		TF2Util_SetPlayerConditionDuration(victim, condition, flNewDuration);
 	}
 }
 
