@@ -39,6 +39,13 @@
 				"return"		"void"
 				"this"			"entity"
 			}
+			"CBaseEntity::UpdateOnRemove()"
+			{
+				"offset"		"CBaseEntity::UpdateOnRemove()"
+				"hooktype"		"entity"
+				"return"		"void"
+				"this"			"entity"
+			}
 			"CBaseCombatWeapon::SecondaryAttack()"
 			{
 				"offset"		"CBaseCombatWeapon::SecondaryAttack()"
@@ -1091,6 +1098,11 @@
 			{
 				"windows"	"71"
 				"linux"		"72"
+			}
+			"CBaseEntity::UpdateOnRemove()"
+			{
+				"windows"	"105"
+				"linux"		"106"
 			}
 			"CBaseGrenade::Explode()"
 			{

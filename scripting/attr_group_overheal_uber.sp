@@ -17,6 +17,8 @@
 #include <stocksoup/tf/entity_prop_stocks>
 #include <stocksoup/tf/tempents_stocks>
 
+#include <tf2utils>
+
 #define PLUGIN_VERSION "0.0.0"
 public Plugin myinfo = {
 	name = "[TF2CA] Medigun Uber: Group Overheal",
@@ -27,6 +29,8 @@ public Plugin myinfo = {
 }
 
 #define DISPENSER_RANGE 64.0
+
+Handle g_DHookUpdateOnRemove;
 
 Handle g_SDKCallFindEntityInSphere, g_SDKCallPlayerSharedStartHealing,
 		g_SDKCallPlayerSharedStopHealing;
@@ -65,6 +69,11 @@ public void OnPluginStart() {
 	PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer);
 	g_SDKCallPlayerSharedStopHealing = EndPrepSDKCall();
 	
+	g_DHookUpdateOnRemove = DHookCreateFromConf(hGameConf, "CBaseEntity::UpdateOnRemove()");
+	if (!g_DHookUpdateOnRemove) {
+		SetFailState("Failed to create detour %s", "CBaseEntity::UpdateOnRemove()");
+	}
+	
 	Handle dtGetChargeType = DHookCreateFromConf(hGameConf,
 			"CTFPlayer::GetChargeEffectBeingProvided()");
 	DHookEnableDetour(dtGetChargeType, false, OnGetPlayerProvidedCharge);
@@ -90,18 +99,22 @@ public void OnClientPutInServer(int client) {
 	SDKHook(client, SDKHook_PostThinkPost, OnPlayerPostThinkPost);
 }
 
+public void OnEntityCreated(int entity, const char[] classname) {
+	if (TF2Util_IsEntityWeapon(entity) && TF2Util_GetWeaponID(entity) == 50) {
+		DHookEntity(g_DHookUpdateOnRemove, false, entity, .callback = OnMedigunRemoved);
+	}
+}
+
+MRESReturn OnMedigunRemoved(int medigun) {
+	// avoid issue where medigun is killed on class change and we can't detach healing
+	// why doesn't CTFPlayerShared::Heal() perform entity validation??  thought it did
+	DetachGroupOverheal(medigun);
+}
+
 public void OnPlayerPostThinkPost(int client) {
 	int hActiveWeapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
 	if (!IsUberchargeDeployed(hActiveWeapon)) {
-		// stop healing all players in g_RadiusHealRecipients[client] if there are any
-		while (g_RadiusHealRecipients[client].Length) {
-			int target = GetClientFromSerial(g_RadiusHealRecipients[client].Get(0));
-			if (target) {
-				StopHealing(target, GetPlayerWeaponSlot(client, 1));
-				SetClientScreenOverlay(target, "");
-			}
-			g_RadiusHealRecipients[client].Erase(0);
-		}
+		DetachGroupOverheal(hActiveWeapon);
 		return;
 	}
 	
@@ -186,6 +199,20 @@ public MRESReturn OnGetPlayerProvidedCharge(int client, Handle hReturn) {
 		return MRES_Supercede;
 	}
 	return MRES_Ignored;
+}
+
+void DetachGroupOverheal(int medigun) {
+	int client = TF2_GetEntityOwner(medigun);
+	// stop healing all players in g_RadiusHealRecipients[client] if there are any
+	while (g_RadiusHealRecipients[client].Length) {
+		int target = GetClientFromSerial(g_RadiusHealRecipients[client].Get(0));
+		if (target) {
+			StopHealing(target, medigun);
+			SetClientScreenOverlay(target, "");
+		}
+		g_RadiusHealRecipients[client].Erase(0);
+	}
+	return;
 }
 
 bool IsUberchargeDeployed(int weapon) {
