@@ -114,7 +114,9 @@ MRESReturn OnMedigunRemoved(int medigun) {
 public void OnPlayerPostThinkPost(int client) {
 	int hActiveWeapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
 	if (!IsUberchargeDeployed(hActiveWeapon)) {
-		DetachGroupOverheal(hActiveWeapon);
+		if (IsValidEntity(hActiveWeapon)) {
+			DetachGroupOverheal(hActiveWeapon);
+		}
 		return;
 	}
 	
