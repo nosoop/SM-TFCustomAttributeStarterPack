@@ -38,6 +38,14 @@ ArrayList g_RadiusHealRecipients[MAXPLAYERS + 1];
 
 float g_flLastHealthParticleDisplayTime[MAXPLAYERS + 1];
 
+enum struct GroupOverhealAttributes {
+	float flHealRate;
+	float flOverhealRatio;
+	float flOverhealTimeScale;
+	bool bFixedHealRate;
+	float flHealRange;
+}
+
 public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
@@ -92,6 +100,14 @@ public void OnMapStart() {
 		}
 		g_RadiusHealRecipients[i] = new ArrayList();
 	}
+	
+	int entity = -1;
+	while ((entity = FindEntityByClassname(entity, "*")) != -1) {
+		if (TF2Util_IsEntityWeapon(entity) && TF2Util_GetWeaponID(entity) == 50) {
+			DHookEntity(g_DHookUpdateOnRemove, false, entity, .callback = OnMedigunRemoved);
+		}
+	}
+	
 }
 
 public void OnClientPutInServer(int client) {
@@ -108,24 +124,33 @@ public void OnEntityCreated(int entity, const char[] classname) {
 MRESReturn OnMedigunRemoved(int medigun) {
 	// avoid issue where medigun is killed on class change and we can't detach healing
 	// why doesn't CTFPlayerShared::Heal() perform entity validation??  thought it did
-	DetachGroupOverheal(medigun);
+	int owner = TF2_GetEntityOwner(medigun);
+	if (1 <= owner <= MaxClients) {
+		DetachGroupOverheal(medigun);
+	}
 }
 
 public void OnPlayerPostThinkPost(int client) {
-	int hActiveWeapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
-	if (!IsUberchargeDeployed(hActiveWeapon)) {
-		if (IsValidEntity(hActiveWeapon)) {
-			DetachGroupOverheal(hActiveWeapon);
+	int activeWeapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
+	int secondary = GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary);
+	
+	// TODO: can we just keep ubercharge state somewhere so we know if they need to be detached?
+	
+	// drop overheal from medigun if it's not active or ubercharge wore off
+	if (!IsPlayerAlive(client) || secondary != activeWeapon
+			|| !IsUberchargeDeployed(secondary)) {
+		if (IsValidEntity(secondary) && TF2Util_IsEntityWeapon(secondary)
+				&& TF2Util_GetWeaponID(secondary) == TF_WEAPON_MEDIGUN) {
+			DetachGroupOverheal(secondary);
 		}
 		return;
 	}
 	
-	float flHealRange, flHealRate, flOverhealRatio, flOverhealTimeScale;
-	bool bFixedHealRate;
+	GroupOverhealAttributes healprops;
 	
 	// not the correct medigun
-	if (!IsGroupOverhealMedigun(hActiveWeapon, flHealRate, flOverhealRatio, flOverhealTimeScale,
-			bFixedHealRate, flHealRange)) {
+	if (TF2Util_GetWeaponID(secondary) != TF_WEAPON_MEDIGUN
+			|| !IsGroupOverhealMedigun(activeWeapon, healprops)) {
 		return;
 	}
 	
@@ -137,7 +162,7 @@ public void OnPlayerPostThinkPost(int client) {
 	// radius check to see which friendly players are in range
 	bool bInGroupOverhealRange[MAXPLAYERS + 1];
 	int target = -1;
-	while ((target = FindEntityInSphere(target, vecOrigin, flHealRange)) != -1) {
+	while ((target = FindEntityInSphere(target, vecOrigin, healprops.flHealRange)) != -1) {
 		if (target > 0 && target <= MaxClients
 				&& TF2_GetClientTeamFromClient(target, client) == team) {
 			bInGroupOverhealRange[target] = true;
@@ -175,8 +200,9 @@ public void OnPlayerPostThinkPost(int client) {
 			case true: {
 				// in range now, add healer
 				g_RadiusHealRecipients[client].Push(GetClientSerial(i));
-				StartHealing(i, hActiveWeapon, client, flHealRate, flOverhealRatio,
-						flOverhealTimeScale, bFixedHealRate);
+				StartHealing(i, activeWeapon, client, healprops.flHealRate,
+						healprops.flOverhealRatio, healprops.flOverhealTimeScale,
+						healprops.bFixedHealRate);
 				
 				TF2_SetClientUberchargeOverlay(i);
 				
@@ -187,7 +213,7 @@ public void OnPlayerPostThinkPost(int client) {
 			case false: {
 				// not in range anymore, remove healer
 				g_RadiusHealRecipients[client].Erase(iHealRecipientIndex);
-				StopHealing(i, hActiveWeapon);
+				StopHealing(i, activeWeapon);
 				SetClientScreenOverlay(i, "");
 			}
 		}
@@ -195,8 +221,9 @@ public void OnPlayerPostThinkPost(int client) {
 }
 
 public MRESReturn OnGetPlayerProvidedCharge(int client, Handle hReturn) {
-	int hActiveWeapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
-	if (IsUberchargeDeployed(hActiveWeapon) && IsGroupOverhealMedigun(hActiveWeapon)) {
+	int activeWeapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
+	GroupOverhealAttributes healprops;
+	if (IsUberchargeDeployed(activeWeapon) && IsGroupOverhealMedigun(activeWeapon, healprops)) {
 		DHookSetReturn(hReturn, -1);
 		return MRES_Supercede;
 	}
@@ -226,9 +253,7 @@ bool IsUberchargeDeployed(int weapon) {
 	return !!GetEntProp(weapon, Prop_Send, "m_bChargeRelease");
 }
 
-bool IsGroupOverhealMedigun(int weapon, float &flHealRate = 0.0, float &flOverhealRatio = 0.0,
-		float &flOverhealTimeScale = 0.0, bool &bFixedHealing = false,
-		float &flHealRange = 0.0) {
+bool IsGroupOverhealMedigun(int weapon, GroupOverhealAttributes healprops) {
 	char attr[256];
 	
 	if (!TF2CustAttr_GetString(weapon, "medigun charge is group overheal",
@@ -236,11 +261,11 @@ bool IsGroupOverhealMedigun(int weapon, float &flHealRate = 0.0, float &flOverhe
 		return false;
 	}
 	
-	flHealRange = ReadFloatVar(attr, "range", DISPENSER_RANGE * 5.0);
-	flHealRate = ReadFloatVar(attr, "heal_rate", 30.0);
-	flOverhealRatio = ReadFloatVar(attr, "overheal_ratio", 1.5);
-	flOverhealTimeScale = ReadFloatVar(attr, "overheal_duration_mult", 2.0);
-	bFixedHealing = !!ReadIntVar(attr, "fixed_heal_rate", true);
+	healprops.flHealRange = ReadFloatVar(attr, "range", DISPENSER_RANGE * 5.0);
+	healprops.flHealRate = ReadFloatVar(attr, "heal_rate", 30.0);
+	healprops.flOverhealRatio = ReadFloatVar(attr, "overheal_ratio", 1.5);
+	healprops.flOverhealTimeScale = ReadFloatVar(attr, "overheal_duration_mult", 2.0);
+	healprops.bFixedHealRate = !!ReadIntVar(attr, "fixed_heal_rate", true);
 	
 	return true;
 }
