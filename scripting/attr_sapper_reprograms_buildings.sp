@@ -60,6 +60,8 @@ int offs_WeaponBase_fnDetach;
 Handle g_SDKWeaponEquip, g_SDKWeaponDetach;
 
 public void OnPluginStart() {
+	LoadTranslations("common.phrases");
+	
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
 		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
@@ -177,6 +179,12 @@ public void OnMapStart() {
 }
 
 Action SimulateReprogrammedBuilding(int client, int argc) {
+	if (argc < 3) {
+		ReplyToCommand(client,
+				"Usage: cattr_reprog_building [builder] [sapper owner] [building type int]");
+		return Plugin_Handled;
+	}
+	
 	char targetName[64], ownerName[64], buildingType[8];
 	GetCmdArg(1, targetName, sizeof(targetName));
 	GetCmdArg(2, ownerName, sizeof(ownerName));
@@ -185,7 +193,14 @@ Action SimulateReprogrammedBuilding(int client, int argc) {
 	TFObjectType objectType = view_as<TFObjectType>(StringToInt(buildingType));
 	
 	int target = FindTarget(client, targetName, .immunity = false);
+	if (target == -1) {
+		return Plugin_Handled;
+	}
+	
 	int owner = FindTarget(client, ownerName, .immunity = false);
+	if (owner == -1) {
+		return Plugin_Handled;
+	}
 	
 	int ent = -1;
 	while ((ent = FindEntityByClassname(ent, "obj_*")) != -1) {
@@ -218,6 +233,9 @@ public MRESReturn OnSentryGunThinkPre(int sentry) {
 	s_ActualBuildingBuilder = GetEntPropEnt(sentry, Prop_Send, "m_hBuilder");
 	
 	int newOwner = GetModifiedBuildingOwner(sentry);
+	
+	// I can't remember why we set these props or what the side effects were.
+	// I *think* the builder controls whether the sentry can be controlled by the Wrangler.
 	SetEntDataEnt2(sentry, offs_hBuilder, newOwner);
 	// SetEntDataEnt2(sentry, offs_hOwner, newOwner);
 	
