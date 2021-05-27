@@ -219,7 +219,7 @@ public MRESReturn OnSentryGunThinkPre(int sentry) {
 	
 	int newOwner = GetModifiedBuildingOwner(sentry);
 	SetEntDataEnt2(sentry, offs_hBuilder, newOwner);
-	SetEntDataEnt2(sentry, offs_hOwner, newOwner);
+	// SetEntDataEnt2(sentry, offs_hOwner, newOwner);
 	
 	return MRES_Ignored;
 }
