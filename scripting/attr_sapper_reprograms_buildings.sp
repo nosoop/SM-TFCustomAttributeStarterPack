@@ -35,6 +35,10 @@ public Plugin myinfo = {
 	url = "localhost"
 }
 
+// custom spawnflag to tell other plugins to not destroy this building on loadout changes
+// kind of a dumb hack, but I don't want to make this a shared library
+#define SF_BASEOBJ_CUSTOM_NO_AUTODESTROY (1 << 16)
+
 enum struct ReprogrammedBuilding {
 	int buildingref;
 	int ownerserial;
@@ -462,6 +466,12 @@ void AddConvertedBuildingInfo(int building, int attacker, bool autodestroyable) 
 	g_ConvertedBuildings.PushArray(info, sizeof(info));
 	
 	// TODO clean up older entries here if you're putting this on a production server
+	int spawnflags = GetEntProp(building, Prop_Data, "m_spawnflags");
+	
+	if (!autodestroyable) {
+		SetEntProp(building, Prop_Data, "m_spawnflags",
+				spawnflags | SF_BASEOBJ_CUSTOM_NO_AUTODESTROY);
+	}
 }
 
 void RemoveConvertedBuildingInfo(int building) {
@@ -472,6 +482,11 @@ void RemoveConvertedBuildingInfo(int building) {
 		
 		if (info.buildingref == buildingref) {
 			g_ConvertedBuildings.Erase(i);
+			
+			int spawnflags = GetEntProp(building, Prop_Data, "m_spawnflags");
+			SetEntProp(building, Prop_Data, "m_spawnflags",
+					spawnflags & ~SF_BASEOBJ_CUSTOM_NO_AUTODESTROY);
+			
 			return;
 		}
 	}
