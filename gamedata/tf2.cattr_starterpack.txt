@@ -1076,13 +1076,13 @@
 		{
 			"CBaseCombatWeapon::ItemPostFrame()"
 			{
-				"windows"	"265"
-				"linux"		"271"
+				"windows"	"266"
+				"linux"		"272"
 			}
 			"CBaseCombatWeapon::SecondaryAttack()"
 			{
-				"windows"	"280"
-				"linux"		"286"
+				"windows"	"281"
+				"linux"		"287"
 			}
 			"CBaseEntity::GetBaseEntity()"
 			{
@@ -1106,20 +1106,20 @@
 			}
 			"CBaseGrenade::Explode()"
 			{
-				"windows"	"228"
-				"linux"		"229"
+				"windows"	"229"
+				"linux"		"230"
 			}
 			"CBaseObject::CanBeUpgraded(CTFPlayer)"
 			{
 				// note: windows offsets aren't correct on the vtable dumper
-				"windows"	"375"
-				"linux"		"376"
+				"windows"	"376"
+				"linux"		"377"
 			}
 			"CBaseObject::DetonateObject()"
 			{
 				// these are correct on the vtable dumper
-				"windows"	"344"
-				"linux"		"346"
+				"windows"	"345"
+				"linux"		"347"
 			}
 			"CBaseObject::ChangeTeam()"
 			{
@@ -1129,89 +1129,89 @@
 			"CBaseObject::GetMaxUpgradeLevel()"
 			{
 				// note: windows offsets aren't correct on the vtable dumper
-				"windows"	"380"
-				"linux"		"381"
+				"windows"	"381"
+				"linux"		"382"
 			}
 			"CBaseObject::StartUpgrading()"
 			{
 				// note: windows offsets aren't correct on the vtable dumper
-				"windows"	"376"
-				"linux"		"377"
+				"windows"	"377"
+				"linux"		"378"
 			}
 			"CBaseGrenade::GetDamageRadius()"
 			{
-				"windows"	"234"
-				"linux"		"235"
+				"windows"	"235"
+				"linux"		"236"
 			}
 			"CTFWeaponBaseGrenadeProj::InitGrenade(int float)"
 			{
-				"windows"	"236"
-				"linux"		"238"
+				"windows"	"237"
+				"linux"		"239"
 			}
 			"CBasePlayer::OnEmitFootstepSound()"
 			{
-				"windows"	"368"
-				"linux"		"369"
+				"windows"	"369"
+				"linux"		"370"
 			}
 			"CTFBaseProjectile::ProjectileTouch()"
 			{
-				"windows"	"232"
-				"linux"		"235"
+				"windows"	"233"
+				"linux"		"236"
 			}
 			"CTFBaseRocket::RocketTouch()"
 			{
-				"windows"	"231"
-				"linux"		"232"
+				"windows"	"232"
+				"linux"		"233"
 			}
 			"CTFPlayer::RemoveAmmo()"
 			{
-				"windows"	"257"
-				"linux"		"257"
+				"windows"	"258"
+				"linux"		"258"
 			}
 			"CTFPlayer::ShouldGib()"
 			{
-				"windows"	"289"
-				"linux"		"290"
+				"windows"	"290"
+				"linux"		"291"
 			}
 			"CTFWeaponBase::DeflectEntity()"
 			{
-				"windows"	"413"
-				"linux"		"420"
+				"windows"	"414"
+				"linux"		"421"
 			}
 			"CTFWeaponBase::Detach()"
 			{
-				"windows"	"263"
-				"linux"		"269"
+				"windows"	"264"
+				"linux"		"270"
 			}
 			"CTFWeaponBase::Equip()"
 			{
-				"windows"	"226"
-				"linux"		"232"
+				"windows"	"227"
+				"linux"		"233"
 			}
 			"CTFWeaponBase::GetProjectileFireSetup()"
 			{
-				"windows"	"393"
-				"linux"		"400"
+				"windows"	"394"
+				"linux"		"401"
 			}
 			"CTFWeaponBase::PrimaryAttack()"
 			{
-				"windows"	"279"
-				"linux"		"285"
+				"windows"	"280"
+				"linux"		"286"
 			}
 			"CTFWeaponBase::FinishReload()"
 			{
-				"windows"	"274"
-				"linux"		"280"
+				"windows"	"275"
+				"linux"		"281"
 			}
 			"CTFWeaponBaseGun::FireEnergyBall()"
 			{
-				"windows"	"470"
-				"linux"		"477"
+				"windows"	"471"
+				"linux"		"478"
 			}
 			"CTFWeaponBaseMelee::OnEntityHit()"
 			{
-				"windows"	"469"
-				"linux"		"476"
+				"windows"	"470"
+				"linux"		"477"
 			}
 			
 			// member offsets
