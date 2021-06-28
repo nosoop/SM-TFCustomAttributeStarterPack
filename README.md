@@ -71,7 +71,7 @@ not intended to showcase completely balanced weapons.
 
 ### Building
 
-This project can be built in a reproductive manner with [Ninja](https://ninja-build.org/),
+This project can be built in a consistent manner with [Ninja](https://ninja-build.org/),
 `git`, and Python 3.
 
 1.  Clone the repository and its submodules: `git clone --recurse-submodules ...`
