@@ -766,22 +766,6 @@
 					"patch"			"\xEB" // unconditional JMP
 				}
 			}
-			"CTFWeaponBase::ApplyOnHitAttributes()::RemoveSlowness"
-			{
-				"signature"			"CTFWeaponBase::ApplyOnHitAttributes()"
-				"linux"
-				{
-					"offset"		"8E2h"
-					"verify"		"\x74"
-					"patch"			"\xEB"
-				}
-				"windows"
-				{
-					"offset"		"C07h"	
-					"verify"		"\x74"
-					"patch"			"\xEB"
-				}
-			}
 		}
 		
 		"Signatures"
@@ -1072,12 +1056,6 @@
 				"library"	"server"
 				"linux"		"@_Z10JarExplodeiP9CTFPlayerP11CBaseEntityS2_RK6Vectorif7ETFCondfPKcS8_"
 				"windows"	"\x2A\x2A\x2A\x2A\x2A\x2A\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x04\x89\x6C\x24\x04\x8B\xEC\x81\xEC\xD8\x01\x00\x00\x56\x57\x8D\x8D\x64\xFF\xFF\xFF"
-			}
-			"CTFWeaponBase::ApplyOnHitAttributes()"
-			{
-				"library"	"server"
-				"linux"		"@_ZN13CTFWeaponBase20ApplyOnHitAttributesEP11CBaseEntityP9CTFPlayerRK15CTakeDamageInfo"
-				"windows"	"\x55\x8B\xEC\x81\xEC\x10\x01\x00\x00\x53\x56\x57\x8B\x7D\x0C"
 			}
 		}
 		
