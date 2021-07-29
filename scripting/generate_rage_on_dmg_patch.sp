@@ -21,6 +21,7 @@
 MemoryPatch g_PatchHandleRageGain;
 MemoryPatch g_PatchDisableHeavyRageKnockback;
 MemoryPatch g_PatchDisableHeavyRageDamagePenalty;
+MemoryPatch g_PatchDisableSlownessFromHeavyRage;
 
 public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
@@ -40,14 +41,23 @@ public void OnPluginStart() {
 		SetFailState("Could not verify patch for "
 				... "CTFPlayer::ApplyPushFromDamage()::NoHeavyKnockbackRage");
 	}
-	
+
+	g_PatchDisableSlownessFromHeavyRage = MemoryPatch.CreateFromConf(hGameConf, 
+            "CTFWeaponBase::ApplyOnHitAttributes()::RemoveSlowness");
+
+	if (!g_PatchDisableSlownessFromHeavyRage.Validate()) {
+        SetFailState("Could not verify patch for "
+                ... "CTFWeaponBase::ApplyOnHitAttributes()::RemoveSlowness");
+    }
+
 	g_PatchDisableHeavyRageDamagePenalty = MemoryPatch.CreateFromConf(hGameConf,
 			"CTFGameRules::ApplyOnDamageAliveModifyRules()::DisableHeavyRageDamagePenalty");
+
 	if (!g_PatchDisableHeavyRageDamagePenalty.Validate()) {
 		SetFailState("Could not verify patch for CTFGameRules::ApplyOnDamageAliveModifyRules()"
 				... "::DisableHeavyRageDamagePenalty");
 	}
-	
+
 	Handle dtApplyOnDamageAliveModifyRules = DHookCreateFromConf(hGameConf,
 			"CTFGameRules::ApplyOnDamageAliveModifyRules()");
 	DHookEnableDetour(dtApplyOnDamageAliveModifyRules, false, OnApplyOnDamageModifyRulesPre);
@@ -102,6 +112,7 @@ public MRESReturn OnApplyPushFromDamagePre(int client, Handle hParams) {
 	
 	if (ReadIntVar(attr, "disable_knockback")) {
 		g_PatchDisableHeavyRageKnockback.Enable();
+		g_PatchDisableSlownessFromHeavyRage.Enable();
 	}
 	return MRES_Ignored;
 }
