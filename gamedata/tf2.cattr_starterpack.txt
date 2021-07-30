@@ -679,11 +679,10 @@
 				"signature"			"CTFGameRules::ApplyOnDamageAliveModifyRules()"
 				"linux"
 				{
-					// 95% sure about this
 					"offset"		"106Eh"
 
 					// mulss xmm2, *float == 0.5
-					"verify"		"\xF3\x0F\x59\x15\x6C\x2A\x2A\x2A"
+					"verify"		"\xF3\x0F\x59\x15\x2A\x2A\x2A\x2A"
 					
 					// nop out the multiply operand
 					"patch"			"\x90\x90\x90\x90\x90\x90\x90\x90"
@@ -722,7 +721,7 @@
 				"signature"			"CTFPlayer::ApplyPushFromDamage()"
 				"linux"
 				{
-					"offset"		"7BAh"
+					"offset"		"78Ch"
 					"verify"		"\x74"
 					"patch"			"\x71"
 				}
