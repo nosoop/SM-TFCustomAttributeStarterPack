@@ -679,7 +679,7 @@
 				"signature"			"CTFGameRules::ApplyOnDamageAliveModifyRules()"
 				"linux"
 				{
-					"offset"		"1CD8h"
+					"offset"		"106Eh"
 					
 					// mulss xmm2, *float == 0.5
 					"verify"		"\xF3\x0F\x59\x15\x2A\x2A\x2A\x2A"
@@ -689,7 +689,7 @@
 				}
 				"windows"
 				{
-					"offset"		"848h"
+					"offset"		"890h"
 					
 					// mulss xmm0, &float == 0.5
 					"verify"		"\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A"
@@ -721,13 +721,13 @@
 				"signature"			"CTFPlayer::ApplyPushFromDamage()"
 				"linux"
 				{
-					"offset"		"1988"
+					"offset"		"78Ch"
 					"verify"		"\x74"
 					"patch"			"\x71"
 				}
 				"windows"
 				{
-					"offset"		"82Bh"
+					"offset"		"835h"
 					"verify"		"\x74"
 					"patch"			"\xEB" // unconditional JMP
 				}
@@ -897,7 +897,7 @@
 				// unuqie x-ref "damage_blast_push"
 				"library"	"server"
 				"linux"		"@_ZN9CTFPlayer19ApplyPushFromDamageERK15CTakeDamageInfo6Vector"
-				"windows"	"\x55\x8B\xEC\xA1\x2A\x2A\x2A\x2A\x83\xEC\x28\x83\x78\x30\x00\x53"
+				"windows"	"\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x83\xEC\x28\x83\x78\x30\x00\x53\x56\x57\x8B\xF9"
 			}
 			"CTFPlayer::CreateRagdollEntity()"
 			{
