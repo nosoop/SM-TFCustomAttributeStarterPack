@@ -57,7 +57,7 @@ public void OnPluginStart() {
 
 	if (!g_PatchDisableHeavyRageDamagePenalty.Validate()) {
 		SetFailState("Could not verify patch for CTFGameRules::ApplyOnDamageAliveModifyRules()"
-			... "::DisableHeavyRageDamagePenalty");
+				... "::DisableHeavyRageDamagePenalty");
 	}
 
 	Handle dtApplyOnDamageAliveModifyRules = DHookCreateFromConf(hGameConf,
