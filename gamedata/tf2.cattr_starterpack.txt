@@ -680,7 +680,7 @@
 				"linux"
 				{
 					"offset"		"106Eh"
-
+					
 					// mulss xmm2, *float == 0.5
 					"verify"		"\xF3\x0F\x59\x15\x2A\x2A\x2A\x2A"
 					
@@ -692,7 +692,7 @@
 					"offset"		"890h"
 					
 					// mulss xmm0, &float == 0.5
-					"verify"		"\xF3\x0F\x59\x05\xB0\x2A\x2A\x2A"
+					"verify"		"\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A"
 					
 					// nop out the multiply operand
 					"patch"			"\x90\x90\x90\x90\x90\x90\x90\x90"
