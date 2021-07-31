@@ -777,7 +777,7 @@
 				}
 				"windows"
 				{
-					"offset"		"C07h"	
+					"offset"		"C07h"
 					"verify"		"\x74"
 					"patch"			"\xEB"
 				}
