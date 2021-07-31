@@ -920,10 +920,9 @@
 			{
 				// semi-unique xref "tf_ragdoll" with tons of straight conditionals
 				// disambiguate from CreateFeignDeathRagdoll with offset around 0x1100 (as opposed to 0x2200s) at the start of the function
-				// this hardcodes the entity offset on Windows
 				"library"	"server"
 				"linux"		"@_ZN9CTFPlayer19CreateRagdollEntityEbbbbbbbbib"
-				"windows"	"\x2A\x2A\x2A\x2A\x2A\x2A\x53\x56\x8B\xF1\x8B\x8E\x2A\x11\x00\x00"
+				"windows"	"\x2A\x2A\x2A\x2A\x2A\x2A\x53\x56\x8B\xF1\x8B\x2A\x2A\x11\x00\x00"
 			}
 			"CTFPlayer::DetonateObjectOfType()"
 			{
