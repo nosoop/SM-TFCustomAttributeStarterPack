@@ -32,6 +32,8 @@ char g_MedicScripts[][] = {
 	"Medic.CritDeath",
 };
 
+ConVar cattr_medigun_drain_gratuitous_violence;
+
 public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
@@ -76,6 +78,10 @@ public void OnPluginStart() {
 	offs_CTFPlayer_LastDamageType = offslastDamage + 0x14;
 	
 	delete hGameConf;
+	
+	cattr_medigun_drain_gratuitous_violence =
+			CreateConVar("cattr_medigun_drain_gratuitous_violence", "1",
+			"Use dramatic death effects for players killed using medigun drain.");
 	
 	HookEvent("player_death", OnPlayerDeath);
 }
@@ -158,8 +164,8 @@ public MRESReturn OnMedigunPostFramePost(int medigun) {
 	
 	// TODO fix not being able to damage friendly players with owner set without friendlyfire??
 	
-	s_ForceGibRagdoll = true;
-	s_ForceCritDeathSound = true;
+	s_ForceGibRagdoll = cattr_medigun_drain_gratuitous_violence.BoolValue;
+	s_ForceCritDeathSound = cattr_medigun_drain_gratuitous_violence.BoolValue;
 	SDKHooks_TakeDamage(healTarget, medigun, owner, flDrainRate * GetGameFrameTime(),
 			DMG_PREVENT_PHYSICS_FORCE | DMG_ALWAYSGIB);
 	s_ForceCritDeathSound = false;
@@ -242,8 +248,8 @@ void MedicDetonate(int medigun) {
 	while ((entity = FindEntityInSphere(entity, vecOrigin, radius)) != -1) {
 		// damage combat characters (buildings, players, tanks...)
 		if (IsEntityCombatCharacter(entity) && entity != owner) {
-			s_ForceCritDeathSound = true;
-			s_ForceGibRagdoll = true;
+			s_ForceCritDeathSound = cattr_medigun_drain_gratuitous_violence.BoolValue;
+			s_ForceGibRagdoll = cattr_medigun_drain_gratuitous_violence.BoolValue;
 			SDKHooks_TakeDamage(entity, medigun, owner, 69420.0,
 					DMG_PREVENT_PHYSICS_FORCE | DMG_ALWAYSGIB);
 			s_ForceCritDeathSound = false;
