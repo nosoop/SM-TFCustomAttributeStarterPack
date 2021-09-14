@@ -670,6 +670,36 @@
 					}
 				}
 			}
+			"CTFPlayerShared::RecalculateChargeEffects()"
+			{
+				"signature"		"CTFPlayerShared::RecalculateChargeEffects()"
+				"callconv"		"thiscall"
+				"return"		"void"
+				"this"			"address"
+				
+				"arguments"
+				{
+					"bInstantRemove"
+					{
+						"type"	"bool"
+					}
+				}
+			}
+			"CTFPlayerShared::StopHealing()"
+			{
+				"signature"		"CTFPlayerShared::StopHealing()"
+				"callconv"		"thiscall"
+				"return"		"void"
+				"this"			"address"
+				
+				"arguments"
+				{
+					"pHealer"
+					{
+						"type"	"cbaseentity"
+					}
+				}
+			}
 		}
 		
 		"MemPatches"
@@ -1077,6 +1107,12 @@
 				"library"	"server"
 				"linux"		"@_ZN13CTFWeaponBase20ApplyOnHitAttributesEP11CBaseEntityP9CTFPlayerRK15CTakeDamageInfo"
 				"windows"	"\x55\x8B\xEC\x81\xEC\x10\x01\x00\x00\x53\x56\x57\x8B\x7D\x0C"
+			}
+			"CTFPlayerShared::RecalculateChargeEffects()"
+			{
+				"library"	"server"
+				"linux"		"@_ZN15CTFPlayerShared24RecalculateChargeEffectsEb"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x38\x53\x56\x57\x8B\xF9\xC7\x45\xCC\x00\x00\x00\x00"
 			}
 		}
 		

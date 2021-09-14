@@ -17,14 +17,20 @@
 #include <stocksoup/tf/entity_prop_stocks>
 #include <stocksoup/tf/tempents_stocks>
 #include <smlib/clients>
+#include <tf2utils>
 
 Handle g_DHookWeaponPostFrame;
 Handle g_SDKCallFindEntityInSphere;
 Handle g_SDKCallGetCombatCharacterPtr;
+Handle g_SDKCallGetBaseEntity;
 
 // read from CTFPlayer::DeathSound() disasm
 // TODO actually read from gameconf? have to find windows sigs if I did
 int offs_CTFPlayer_LastDamageType = 0x2168;
+
+Address g_offset_CTFPlayerShared_pOuter;
+
+bool bIsPlayerDraining[MAXPLAYERS];
 
 char g_MedicScripts[][] = {
 	"medic_sf13_influx_big03",
@@ -49,25 +55,79 @@ public void OnPluginStart() {
 	PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef);
 	PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
 	g_SDKCallFindEntityInSphere = EndPrepSDKCall();
+
+	if (!g_SDKCallFindEntityInSphere) {
+		SetFailState("Failed to setup SDKCall for CGlobalEntityList::FindEntityInSphere()");
+	}
 	
 	StartPrepSDKCall(SDKCall_Entity);
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual,
 			"CBaseEntity::MyCombatCharacterPointer()");
 	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
 	g_SDKCallGetCombatCharacterPtr = EndPrepSDKCall();
+
+	if (!g_SDKCallGetCombatCharacterPtr) {
+		SetFailState("Failed to setup SDKCall for CBaseEntity::MyCombatCharacterPointer()");
+	}
+
+	StartPrepSDKCall(SDKCall_Raw);
+	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual, "CBaseEntity::GetBaseEntity()");
+	PrepSDKCall_SetReturnInfo(SDKType_CBaseEntity, SDKPass_Pointer);
+	g_SDKCallGetBaseEntity = EndPrepSDKCall();
+
+	if (!g_SDKCallGetBaseEntity) {
+		SetFailState("Failed to setup SDKCall for CBaseEntity::GetBaseEntity()");
+	}
 	
 	Handle dtMedigunAllowedToHealTarget = DHookCreateFromConf(hGameConf,
 			"CWeaponMedigun::AllowedToHealTarget()");
+
+	if (!dtMedigunAllowedToHealTarget) {
+		SetFailState("Failed to setup detour for CWeaponMedigun::AllowedToHealTarget()");
+	}
+
 	DHookEnableDetour(dtMedigunAllowedToHealTarget, false, OnAllowedToHealTargetPre);
+
+	Handle dtRecalculateChargeEffects = DHookCreateFromConf(hGameConf,
+			"CTFPlayerShared::RecalculateChargeEffects()");
+
+	if (!dtRecalculateChargeEffects) {
+		SetFailState("Failed to setup detour for CTFPlayerShared::RecalculateChargeEffects()");
+	}
 	
+	DHookEnableDetour(dtRecalculateChargeEffects, false, OnRecalculateChargeEffectsPre);
+
+	Handle dtStopHealing = DHookCreateFromConf(hGameConf,
+			"CTFPlayerShared::StopHealing()");
+
+	if (!dtStopHealing) {
+		SetFailState("Failed to setup detour for CTFPlayerShared::StopHealing()");
+	}
+
+	DHookEnableDetour(dtStopHealing, false, OnStopHealingPre);
+
 	Handle dtMedigunSecondaryAttack = DHookCreateFromConf(hGameConf,
 			"CWeaponMedigun::SecondaryAttack()");
+
+	if (!dtMedigunSecondaryAttack) {
+		SetFailState("Failed to setup detour for CWeaponMedigun::SecondaryAttack()");
+	}
+
 	DHookEnableDetour(dtMedigunSecondaryAttack, false, OnMedigunSecondaryAttackPre);
 	
 	g_DHookWeaponPostFrame = DHookCreateFromConf(hGameConf,
 			"CBaseCombatWeapon::ItemPostFrame()");
+
+	if (!g_DHookWeaponPostFrame) {
+		SetFailState("Failed to setup detour for CBaseCombatWeapon::ItemPostFrame()");
+	}
 	
 	Handle dtCreateRagdoll = DHookCreateFromConf(hGameConf, "CTFPlayer::CreateRagdollEntity()");
+	
+	if (!dtCreateRagdoll) {
+		SetFailState("Failed to setup detour for CTFPlayer::CreateRagdollEntity()");
+	}
+
 	DHookEnableDetour(dtCreateRagdoll, false, OnCreateRagdollPre);
 	
 	int offslastDamage = FindSendPropInfo("CTFPlayer", "m_flMvMLastDamageTime");
@@ -76,6 +136,8 @@ public void OnPluginStart() {
 	}
 	
 	offs_CTFPlayer_LastDamageType = offslastDamage + 0x14;
+
+	g_offset_CTFPlayerShared_pOuter = view_as<Address>(GameConfGetOffset(hGameConf, "CTFPlayerShared::m_pOuter"));
 	
 	delete hGameConf;
 	
@@ -109,6 +171,11 @@ public void OnClientPutInServer(int client) {
 	SDKHook(client, SDKHook_OnTakeDamageAlivePost, OnTakeDamageAlivePost);
 }
 
+// CTFPlayerShared::StopHealing() doesn't get called when a player disconnects.
+public void OnClientDisconnect_Post(int iClient) {
+	bIsPlayerDraining[iClient] = false;
+}
+
 static bool s_ForceCritDeathSound;
 public void OnTakeDamageAlivePost(int victim, int attacker, int inflictor, float damage,
 		int damagetype) {
@@ -137,20 +204,79 @@ public MRESReturn OnCreateRagdollPre(int client, Handle hParams) {
 
 // setting this up as a post hook causes windows srcds to crash
 public MRESReturn OnAllowedToHealTargetPre(int medigun, Handle hReturn, Handle hParams) {
-	if (TF2CustAttr_GetFloat(medigun, "medigun drains health") == 0.0) {
+	if (!TF2CustAttr_GetFloat(medigun, "medigun drains health")) {
 		return MRES_Ignored;
 	}
+
+	int healer = TF2_GetEntityOwner(medigun);
 	int target = DHookGetParam(hParams, 1);
-	if (target > 0 && target <= MaxClients) {
-		DHookSetReturn(hReturn, true);
+
+	if (!IsEntityInGameClient(healer) || !IsEntityInGameClient(target)) {
+		DHookSetReturn(hReturn, false);
 		return MRES_Supercede;
 	}
+
+	if (IsTargetInUberState(target) || TF2_IsPlayerInCondition(target, TFCond_Cloaked)) {
+		DHookSetReturn(hReturn, false);
+		return MRES_Supercede;
+	}
+
+	DHookSetReturn(hReturn, true);
+
+	bIsPlayerDraining[healer] = true;
+
+	return MRES_Supercede;
+}
+
+public MRESReturn OnRecalculateChargeEffectsPre(Address pPlayerShared, Handle hParams) {
+	int client = GetClientFromPlayerShared(pPlayerShared);
+
+	bool bIsPlayerBeingDrained = false;
+
+	if (!IsEntityInGameClient(client)) {
+		return MRES_Ignored;
+	}
+
+	int numHealers = GetEntProp(client, Prop_Send, "m_nNumHealers");
+
+	for (int i = 0; i < numHealers; i++) {
+		int healer = GetHealerByIndex(client, i);
+		if (!IsEntityInGameClient(healer)) {
+			return MRES_Ignored;
+		}
+
+		int weapon = TF2_GetClientActiveWeapon(healer);
+		if (!weapon || !IsValidEntity(weapon)) {
+			return MRES_Ignored;
+		}
+
+		if (!bIsPlayerDraining[healer]) {
+			return MRES_Ignored;
+		}
+
+		if (IsTargetInUberState(client)) {
+			if (HasEntProp(weapon, Prop_Send, "m_hHealingTarget")) {
+				SetEntPropEnt(weapon, Prop_Send, "m_hHealingTarget", -1);
+			}
+			bIsPlayerBeingDrained = true;
+		}
+	}
+
+	if (bIsPlayerBeingDrained) {
+		return MRES_Supercede;
+	}
+
 	return MRES_Ignored;
 }
 
 public MRESReturn OnMedigunPostFramePost(int medigun) {
+	int healer = TF2_GetEntityOwner(medigun);
+	if (!bIsPlayerDraining[healer]) {
+		return MRES_Ignored;
+	}
+
 	int healTarget = GetEntPropEnt(medigun, Prop_Send, "m_hHealingTarget");
-	if (!IsValidEntity(healTarget) || healTarget < 1 || healTarget > MaxClients) {
+	if (!IsEntityInGameClient(healTarget)) {
 		// don't process non-client targets
 		return MRES_Ignored;
 	}
@@ -160,13 +286,11 @@ public MRESReturn OnMedigunPostFramePost(int medigun) {
 		return MRES_Ignored;
 	}
 	
-	int owner = TF2_GetEntityOwner(medigun);
-	
 	// TODO fix not being able to damage friendly players with owner set without friendlyfire??
 	
 	s_ForceGibRagdoll = cattr_medigun_drain_gratuitous_violence.BoolValue;
 	s_ForceCritDeathSound = cattr_medigun_drain_gratuitous_violence.BoolValue;
-	SDKHooks_TakeDamage(healTarget, medigun, owner, flDrainRate * GetGameFrameTime(),
+	SDKHooks_TakeDamage(healTarget, medigun, healer, flDrainRate * GetGameFrameTime(),
 			DMG_PREVENT_PHYSICS_FORCE | DMG_ALWAYSGIB);
 	s_ForceCritDeathSound = false;
 	s_ForceGibRagdoll = false;
@@ -180,6 +304,26 @@ public MRESReturn OnMedigunPostFramePost(int medigun) {
 		SetEntPropFloat(medigun, Prop_Send, "m_flChargeLevel", flChargeLevel);
 	}
 	
+	return MRES_Ignored;
+}
+
+public MRESReturn OnStopHealingPre(Address pPlayerShared, Handle hParams) {
+	int healer = DHookGetParam(hParams, 1);
+	if (!IsEntityInGameClient(healer)) {
+		return MRES_Ignored;
+	}
+
+	int iWeapon = GetPlayerWeaponSlot(healer, 1);
+	if (iWeapon <= 0 || !IsValidEntity(iWeapon) || !TF2Util_IsEntityWeapon(iWeapon)) {
+		return MRES_Ignored;
+	}
+
+	if (!TF2CustAttr_GetFloat(iWeapon, "medigun drains health")) {
+		return MRES_Ignored;
+	}
+
+	bIsPlayerDraining[healer] = false;
+
 	return MRES_Ignored;
 }
 
@@ -267,4 +411,44 @@ static int FindEntityInSphere(int startEntity, const float vecPosition[3], float
 
 bool IsEntityCombatCharacter(int entity) {
 	return SDKCall(g_SDKCallGetCombatCharacterPtr, entity) != Address_Null;
+}
+
+stock int GetClientFromPlayerShared(Address pPlayerShared)  {
+	Address pOuter = view_as<Address>(LoadFromAddress(pPlayerShared 
+				+ g_offset_CTFPlayerShared_pOuter, NumberType_Int32));
+
+	return GetEntityFromAddress(pOuter);
+}
+
+stock int GetHealerByIndex(int client, int index) {
+	int m_aHealers = FindSendPropInfo("CTFPlayer", "m_nNumHealers") + 12;
+	
+	Address m_Shared = GetEntityAddress(client) + view_as<Address>(m_aHealers);
+	Address aHealers = view_as<Address>(LoadFromAddress(m_Shared, NumberType_Int32));
+	
+	return (LoadFromAddress(aHealers + view_as<Address>(index * 0x24), NumberType_Int32) & 0xFFF);
+} 
+
+stock int GetEntityFromAddress(Address pEntity)  {
+	return SDKCall(g_SDKCallGetBaseEntity, pEntity);
+}
+
+stock bool IsEntityInGameClient(int entity) {
+	if (entity <= 0 || entity > MaxClients) {
+		return false;
+	}
+
+	if (!IsClientInGame(entity)) {
+		return false;
+	}
+	
+	return true;
+}
+
+stock bool IsTargetInUberState(int client) {
+	return (TF2_IsPlayerInCondition(client, TFCond_Ubercharged) 
+		 || TF2_IsPlayerInCondition(client, TFCond_UberchargeFading) 
+		 || TF2_IsPlayerInCondition(client, TFCond_UberchargedHidden) 
+		 || TF2_IsPlayerInCondition(client, TFCond_UberchargedCanteen) 
+		 || TF2_IsPlayerInCondition(client, TFCond_UberchargedOnTakeDamage));
 }
