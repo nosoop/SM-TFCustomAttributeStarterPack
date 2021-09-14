@@ -211,7 +211,7 @@ public MRESReturn OnAllowedToHealTargetPre(int medigun, Handle hReturn, Handle h
 	int healer = TF2_GetEntityOwner(medigun);
 	int target = DHookGetParam(hParams, 1);
 
-	if (!IsValidClient(healer) || !IsValidClient(target)) {
+	if (!IsEntityInGameClient(healer) || !IsEntityInGameClient(target)) {
 		DHookSetReturn(hReturn, false);
 		return MRES_Supercede;
 	}
@@ -233,7 +233,7 @@ public MRESReturn OnRecalculateChargeEffectsPre(Address pPlayerShared, DHookPara
 
 	bool bIsPlayerBeingDrained = false;
 
-	if (!IsValidClient(client)) {
+	if (!IsEntityInGameClient(client)) {
 		return MRES_Ignored;
 	}
 
@@ -241,7 +241,7 @@ public MRESReturn OnRecalculateChargeEffectsPre(Address pPlayerShared, DHookPara
 
 	for (int i = 0; i < numHealers; i++) {
 		int healer = GetHealerByIndex(client, i);
-		if (!IsValidClient(healer)) {
+		if (!IsEntityInGameClient(healer)) {
 			return MRES_Ignored;
 		}
 
@@ -276,7 +276,7 @@ public MRESReturn OnMedigunPostFramePost(int medigun) {
 	}
 
 	int healTarget = GetEntPropEnt(medigun, Prop_Send, "m_hHealingTarget");
-	if (!IsValidClient(healTarget)) {
+	if (!IsEntityInGameClient(healTarget)) {
 		// don't process non-client targets
 		return MRES_Ignored;
 	}
@@ -309,7 +309,7 @@ public MRESReturn OnMedigunPostFramePost(int medigun) {
 
 public MRESReturn OnStopHealingPre(Address pPlayerShared, DHookParam hParams) {
 	int healer = DHookGetParam(hParams, 1);
-	if (!IsValidClient(healer)) {
+	if (!IsEntityInGameClient(healer)) {
 		return MRES_Ignored;
 	}
 
@@ -433,12 +433,12 @@ stock int GetEntityFromAddress(Address pEntity)  {
 	return SDKCall(g_SDKCallGetBaseEntity, pEntity);
 }
 
-stock bool IsValidClient(int client) {
-	if (client <= 0 || client > MaxClients) {
+stock bool IsEntityInGameClient(int entity) {
+	if (entity <= 0 || entity > MaxClients) {
 		return false;
 	}
 
-	if (!IsClientInGame(client)) {
+	if (!IsClientInGame(entity)) {
 		return false;
 	}
 	
