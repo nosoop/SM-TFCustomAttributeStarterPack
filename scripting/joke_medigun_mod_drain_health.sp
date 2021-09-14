@@ -56,7 +56,7 @@ public void OnPluginStart() {
 	PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
 	g_SDKCallFindEntityInSphere = EndPrepSDKCall();
 
-	if(!g_SDKCallFindEntityInSphere) {
+	if (!g_SDKCallFindEntityInSphere) {
 		SetFailState("Failed to setup SDKCall for CGlobalEntityList::FindEntityInSphere()");
 	}
 	
@@ -66,17 +66,16 @@ public void OnPluginStart() {
 	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
 	g_SDKCallGetCombatCharacterPtr = EndPrepSDKCall();
 
-	if(!g_SDKCallGetCombatCharacterPtr) {
+	if (!g_SDKCallGetCombatCharacterPtr) {
 		SetFailState("Failed to setup SDKCall for CBaseEntity::MyCombatCharacterPointer()");
 	}
 
 	StartPrepSDKCall(SDKCall_Raw);
-	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual, 
-			"CBaseEntity::GetBaseEntity()");
+	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual, "CBaseEntity::GetBaseEntity()");
 	PrepSDKCall_SetReturnInfo(SDKType_CBaseEntity, SDKPass_Pointer);
 	g_SDKCallGetBaseEntity = EndPrepSDKCall();
 
-	if(!g_SDKCallGetBaseEntity) {
+	if (!g_SDKCallGetBaseEntity) {
 		SetFailState("Failed to setup SDKCall for CBaseEntity::GetBaseEntity()");
 	}
 	
@@ -119,7 +118,7 @@ public void OnPluginStart() {
 	g_DHookWeaponPostFrame = DHookCreateFromConf(hGameConf,
 			"CBaseCombatWeapon::ItemPostFrame()");
 
-	if(!g_DHookWeaponPostFrame) {
+	if (!g_DHookWeaponPostFrame) {
 		SetFailState("Failed to setup detour for CBaseCombatWeapon::ItemPostFrame()");
 	}
 	
@@ -212,13 +211,12 @@ public MRESReturn OnAllowedToHealTargetPre(int medigun, Handle hReturn, Handle h
 	int healer = TF2_GetEntityOwner(medigun);
 	int target = DHookGetParam(hParams, 1);
 
-	if(!IsValidClient(healer) || !IsValidClient(target)) {
+	if (!IsValidClient(healer) || !IsValidClient(target)) {
 		DHookSetReturn(hReturn, false);
-
 		return MRES_Supercede;
 	}
 
-	if(IsTargetInUberState(target) || TF2_IsPlayerInCondition(target, TFCond_Cloaked)) {
+	if (IsTargetInUberState(target) || TF2_IsPlayerInCondition(target, TFCond_Cloaked)) {
 		DHookSetReturn(hReturn, false);
 		return MRES_Supercede;
 	}
@@ -235,37 +233,36 @@ public MRESReturn OnRecalculateChargeEffectsPre(Address pPlayerShared, DHookPara
 
 	bool bIsPlayerBeingDrained = false;
 
-	if(!IsValidClient(client)) {
+	if (!IsValidClient(client)) {
 		return MRES_Ignored;
 	}
 
 	int numHealers = GetEntProp(client, Prop_Send, "m_nNumHealers");
 
-	for(int i = 0; i < numHealers; i++) {
+	for (int i = 0; i < numHealers; i++) {
 		int healer = GetHealerByIndex(client, i);
-		if(!IsValidClient(healer)) {
+		if (!IsValidClient(healer)) {
 			return MRES_Ignored;
 		}
 
 		int weapon = TF2_GetClientActiveWeapon(healer);
-		if(weapon <= 0 || !IsValidEntity(weapon)) {
+		if (!weapon || !IsValidEntity(weapon)) {
 			return MRES_Ignored;
 		}
 
-		if(!bIsPlayerDraining[healer]) {
+		if (!bIsPlayerDraining[healer]) {
 			return MRES_Ignored;
 		}
 
-		if(IsTargetInUberState(client)) {
-			if(HasEntProp(weapon, Prop_Send, "m_hHealingTarget")) {
+		if (IsTargetInUberState(client)) {
+			if (HasEntProp(weapon, Prop_Send, "m_hHealingTarget")) {
 				SetEntPropEnt(weapon, Prop_Send, "m_hHealingTarget", -1);
 			}
-
 			bIsPlayerBeingDrained = true;
 		}
 	}
 
-	if(bIsPlayerBeingDrained) {
+	if (bIsPlayerBeingDrained) {
 		return MRES_Supercede;
 	}
 
@@ -274,8 +271,9 @@ public MRESReturn OnRecalculateChargeEffectsPre(Address pPlayerShared, DHookPara
 
 public MRESReturn OnMedigunPostFramePost(int medigun) {
 	int healer = TF2_GetEntityOwner(medigun);
-	if(!bIsPlayerDraining[healer])
+	if (!bIsPlayerDraining[healer]) {
 		return MRES_Ignored;
+	}
 
 	int healTarget = GetEntPropEnt(medigun, Prop_Send, "m_hHealingTarget");
 	if (!IsValidClient(healTarget)) {
@@ -309,19 +307,18 @@ public MRESReturn OnMedigunPostFramePost(int medigun) {
 	return MRES_Ignored;
 }
 
-public MRESReturn OnStopHealingPre(Address pPlayerShared, DHookParam hParams)
-{
+public MRESReturn OnStopHealingPre(Address pPlayerShared, DHookParam hParams) {
 	int healer = DHookGetParam(hParams, 1);
-	if(!IsValidClient(healer)) {
+	if (!IsValidClient(healer)) {
 		return MRES_Ignored;
 	}
 
 	int iWeapon = GetPlayerWeaponSlot(healer, 1);
-	if(iWeapon <= 0 || !IsValidEntity(iWeapon) || !TF2Util_IsEntityWeapon(iWeapon)) {
+	if (iWeapon <= 0 || !IsValidEntity(iWeapon) || !TF2Util_IsEntityWeapon(iWeapon)) {
 		return MRES_Ignored;
 	}
 
-	if(!TF2CustAttr_GetFloat(iWeapon, "medigun drains health")) {
+	if (!TF2CustAttr_GetFloat(iWeapon, "medigun drains health")) {
 		return MRES_Ignored;
 	}
 
@@ -437,11 +434,11 @@ stock int GetEntityFromAddress(Address pEntity)  {
 }
 
 stock bool IsValidClient(int client) {
-	if(client <= 0 || client > MaxClients) {
+	if (client <= 0 || client > MaxClients) {
 		return false;
 	}
 
-	if(!IsClientInGame(client)) {
+	if (!IsClientInGame(client)) {
 		return false;
 	}
 	
