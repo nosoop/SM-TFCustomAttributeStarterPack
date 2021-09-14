@@ -228,7 +228,7 @@ public MRESReturn OnAllowedToHealTargetPre(int medigun, Handle hReturn, Handle h
 	return MRES_Supercede;
 }
 
-public MRESReturn OnRecalculateChargeEffectsPre(Address pPlayerShared, DHookParam hParams) {
+public MRESReturn OnRecalculateChargeEffectsPre(Address pPlayerShared, Handle hParams) {
 	int client = GetClientFromPlayerShared(pPlayerShared);
 
 	bool bIsPlayerBeingDrained = false;
@@ -307,7 +307,7 @@ public MRESReturn OnMedigunPostFramePost(int medigun) {
 	return MRES_Ignored;
 }
 
-public MRESReturn OnStopHealingPre(Address pPlayerShared, DHookParam hParams) {
+public MRESReturn OnStopHealingPre(Address pPlayerShared, Handle hParams) {
 	int healer = DHookGetParam(hParams, 1);
 	if (!IsEntityInGameClient(healer)) {
 		return MRES_Ignored;
