@@ -22,6 +22,9 @@ public void OnPluginStart() {
 	
 	Handle dtLunchboxSecondaryAttack =
 			DHookCreateFromConf(hGameConf, "CTFLunchBox::SecondaryAttack()");
+	if (!dtLunchboxSecondaryAttack) {
+		SetFailState("Failed to create detour %s", "CTFLunchBox::SecondaryAttack()");
+	}
 	DHookEnableDetour(dtLunchboxSecondaryAttack, false, OnLunchBoxSecondaryAttackPre);
 	
 	g_OverwriteLunchboxEntityClass = MemoryPatch.CreateFromConf(hGameConf,
