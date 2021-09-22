@@ -19,14 +19,15 @@
 			}
 			"CTFProjectile_Flare::Explode_Air()::SelfDamageRadius"
 			{
+				// validate that this location has the immediate 100.f (0x42C80000)
 				"signature"		"CTFProjectile_Flare::Explode_Air()"
 				"windows"
 				{
-					"offset"	"541" // 0x21D, validate that address contains 100.0
+					"offset"	"561" // 0x231
 				}
 				"linux"
 				{
-					"offset"	"1133" // 0x46D
+					"offset"	"1113" // 0x459
 				}
 			}
 		}
