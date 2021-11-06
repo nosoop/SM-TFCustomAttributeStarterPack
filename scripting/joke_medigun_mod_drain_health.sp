@@ -30,7 +30,9 @@ int offs_CTFPlayer_LastDamageType = 0x2168;
 
 Address g_offset_CTFPlayerShared_pOuter;
 
-bool bIsPlayerDraining[MAXPLAYERS];
+bool bIsPlayerDraining[MAXPLAYERS + 1];
+
+float g_flDamageAccumulated[MAXPLAYERS + 1];
 
 char g_MedicScripts[][] = {
 	"medic_sf13_influx_big03",
@@ -168,6 +170,7 @@ public void OnMapStart() {
 }
 
 public void OnClientPutInServer(int client) {
+	g_flDamageAccumulated[client] = 0.0;
 	SDKHook(client, SDKHook_OnTakeDamageAlivePost, OnTakeDamageAlivePost);
 }
 
@@ -288,10 +291,22 @@ public MRESReturn OnMedigunPostFramePost(int medigun) {
 	
 	// TODO fix not being able to damage friendly players with owner set without friendlyfire??
 	
+	// use accumulator to allow fractional damage per tick
+	g_flDamageAccumulated[healTarget] += flDrainRate * GetGameFrameTime();
+	if (g_flDamageAccumulated[healTarget] < 1.0) {
+		return MRES_Ignored;
+	}
+	
 	s_ForceGibRagdoll = cattr_medigun_drain_gratuitous_violence.BoolValue;
 	s_ForceCritDeathSound = cattr_medigun_drain_gratuitous_violence.BoolValue;
-	SDKHooks_TakeDamage(healTarget, medigun, healer, flDrainRate * GetGameFrameTime(),
+	
+	int damageInflicted = RoundToFloor(g_flDamageAccumulated[healTarget]);
+	
+	SDKHooks_TakeDamage(healTarget, medigun, healer, float(damageInflicted),
 			DMG_PREVENT_PHYSICS_FORCE | DMG_ALWAYSGIB);
+	
+	g_flDamageAccumulated[healTarget] -= damageInflicted;
+	
 	s_ForceCritDeathSound = false;
 	s_ForceGibRagdoll = false;
 	
