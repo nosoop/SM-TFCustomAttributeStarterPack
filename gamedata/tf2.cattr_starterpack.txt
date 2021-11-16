@@ -1121,13 +1121,13 @@
 		{
 			"CBaseCombatWeapon::ItemPostFrame()"
 			{
-				"windows"	"266"
-				"linux"		"272"
+				"windows"	"269"
+				"linux"		"275"
 			}
 			"CBaseCombatWeapon::SecondaryAttack()"
 			{
-				"windows"	"281"
-				"linux"		"287"
+				"windows"	"284"
+				"linux"		"290"
 			}
 			"CBaseEntity::GetBaseEntity()"
 			{
@@ -1136,8 +1136,8 @@
 			}
 			"CBaseEntity::GetEnemy()"
 			{
-				"windows"	"96"
-				"linux"		"96"
+				"windows"	"99"
+				"linux"		"99"
 			}
 			"CBaseEntity::MyCombatCharacterPointer()"
 			{
@@ -1146,117 +1146,117 @@
 			}
 			"CBaseEntity::UpdateOnRemove()"
 			{
-				"windows"	"105"
-				"linux"		"106"
+				"windows"	"108"
+				"linux"		"109"
 			}
 			"CBaseGrenade::Explode()"
-			{
-				"windows"	"229"
-				"linux"		"230"
-			}
-			"CBaseObject::CanBeUpgraded(CTFPlayer)"
-			{
-				// note: windows offsets aren't correct on the vtable dumper
-				"windows"	"376"
-				"linux"		"377"
-			}
-			"CBaseObject::DetonateObject()"
-			{
-				// these are correct on the vtable dumper
-				"windows"	"345"
-				"linux"		"347"
-			}
-			"CBaseObject::ChangeTeam()"
-			{
-				"windows"	"91"
-				"linux"		"92"
-			}
-			"CBaseObject::GetMaxUpgradeLevel()"
-			{
-				// note: windows offsets aren't correct on the vtable dumper
-				"windows"	"381"
-				"linux"		"382"
-			}
-			"CBaseObject::StartUpgrading()"
-			{
-				// note: windows offsets aren't correct on the vtable dumper
-				"windows"	"377"
-				"linux"		"378"
-			}
-			"CBaseGrenade::GetDamageRadius()"
-			{
-				"windows"	"235"
-				"linux"		"236"
-			}
-			"CTFWeaponBaseGrenadeProj::InitGrenade(int float)"
-			{
-				"windows"	"237"
-				"linux"		"239"
-			}
-			"CBasePlayer::OnEmitFootstepSound()"
-			{
-				"windows"	"369"
-				"linux"		"370"
-			}
-			"CTFBaseProjectile::ProjectileTouch()"
-			{
-				"windows"	"233"
-				"linux"		"236"
-			}
-			"CTFBaseRocket::RocketTouch()"
 			{
 				"windows"	"232"
 				"linux"		"233"
 			}
+			"CBaseObject::CanBeUpgraded(CTFPlayer)"
+			{
+				// note: windows offsets aren't correct on the vtable dumper
+				"windows"	"379"
+				"linux"		"380"
+			}
+			"CBaseObject::DetonateObject()"
+			{
+				// these are correct on the vtable dumper
+				"windows"	"348"
+				"linux"		"350"
+			}
+			"CBaseObject::ChangeTeam()"
+			{
+				"windows"	"94"
+				"linux"		"95"
+			}
+			"CBaseObject::GetMaxUpgradeLevel()"
+			{
+				// note: windows offsets aren't correct on the vtable dumper
+				"windows"	"384"
+				"linux"		"385"
+			}
+			"CBaseObject::StartUpgrading()"
+			{
+				// note: windows offsets aren't correct on the vtable dumper
+				"windows"	"380"
+				"linux"		"381"
+			}
+			"CBaseGrenade::GetDamageRadius()"
+			{
+				"windows"	"238"
+				"linux"		"239"
+			}
+			"CTFWeaponBaseGrenadeProj::InitGrenade(int float)"
+			{
+				"windows"	"240"
+				"linux"		"242"
+			}
+			"CBasePlayer::OnEmitFootstepSound()"
+			{
+				"windows"	"372"
+				"linux"		"373"
+			}
+			"CTFBaseProjectile::ProjectileTouch()"
+			{
+				"windows"	"236"
+				"linux"		"239"
+			}
+			"CTFBaseRocket::RocketTouch()"
+			{
+				"windows"	"235"
+				"linux"		"236"
+			}
 			"CTFPlayer::RemoveAmmo()"
 			{
-				"windows"	"258"
-				"linux"		"258"
+				"windows"	"261"
+				"linux"		"261"
 			}
 			"CTFPlayer::ShouldGib()"
 			{
-				"windows"	"290"
-				"linux"		"291"
+				"windows"	"293"
+				"linux"		"294"
 			}
 			"CTFWeaponBase::DeflectEntity()"
 			{
-				"windows"	"414"
-				"linux"		"421"
+				"windows"	"417"
+				"linux"		"424"
 			}
 			"CTFWeaponBase::Detach()"
 			{
-				"windows"	"264"
-				"linux"		"270"
+				"windows"	"267"
+				"linux"		"273"
 			}
 			"CTFWeaponBase::Equip()"
 			{
-				"windows"	"227"
-				"linux"		"233"
+				"windows"	"230"
+				"linux"		"236"
 			}
 			"CTFWeaponBase::GetProjectileFireSetup()"
 			{
-				"windows"	"394"
-				"linux"		"401"
+				"windows"	"397"
+				"linux"		"404"
 			}
 			"CTFWeaponBase::PrimaryAttack()"
 			{
-				"windows"	"280"
-				"linux"		"286"
+				"windows"	"283"
+				"linux"		"289"
 			}
 			"CTFWeaponBase::FinishReload()"
 			{
-				"windows"	"275"
-				"linux"		"281"
+				"windows"	"278"
+				"linux"		"284"
 			}
 			"CTFWeaponBaseGun::FireEnergyBall()"
 			{
-				"windows"	"471"
-				"linux"		"478"
+				"windows"	"474"
+				"linux"		"481"
 			}
 			"CTFWeaponBaseMelee::OnEntityHit()"
 			{
-				"windows"	"470"
-				"linux"		"477"
+				"windows"	"473"
+				"linux"		"480"
 			}
 			
 			// member offsets
