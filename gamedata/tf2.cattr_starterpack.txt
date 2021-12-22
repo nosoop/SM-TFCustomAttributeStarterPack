@@ -752,7 +752,7 @@
 				"signature"			"CTFPlayer::ApplyPushFromDamage()"
 				"linux"
 				{
-					"offset"		"754h"
+					"offset"		"78Ch"
 					"verify"		"\x74"
 					"patch"			"\x71"
 				}
