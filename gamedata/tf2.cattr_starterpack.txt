@@ -23,11 +23,11 @@
 				"signature"		"CTFProjectile_Flare::Explode_Air()"
 				"windows"
 				{
-					"offset"	"561" // 0x231
+					"offset"	"1113" // 0x231
 				}
 				"linux"
 				{
-					"offset"	"1113" // 0x459
+					"offset"	"561" // 0x459
 				}
 			}
 		}
@@ -768,7 +768,7 @@
 				"signature"		"CTFPlayerShared::UpdateCloakMeter()"
 				"linux"
 				{
-					"offset"		"123h"
+					"offset"		"13Bh"
 					"verify"		"\xF3\x0F\x10\x1D\x2A\x2A\x2A\x2A"
 					"patch"			"\xF3\x0F\x10\x1D\x00\x00\x00\x00"
 				}
