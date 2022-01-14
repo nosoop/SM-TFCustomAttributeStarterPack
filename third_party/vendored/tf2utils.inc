@@ -134,23 +134,6 @@ native void TF2Util_SetPlayerBurnDuration(int client, float duration);
 native void TF2Util_GetPlayerShootPosition(int client, float result[3]);
 
 /**
- * @return Object (building) entity at the given index.
- */
-native int TF2Util_GetPlayerObject(int client, int index);
-
-/**
- * Returns the number of objects / buildings in the player's object array.
- */
-native int TF2Util_GetPlayerObjectCount(int client);
-
-/**
- * To get the number of healers available, use the m_nNumHealers netprop.
- * 
- * @return Healer entity index at the given index.
- */
-native int TF2Util_GetPlayerHealer(int client, int index);
-
-/**
  * Returns whether or not the given entity is a weapon.
  * 
  * @error Entity is not valid.
@@ -204,10 +187,6 @@ native int TF2Util_GetPlayerWearableCount(int client);
  * 
  * Note that this validates that the player is using a class that can equip the given item; any
  * items not applicable to the class are ignored.
- * 
- * Also note that this does not differentiate between different cosmetic slots (all cosmetics
- * will match on the first loadout slot).  If you want to get cosmetic entities on a given
- * player, consider using `TF2Util_GetPlayerWearable` instead.
  * 
  * @return Entity on the given client occupying the given loadout slot.
  */
