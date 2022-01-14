@@ -46,6 +46,7 @@ plugins = [
   'mod_crit_type_vs_sentry_targets.sp',
   'mult_damage_vs_sappers.sp',
   'mult_basegrenade_explode_radius.sp',
+  'mvm_attributes.sp',
   'override_building_health.sp',
   'preserve_rage.sp',
   'projectile_heal_on_teammate_contact.sp',
