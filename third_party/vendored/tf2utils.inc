@@ -43,9 +43,18 @@ native int TF2Util_GetPlayerMaxAmmo(int client, int iAmmoIndex,
 		TFClassType playerClass = TFClass_Unknown);
 
 /**
- * Returns the current maximum health of the player.
+ * Returns the current maximum allowed health of an entity.
  */
-native int TF2Util_GetPlayerMaxHealth(int client, bool bIgnoreAttributes = false,
+native int TF2Util_GetEntityMaxHealth(int entity);
+
+/**
+ * Returns the maximum allowed overhealed health of a player, taking into account the amount
+ * it can gain through overhealing by mediguns.
+ * 
+ * @param bIgnoreAttributes    
+ * @param bIgnoreOverheal      Ignores excessive overheal.
+ */
+native int TF2Util_GetPlayerMaxHealthBoost(int client, bool bIgnoreAttributes = false,
 		bool bIgnoreOverheal = false);
 
 /**
@@ -53,6 +62,24 @@ native int TF2Util_GetPlayerMaxHealth(int client, bool bIgnoreAttributes = false
  * higher than the last valid condition.
  */
 native int TF2Util_GetConditionCount();
+
+/**
+ * Returns the last valid condition.  Convenience function intended for loop termination.
+ */
+stock TFCond TF2Util_GetLastCondition() {
+	return view_as<TFCond>(TF2Util_GetConditionCount() - 1);
+}
+
+/**
+ * Given a valid condition index, stores its name in the given buffer.
+ * 
+ * @param cond         Condition index.
+ * @param buffer       Buffer to store name.
+ * @param maxlen       Maximum length of buffer.
+ * @return             Number of bytes written.
+ * @error              Condition index is invalid.
+ */
+native int TF2Util_GetConditionName(TFCond cond, char[] buffer, int maxlen);
 
 /**
  * Returns the remaining time on a player condition, or 0.0 if the condition is not active.
@@ -105,6 +132,23 @@ native void TF2Util_SetPlayerBurnDuration(int client, float duration);
  * Returns the player's shoot position.
  */
 native void TF2Util_GetPlayerShootPosition(int client, float result[3]);
+
+/**
+ * @return Object (building) entity at the given index.
+ */
+native int TF2Util_GetPlayerObject(int client, int index);
+
+/**
+ * Returns the number of objects / buildings in the player's object array.
+ */
+native int TF2Util_GetPlayerObjectCount(int client);
+
+/**
+ * To get the number of healers available, use the m_nNumHealers netprop.
+ * 
+ * @return Healer entity index at the given index.
+ */
+native int TF2Util_GetPlayerHealer(int client, int index);
 
 /**
  * Returns whether or not the given entity is a weapon.
@@ -161,6 +205,10 @@ native int TF2Util_GetPlayerWearableCount(int client);
  * Note that this validates that the player is using a class that can equip the given item; any
  * items not applicable to the class are ignored.
  * 
+ * Also note that this does not differentiate between different cosmetic slots (all cosmetics
+ * will match on the first loadout slot).  If you want to get cosmetic entities on a given
+ * player, consider using `TF2Util_GetPlayerWearable` instead.
+ * 
  * @return Entity on the given client occupying the given loadout slot.
  */
 native int TF2Util_GetPlayerLoadoutEntity(int client, int loadoutSlot,
@@ -198,6 +246,13 @@ native void TF2Util_UpdatePlayerSpeed(int client, bool immediate = false);
  */
 native bool TF2Util_IsPointInRespawnRoom(const float[3] position,
 		int entity = INVALID_ENT_REFERENCE, bool bRestrictToSameTeam = false);
+
+/**
+ * Returns the current maximum health of the player.
+ */
+#pragma deprecated Misnamed; use TF2Util_GetEntityMaxHealth or TF2Util_GetPlayerMaxHealthBoost.
+native int TF2Util_GetPlayerMaxHealth(int client, bool bIgnoreAttributes = false,
+		bool bIgnoreOverheal = false);
 
 // compile-time compatibility shim for tf2wearables natives
 #if defined USE_TF2WEARABLE_FUNCTION_SHIMS

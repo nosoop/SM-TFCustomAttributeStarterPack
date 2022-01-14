@@ -4,6 +4,7 @@ import os
 
 # plugin names, relative to `scripting/`
 plugins = [
+  'addcond_while_active.sp',
   'airblast_projectiles_adds_self_condition.sp',
   'airblast_projectiles_restores_health.sp',
   'alt_fire_throws_cleaver.sp',
