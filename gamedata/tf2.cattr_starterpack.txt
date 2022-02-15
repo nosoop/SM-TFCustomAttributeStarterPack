@@ -710,10 +710,10 @@
 				"signature"			"CTFGameRules::ApplyOnDamageAliveModifyRules()"
 				"linux"
 				{
-					"offset"		"106Eh"
+					"offset"		"1C58h"
 					
 					// mulss xmm2, *float == 0.5
-					"verify"		"\xF3\x0F\x59\x15\x2A\x2A\x2A\x2A"
+					"verify"		"\xF3\x0F\x59\x2D\x2A\x2A\x2A\x2A"
 					
 					// nop out the multiply operand
 					"patch"			"\x90\x90\x90\x90\x90\x90\x90\x90"
