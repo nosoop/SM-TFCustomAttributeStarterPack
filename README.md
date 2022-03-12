@@ -75,6 +75,8 @@ This project can be built in a consistent manner with [Ninja](https://ninja-buil
 `git`, and Python 3.
 
 1.  Clone the repository and its submodules: `git clone --recurse-submodules ...`
+	- If you have pulled updates for the repository, make sure you've also updated the
+	submodules: `git submodule update --recursive --remote --checkout`.
 2.  Execute `python3 configure.py --spcomp-dir ${PATH}` within the repo, where `${PATH}` is the
 path to the directory containing `spcomp`.  Builds against 1.10.
 3.  Run `ninja`.  Output will be available under `build/`.
