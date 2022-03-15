@@ -126,9 +126,9 @@ void OnClientWeaponSwitchPost(int client, int weapon) {
 	}
 	
 	if (g_iMvMFlags[client] & MVMATTR_ALWAYS_CRIT) {
-		TF2_AddCondition(client, TFCond_CritMmmph);
+		TF2_AddCondition(client, TFCond_CritOnKill);
 	} else {
-		TF2_RemoveCondition(client, TFCond_CritMmmph);
+		TF2_RemoveCondition(client, TFCond_CritOnKill);
 	}
 	
 	// vaccinator: preset resist type
