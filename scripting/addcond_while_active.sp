@@ -35,6 +35,20 @@ public void OnPluginStart() {
 public void OnClientPutInServer(int client) {
 	g_iLastActiveCondition[client] = TFCond_Invalid;
 	SDKHook(client, SDKHook_WeaponSwitchPost, OnClientWeaponSwitchPost);
+	SDKHook(client, SDKHook_SpawnPost, OnClientSpawnPost);
+}
+
+void OnClientSpawnPost(int client) {
+	if (!client) {
+		return;
+	}
+	
+	int activeWeapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
+	if (!IsValidEntity(activeWeapon)) {
+		return;
+	}
+	
+	OnClientWeaponSwitchPost(client, activeWeapon);
 }
 
 void OnClientWeaponSwitchPost(int client, int weapon) {
