@@ -579,6 +579,13 @@
 					}
 				}
 			}
+			"CWeaponMedigun::DrainCharge()"
+			{
+				"signature"		"CWeaponMedigun::DrainCharge()"
+				"callconv"		"thiscall"
+				"return"		"void"
+				"this"			"entity"
+			}
 			"CWeaponMedigun::HealTargetThink()"
 			{
 				"signature"		"CWeaponMedigun::HealTargetThink()"
@@ -811,6 +818,22 @@
 					"offset"		"C07h"
 					"verify"		"\x74"
 					"patch"			"\xEB"
+				}
+			}
+			"CWeaponMedigun::DrainCharge()::PatchExtraDrainRate"
+			{
+				"signature"			"CWeaponMedigun::DrainCharge()"
+				"linux"
+				{
+					"offset"		"CCh"
+					"verify"		"\xF3\x0F\x59\x15\x2A\x2A\x2A\x2A"
+					"patch"			"\xF3\x0F\x59\x15\x00\x00\x00\x00"
+				}
+				"windows"
+				{
+					"offset"		"BAh"
+					"verify"		"\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A"
+					"patch"			"\xF3\x0F\x59\x05\x00\x00\x00\x00"
 				}
 			}
 		}
@@ -1114,6 +1137,13 @@
 				"library"	"server"
 				"linux"		"@_ZN15CTFPlayerShared24RecalculateChargeEffectsEb"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x38\x53\x56\x57\x8B\xF9\xC7\x45\xCC\x00\x00\x00\x00"
+			}
+			"CWeaponMedigun::DrainCharge()"
+			{
+				// contains unique xref to "add_uber_time"
+				"library"	"server"
+				"linux"		"@_ZN14CWeaponMedigun11DrainChargeEv"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x08\x57\x8B\xF9\x80\xBF\xF9\x07\x00\x00\x00"
 			}
 		}
 		

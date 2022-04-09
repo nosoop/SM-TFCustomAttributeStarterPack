@@ -49,6 +49,15 @@ methodmap MemoryBlock < Handle {
 	public native MemoryBlock(int size);
 	
 	/**
+	 * Disowns the associated memory block, allowing it to remain allocated even when the handle
+	 * is deleted.  Disowning the memory does not invalidate the handle.
+	 * 
+	 * Only use this if you are certain that something else will free (or has freed) the memory
+	 * block.
+	 */
+	public native void Disown();
+	
+	/**
 	 * Returns the address of the allocated memory block.
 	 */
 	property Address Address {
@@ -94,8 +103,18 @@ static stock int GetNumberTypeByteSize(NumberType size) {
 		case NumberType_Int32: return 4;
 	}
 	ThrowError("Unknown NumberType %d.  Did the SourceMod developers add some new ones?", size);
-	return 1;
+	return 1; // maybe `return (1 << size);` ?
 }
+
+/**
+ * Returns the physical memory address of a given SourcePawn cell reference.
+ */
+native Address GetAddressOfCell(any& cell);
+
+/**
+ * Returns the physical memory address of a given string.
+ */
+native Address GetAddressOfString(char[] array);
 
 public Extension __ext_sourcescramble = {
 	name = "Source Scramble",

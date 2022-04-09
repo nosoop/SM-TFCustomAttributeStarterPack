@@ -61,6 +61,7 @@ plugins = [
   'stack_grenade_damage_custom.sp',
   'syringegun_poison_on_hit.sp',
   'tag_last_enemy_hit.sp',
+  'uber_drain_rate_per_extra_player.sp',
   'unsap_metal_cost.sp',
   'weapon_overheat.sp',
   'weapon_rate_buff_ally.sp',
