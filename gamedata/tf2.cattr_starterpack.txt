@@ -21,13 +21,13 @@
 			{
 				// validate that this location has the immediate 100.f (0x42C80000)
 				"signature"		"CTFProjectile_Flare::Explode_Air()"
-				"windows"
-				{
-					"offset"	"1113" // 0x231
-				}
 				"linux"
 				{
-					"offset"	"561" // 0x459
+					"offset"	"1113" // 0x459
+				}
+				"windows"
+				{
+					"offset"	"561" // 0x231
 				}
 			}
 		}
