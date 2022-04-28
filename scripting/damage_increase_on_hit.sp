@@ -96,6 +96,11 @@ public void OnTakeDamageAlivePost(int victim, int attacker, int inflictor, float
 	float flDamageBonusMax = ReadFloatVar(buffer, "max", 0.0);
 	float flDecayStartTime = ReadFloatVar(buffer, "decay_start", 0.0);
 	bool bResetOnKill = !!ReadIntVar(buffer, "reset_on_kill", false);
+	bool bIgnoreSelfDamage = ReadIntVar(buffer, "ignore_self_dmg", false) != 0;
+	
+	if (bIgnoreSelfDamage && attacker == victim) {
+		return;
+	}
 	
 	if (!flDamageChange) {
 		return;
