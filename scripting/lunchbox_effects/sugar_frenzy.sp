@@ -33,9 +33,17 @@ public void OnMapStart() {
 	}
 }
 
+public void OnGameFrame() {
+	for (int i = 1; i <= MaxClients; i++) {
+		if (!IsClientInGame(i)) {
+			continue;
+		}
+		OnClientPostThinkPost(i);
+	}
+}
+
 public void OnClientPutInServer(int client) {
 	g_flBuffEndTime[client] = 0.0;
-	SDKHook(client, SDKHook_PostThinkPost, OnClientPostThinkPost);
 }
 
 public void OnCustomDrinkHandlerAvailable() {

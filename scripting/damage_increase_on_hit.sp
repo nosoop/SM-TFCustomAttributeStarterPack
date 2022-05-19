@@ -37,7 +37,6 @@ public void OnMapStart() {
 public void OnClientPutInServer(int client) {
 	SDKHook(client, SDKHook_OnTakeDamageAlive, OnTakeDamageAlive);
 	SDKHook(client, SDKHook_OnTakeDamageAlivePost, OnTakeDamageAlivePost);
-	SDKHook(client, SDKHook_PostThinkPost, OnClientPostThinkPost);
 }
 
 void OnPlayerSpawn(Event event, const char[] name, bool dontBroadcast) {
@@ -150,7 +149,15 @@ void OnTakeDamageAlivePost(int victim, int attacker, int inflictor, float damage
 	return;
 }
 
-void OnClientPostThinkPost(int client) {
+public void OnGameFrame() {
+	for (int i = 1; i <= MaxClients; i++) {
+		if (IsClientInGame(i) && IsPlayerAlive(i)) {
+			DamageDecayThink(i);
+		}
+	}
+}
+
+void DamageDecayThink(int client) {
 	for (int i; i < sizeof(g_flBonusDamage[]); i++) {
 		if (!g_flBonusDamage[client][i]) {
 			continue;

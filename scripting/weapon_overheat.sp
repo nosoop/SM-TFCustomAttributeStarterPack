@@ -115,13 +115,21 @@ public void OnMapStart() {
 }
 
 public void OnClientPutInServer(int client) {
-	SDKHook(client, SDKHook_PostThinkPost, OnClientPostThinkPost);
 	SDKHook(client, SDKHook_OnTakeDamageAlive, OnTakeDamageAlive);
 }
 
 public void OnEntityCreated(int entity, const char[] name) {
 	if (TF2Util_IsEntityWeapon(entity)) {
 		HookWeaponEntity(entity);
+	}
+}
+
+public void OnGameFrame() {
+	for (int i = 1; i <= MaxClients; i++) {
+		if (!IsClientInGame(i)) {
+			continue;
+		}
+		OnPlayerPostThinkPost(i);
 	}
 }
 

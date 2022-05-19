@@ -51,13 +51,18 @@ void OnInventoryAppliedPost(Event event, const char[] name, bool dontBroadcast) 
 	}
 }
 
-public void OnClientPutInServer(int client) {
-	SDKHook(client, SDKHook_PostThinkPost, OnClientPostThinkPost);
-}
-
 public void OnEntityCreated(int entity, const char[] className) {
 	if (TF2Util_IsEntityWeapon(entity)) {
 		HookWeaponEntity(entity);
+	}
+}
+
+public void OnGameFrame() {
+	for (int i = 1; i <= MaxClients; i++) {
+		if (!IsClientInGame(i)) {
+			continue;
+		}
+		OnClientPostThinkPost(i);
 	}
 }
 

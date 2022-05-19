@@ -78,9 +78,17 @@ public void OnPluginEnd() {
 	}
 }
 
+public void OnGameFrame() {
+	for (int i = 1; i <= MaxClients; i++) {
+		if (!IsClientInGame(i)) {
+			continue;
+		}
+		OnClientPostThinkPost(i);
+	}
+}
+
 public void OnClientPutInServer(int client) {
 	g_flNextBuffTime[client] = 0.0;
-	SDKHook(client, SDKHook_PostThinkPost, OnClientPostThinkPost);
 }
 
 public void OnEntityCreated(int entity, const char[] className) {

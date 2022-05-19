@@ -30,6 +30,15 @@ public void OnMapStart() {
 	}
 }
 
+public void OnGameFrame() {
+	for (int i = 1; i <= MaxClients; i++) {
+		if (!IsClientInGame(i)) {
+			continue;
+		}
+		OnClientPostThinkPost(i);
+	}
+}
+
 public void OnCustomBuffHandlerAvailable() {
 	TF2CustomAttrRageBuff_Register("tag enemies on hit", OnCritBannerPulse);
 }
@@ -64,7 +73,6 @@ public void OnClientPutInServer(int client) {
 	g_flTagEndTime[client] = 0.0;
 	g_flGlowOnHitEndTime[client] = 0.0;
 	g_flGlowOnHitDuration[client] = 0.0;
-	SDKHook(client, SDKHook_PostThinkPost, OnClientPostThinkPost);
 	SDKHook(client, SDKHook_OnTakeDamagePost, OnTakeDamagePost);
 }
 

@@ -94,8 +94,16 @@ public void OnClientPutInServer(int client) {
 	g_flNextAllowedBoostTime[client] = 0.0;
 	g_flStateTransitionTime[client] = 0.0;
 	
-	SDKHook(client, SDKHook_PostThinkPost, OnClientPostThinkPost);
 	DHookEntity(g_DHookRemoveAmmo, false, client, .callback = OnPlayerRemoveAmmo);
+}
+
+public void OnGameFrame() {
+	for (int i = 1; i <= MaxClients; i++) {
+		if (!IsClientInGame(i)) {
+			continue;
+		}
+		OnClientPostThinkPost(i);
+	}
 }
 
 MRESReturn OnMinigunActivatePushBackPre(int minigun) {

@@ -11,20 +11,17 @@
 // other meters have a range of [0, 1], so this is pretty unusual
 #define RAGE_FULL_AMOUNT 100.0
 
-public void OnMapStart() {
+public void OnGameFrame() {
 	for (int i = 1; i <= MaxClients; i++) {
-		if (IsClientInGame(i)) {
-			OnClientPutInServer(i);
+		if (!IsClientInGame(i)) {
+			continue;
 		}
+		OnClientPostThinkPost(i);
 	}
 }
 
-public void OnClientPutInServer(int client) {
-	SDKHook(client, SDKHook_PostThinkPost, OnClientPostThinkPost);
-}
-
 // TODO cache rage generation attribute value on custattr's side
-public void OnClientPostThinkPost(int client) {
+void OnClientPostThinkPost(int client) {
 	float flRageMeter = GetEntPropFloat(client, Prop_Send, "m_flRageMeter");
 	bool bRageDraining = !!GetEntProp(client, Prop_Send, "m_bRageDraining");
 	

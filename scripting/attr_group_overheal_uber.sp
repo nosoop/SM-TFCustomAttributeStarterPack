@@ -113,7 +113,15 @@ public void OnMapStart() {
 
 public void OnClientPutInServer(int client) {
 	g_flLastHealthParticleDisplayTime[client] = 0.0;
-	SDKHook(client, SDKHook_PostThinkPost, OnPlayerPostThinkPost);
+}
+
+public void OnGameFrame() {
+	for (int i = 1; i <= MaxClients; i++) {
+		if (!IsClientInGame(i)) {
+			continue;
+		}
+		OnPlayerPostThinkPost(i);
+	}
 }
 
 public void OnEntityCreated(int entity, const char[] classname) {

@@ -61,6 +61,15 @@ public void OnEntityCreated(int entity, const char[] name) {
 	SDKHook(entity, SDKHook_SpawnPost, OnEntitySpawnPost);
 }
 
+public void OnGameFrame() {
+	for (int i = 1; i <= MaxClients; i++) {
+		if (!IsClientInGame(i)) {
+			continue;
+		}
+		OnClientPostThinkPost(i);
+	}
+}
+
 void OnEntitySpawnPost(int entity) {
 	if (IsMedicWeapon(entity)) {
 		OnMedicWeaponCreated(entity);
@@ -75,7 +84,6 @@ void OnMedicWeaponCreated(int weapon) {
 public void OnClientPutInServer(int client) {
 	g_iPoisonDmgRemaining[client] = 0;
 	g_flPoisonBuffEndTime[client] = 0.0;
-	SDKHook(client, SDKHook_PostThinkPost, OnClientPostThinkPost);
 	SDKHook(client, SDKHook_OnTakeDamageAlivePost, OnTakeDamageAlivePost);
 }
 

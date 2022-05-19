@@ -40,13 +40,21 @@ public void OnMapStart() {
 }
 
 public void OnClientPutInServer(int client) {
-	SDKHook(client, SDKHook_PostThinkPost, OnClientPostThinkPost);
 	SDKHook(client, SDKHook_OnTakeDamagePost, OnTakeDamagePost);
 }
 
 public void OnClientDisconnect(int client) {
 	if (IsValidEntity(g_iGlowEnt[client])) {
 		RemoveEntity(g_iGlowEnt[client]);
+	}
+}
+
+public void OnGameFrame() {
+	for (int i = 1; i <= MaxClients; i++) {
+		if (!IsClientInGame(i)) {
+			continue;
+		}
+		OnClientPostThinkPost(i);
 	}
 }
 

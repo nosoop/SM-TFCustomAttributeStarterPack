@@ -47,8 +47,16 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 }
 
 public void OnClientPutInServer(int client) {
-	SDKHook(client, SDKHook_PostThinkPost, OnClientPostThinkPost);
 	SDKHook(client, SDKHook_WeaponSwitchPost, OnClientWeaponSwitchPost);
+}
+
+public void OnGameFrame() {
+	for (int i = 1; i <= MaxClients; i++) {
+		if (!IsClientInGame(i)) {
+			continue;
+		}
+		OnClientPostThinkPost(i);
+	}
 }
 
 void OnClientPostThinkPost(int client) {

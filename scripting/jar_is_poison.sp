@@ -56,6 +56,15 @@ public void OnPluginEnd() {
 	}
 }
 
+public void OnGameFrame() {
+	for (int i = 1; i <= MaxClients; i++) {
+		if (!IsClientInGame(i)) {
+			continue;
+		}
+		OnClientPostThinkPost(i);
+	}
+}
+
 public void OnMapStart() {
 	for (int i = 1; i <= MaxClients; i++) {
 		if (IsClientInGame(i)) {
@@ -66,7 +75,6 @@ public void OnMapStart() {
 
 public void OnClientPutInServer(int client) {
 	g_flConditionEnd[client] = 0.0;
-	SDKHook(client, SDKHook_PostThinkPost, OnClientPostThinkPost);
 }
 
 static int s_iJarWeapon;

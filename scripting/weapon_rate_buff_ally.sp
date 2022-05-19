@@ -63,7 +63,15 @@ void OnMeleeCreated(int meleeWeapon) {
 
 public void OnClientPutInServer(int client) {
 	g_flBuffEndTime[client] = 0.0;
-	SDKHook(client, SDKHook_PostThinkPost, OnClientPostThinkPost);
+}
+
+public void OnGameFrame() {
+	for (int i = 1; i <= MaxClients; i++) {
+		if (!IsClientInGame(i)) {
+			continue;
+		}
+		OnClientPostThinkPost(i);
+	}
 }
 
 void OnClientPostThinkPost(int client) {
