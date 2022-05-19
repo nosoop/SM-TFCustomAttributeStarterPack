@@ -41,6 +41,30 @@ enum {
 	AC_STATE_DRYFIRE
 };
 
+/**
+ * Parameters for weapon overheat.
+ */
+enum struct OverheatParams {
+	// TODO: parse this less often
+	float m_flOverheatRate;
+	float m_flCooldown;
+	float m_flDecayTime;
+	float m_flDecayRate;
+	float m_flSpreadScale;
+	
+	void Parse(const char[] attr, bool bReadAltHeatRate = false) {
+		if (!bReadAltHeatRate) {
+			this.m_flOverheatRate = ReadFloatVar(attr, "heat_rate", 0.0);
+		} else {
+			this.m_flOverheatRate = ReadFloatVar(attr, "heat_rate_alt", 0.0);
+		}
+		this.m_flCooldown = ReadFloatVar(attr, "cooldown", 0.0);
+		this.m_flDecayTime = ReadFloatVar(attr, "decay_time", 0.0);
+		this.m_flDecayRate = ReadFloatVar(attr, "decay_rate", 0.0);
+		this.m_flSpreadScale = ReadFloatVar(attr, "overheat_spread_scale", 1.0);
+	}
+}
+
 ConVar g_ConVarMeterRender;
 
 public void OnPluginStart() {
@@ -174,22 +198,19 @@ MRESReturn OnPrimaryAttackPost(int weapon) {
 		return MRES_Ignored;
 	}
 	
-	float flOverheat = ReadFloatVar(buffer, "heat_rate", 0.0);
-	float flCooldown = ReadFloatVar(buffer, "cooldown", 0.0);
-	float flDecayTime = ReadFloatVar(buffer, "decay_time", 0.0);
-	float flDecayRate = ReadFloatVar(buffer, "decay_rate", 0.0);
+	OverheatParams params;
+	params.Parse(buffer);
 	
-	float overheat = ApplyOverheat(weapon, flOverheat, flDecayTime, flDecayRate);
+	float overheat = ApplyOverheat(weapon, params);
 	
-	float flSpreadMod = ReadFloatVar(buffer, "overheat_spread_scale", 1.0);
-	if (flSpreadMod != 1.0) {
+	if (params.m_flSpreadScale != 1.0) {
 		// this needs to be lag compensated so we do need to apply this modifier
-		float spread = LerpFloat(GetOverheatAmount(weapon), 1.0, flSpreadMod);
+		float spread = LerpFloat(GetOverheatAmount(weapon), 1.0, params.m_flSpreadScale);
 		TF2Attrib_SetByName(weapon, "weapon spread bonus", spread);
 	}
 	
 	if (overheat >= 1.0) {
-		ForceWeaponCooldown(weapon, flCooldown);
+		ForceWeaponCooldown(weapon, params.m_flCooldown);
 	}
 	return MRES_Ignored;
 }
@@ -228,26 +249,22 @@ MRESReturn OnSecondaryAttackPost(int weapon) {
 		return MRES_Ignored;
 	}
 	
-	float flOverheat = ReadFloatVar(buffer, "heat_rate_alt", 0.0);
-	if (flOverheat <= 0.0) {
+	OverheatParams params;
+	params.Parse(buffer, .bReadAltHeatRate = true);
+	if (params.m_flOverheatRate <= 0.0) {
 		return MRES_Ignored;
 	}
 	
-	float flCooldown = ReadFloatVar(buffer, "cooldown", 0.0);
-	float flDecayTime = ReadFloatVar(buffer, "decay_time", 0.0);
-	float flDecayRate = ReadFloatVar(buffer, "decay_rate", 0.0);
+	float overheat = ApplyOverheat(weapon, params);
 	
-	float overheat = ApplyOverheat(weapon, flOverheat, flDecayTime, flDecayRate);
-	
-	float flSpreadMod = ReadFloatVar(buffer, "overheat_spread_scale", 1.0);
-	if (flSpreadMod != 1.0) {
+	if (params.m_flSpreadScale != 1.0) {
 		// we want client prediction to show mostly-correct bullet spread so we set this
-		float spread = LerpFloat(GetOverheatAmount(weapon), 1.0, flSpreadMod);
+		float spread = LerpFloat(GetOverheatAmount(weapon), 1.0, params.m_flSpreadScale);
 		TF2Attrib_SetByName(weapon, "weapon spread bonus", spread);
 	}
 	
 	if (overheat >= 1.0) {
-		ForceWeaponCooldown(weapon, flCooldown);
+		ForceWeaponCooldown(weapon, params.m_flCooldown);
 	}
 	return MRES_Ignored;
 }
@@ -269,30 +286,27 @@ MRESReturn OnMinigunAttackPost(int weapon) {
 		return MRES_Ignored;
 	}
 	
-	float flCooldown = ReadFloatVar(buffer, "cooldown", 0.0);
-	float flDecayTime = ReadFloatVar(buffer, "decay_time", 0.0);
-	float flDecayRate = ReadFloatVar(buffer, "decay_rate", 0.0);
+	OverheatParams params;
 	
 	float overheat;
 	if (state != AC_STATE_SPINNING) {
-		float flOverheatRate = ReadFloatVar(buffer, "heat_rate", 0.0);
-		overheat = ApplyOverheat(weapon, flOverheatRate, flDecayTime, flDecayRate);
+		params.Parse(buffer, .bReadAltHeatRate = false);
+		overheat = ApplyOverheat(weapon, params);
 	} else {
 		// use heat_rate_alt if in spinup state but not firing
-		float flPassiveOverheatRate = ReadFloatVar(buffer, "heat_rate_alt", 0.0);
-		overheat = ApplyOverheat(weapon, flPassiveOverheatRate * GetGameFrameTime(),
-				flDecayTime, flDecayRate, true);
+		params.Parse(buffer, .bReadAltHeatRate = true);
+		params.m_flOverheatRate *= GetGameFrameTime();
+		overheat = ApplyOverheat(weapon, params, true);
 	}
 	
-	float flSpreadMod = ReadFloatVar(buffer, "overheat_spread_scale", 1.0);
-	if (flSpreadMod != 1.0) {
+	if (params.m_flSpreadScale != 1.0) {
 		// we want client prediction to show mostly-correct bullet spread so we set this
-		float spread = LerpFloat(GetOverheatAmount(weapon), 1.0, flSpreadMod);
+		float spread = LerpFloat(GetOverheatAmount(weapon), 1.0, params.m_flSpreadScale);
 		TF2Attrib_SetByName(weapon, "weapon spread bonus", spread);
 	}
 	
 	if (overheat >= 1.0) {
-		ForceWeaponCooldown(weapon, flCooldown);
+		ForceWeaponCooldown(weapon, params.m_flCooldown);
 	}
 	
 	return MRES_Ignored;
@@ -348,10 +362,10 @@ bool PlayCustomOverheatSound(int weapon) {
  * 
  * @return New overheat amount, or 0.0 if no overheat was added.
  */
-float ApplyOverheat(int weapon, float amount, float decayTime, float decayRate,
+float ApplyOverheat(int weapon, const OverheatParams params,
 		bool bIgnoreNextPrimaryAttack = false) {
 	float flNextPrimaryAttack = GetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack");
-	if (amount <= 0.0 || (!bIgnoreNextPrimaryAttack && flNextPrimaryAttack <= GetGameTime())) {
+	if (params.m_flOverheatRate <= 0.0 || (!bIgnoreNextPrimaryAttack && flNextPrimaryAttack <= GetGameTime())) {
 		return 0.0;
 	}
 	
@@ -371,11 +385,11 @@ float ApplyOverheat(int weapon, float amount, float decayTime, float decayRate,
 		g_flOverheatAmount[owner][slot] = 0.0;
 	}
 	
-	g_flOverheatAmount[owner][slot] += amount;
+	g_flOverheatAmount[owner][slot] += params.m_flOverheatRate;
 	
 	// we just used our weapon, so push back the time we can start decaying overheat
-	g_flOverheatDecayTime[owner][slot] = GetGameTime() + decayTime;
-	g_flOverheatDecayRate[owner][slot] = decayRate;
+	g_flOverheatDecayTime[owner][slot] = GetGameTime() + params.m_flDecayTime;
+	g_flOverheatDecayRate[owner][slot] = params.m_flDecayRate;
 	
 	if (g_flOverheatAmount[owner][slot] > 1.0) {
 		g_flOverheatAmount[owner][slot] = 1.0;
