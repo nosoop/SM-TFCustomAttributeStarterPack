@@ -115,7 +115,7 @@ static void HookWeaponEntity(int weapon) {
 /**
  * Reset cooldown.
  */
-public void OnInventoryAppliedPost(Event event, const char[] name, bool dontBroadcast) {
+void OnInventoryAppliedPost(Event event, const char[] name, bool dontBroadcast) {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	for (int i; i < NUM_WEAPON_SLOTS; i++) {
 		g_flOverheatAmount[client][i] = 0.0;
@@ -127,7 +127,7 @@ public void OnInventoryAppliedPost(Event event, const char[] name, bool dontBroa
 /**
  * Process overheat amount for a player.
  */
-public void OnClientPostThinkPost(int client) {
+void OnClientPostThinkPost(int client) {
 	// TODO would OnGameFrame be better suited for this?
 	
 	for (int i; i < NUM_WEAPON_SLOTS; i++) {
@@ -159,12 +159,12 @@ public void OnClientPostThinkPost(int client) {
 // determine overheat amount, add to float
 
 static bool s_bPrimaryAttackAvailableInPre;
-public MRESReturn OnPrimaryAttackPre(int weapon) {
+MRESReturn OnPrimaryAttackPre(int weapon) {
 	float flNextPrimaryAttack = GetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack");
 	s_bPrimaryAttackAvailableInPre = flNextPrimaryAttack <= GetGameTime();
 }
 
-public MRESReturn OnPrimaryAttackPost(int weapon) {
+MRESReturn OnPrimaryAttackPost(int weapon) {
 	if (!s_bPrimaryAttackAvailableInPre) {
 		return MRES_Ignored;
 	}
@@ -198,18 +198,18 @@ public MRESReturn OnPrimaryAttackPost(int weapon) {
 static bool s_bSecondaryAttackAvailableInPre;
 
 static bool s_bShockAttackActivated;
-public MRESReturn OnSecondaryAttackPre(int weapon) {
+MRESReturn OnSecondaryAttackPre(int weapon) {
 	float flNextSecondaryAttack = GetEntPropFloat(weapon, Prop_Send, "m_flNextSecondaryAttack");
 	s_bSecondaryAttackAvailableInPre = flNextSecondaryAttack <= GetGameTime();
 	s_bShockAttackActivated = false;
 }
 
-public MRESReturn OnMechanicalArmShockAttackPost(int weapon, Handle hReturn) {
+MRESReturn OnMechanicalArmShockAttackPost(int weapon, Handle hReturn) {
 	bool success = DHookGetReturn(hReturn);
 	s_bShockAttackActivated = success;
 }
 
-public MRESReturn OnSecondaryAttackPost(int weapon) {
+MRESReturn OnSecondaryAttackPost(int weapon) {
 	if (!s_bSecondaryAttackAvailableInPre) {
 		return MRES_Ignored;
 	}
@@ -252,12 +252,12 @@ public MRESReturn OnSecondaryAttackPost(int weapon) {
 	return MRES_Ignored;
 }
 
-public MRESReturn OnMinigunAttackPre(int weapon) {
+MRESReturn OnMinigunAttackPre(int weapon) {
 	float flNextPrimaryAttack = GetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack");
 	s_bPrimaryAttackAvailableInPre = flNextPrimaryAttack <= GetGameTime();
 }
 
-public MRESReturn OnMinigunAttackPost(int weapon) {
+MRESReturn OnMinigunAttackPost(int weapon) {
 	int state = GetEntProp(weapon, Prop_Send, "m_iWeaponState");
 	if (!s_bPrimaryAttackAvailableInPre
 			|| (state != AC_STATE_FIRING && state != AC_STATE_SPINNING)) {
@@ -406,7 +406,7 @@ float GetOverheatAmount(int weapon) {
 /**
  * Hook that applies a damage modifier based on how heated the attacker's weapon is.
  */
-public Action OnTakeDamageAlive(int victim, int &attacker, int &inflictor, float &damage,
+Action OnTakeDamageAlive(int victim, int &attacker, int &inflictor, float &damage,
 		int &damagetype, int &weapon, float damageForce[3], float damagePosition[3]) {
 	if (!IsValidEntity(weapon)) {
 		return Plugin_Continue;
