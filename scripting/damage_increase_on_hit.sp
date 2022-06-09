@@ -140,7 +140,7 @@ public void OnClientPostThinkPost(int client) {
 		}
 		
 		char buffer[256];
-		if (!TF2CustAttr_GetString(weapon, "damage increase on hit", buffer, sizeof(buffer))) {
+		if (!TF2CustAttr_GetString(weapon, "damage increase mult on hit", buffer, sizeof(buffer))) {
 			g_flBonusDamageDecayStartTime[client][i] = 0.0;
 			g_flBonusDamage[client][i] = 0.0;
 			continue;
