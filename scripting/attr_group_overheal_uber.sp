@@ -221,6 +221,10 @@ public void OnPlayerPostThinkPost(int client) {
 }
 
 public MRESReturn OnGetPlayerProvidedCharge(int client, Handle hReturn) {
+	if (!IsClientInGame(client)) {
+		return MRES_Ignored;
+	}
+	
 	int activeWeapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
 	GroupOverhealAttributes healprops;
 	if (IsUberchargeDeployed(activeWeapon) && IsGroupOverhealMedigun(activeWeapon, healprops)) {
