@@ -565,6 +565,24 @@
 					}
 				}
 			}
+			"CTraceFilterObject::ShouldHitEntity()"
+			{
+				"signature"		"CTraceFilterObject::ShouldHitEntity()"
+				"callconv"		"thiscall"
+				"return"		"bool"
+				"this"			"address"
+				"arguments"
+				{
+					"target"
+					{
+						"type"	"cbaseentity"
+					}
+					"contents_mask"
+					{
+						"type"	"int"
+					}
+				}
+			}
 			"CWeaponMedigun::AllowedToHealTarget()"
 			{
 				"signature"		"CWeaponMedigun::AllowedToHealTarget()"
@@ -1144,6 +1162,12 @@
 				"library"	"server"
 				"linux"		"@_ZN15CTFPlayerShared24RecalculateChargeEffectsEb"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x38\x53\x56\x57\x8B\xF9\xC7\x45\xCC\x00\x00\x00\x00"
+			}
+			"CTraceFilterObject::ShouldHitEntity()"
+			{
+				"library"	"server"
+				"linux"		"@_ZN18CTraceFilterObject15ShouldHitEntityEP13IHandleEntityi"
+				"windows"	"\x55\x8B\xEC\x51\x8B\xC1\x8B\x0D"
 			}
 			"CWeaponMedigun::DrainCharge()"
 			{

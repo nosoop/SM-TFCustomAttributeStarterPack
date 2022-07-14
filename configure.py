@@ -48,6 +48,7 @@ plugins = [
   'mult_basegrenade_explode_radius.sp',
   'mvm_attributes.sp',
   'override_building_health.sp',
+  'owned_building_phasing.sp',
   'preserve_rage.sp',
   'projectile_heal_on_teammate_contact.sp',
   'projectile_override_energy_ball.sp',
