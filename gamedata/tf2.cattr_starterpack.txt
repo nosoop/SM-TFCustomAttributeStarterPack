@@ -714,19 +714,20 @@
 		{
 			"CTFGameRules::ApplyOnDamageAliveModifyRules()::DisableHeavyRageDamagePenalty"
 			{
-				"signature"			"CTFGameRules::ApplyOnDamageAliveModifyRules()"
 				"linux"
 				{
-					"offset"		"1D38h"
+					"signature"		"CTFGameRules::ApplyOnDamageAliveModifyRules()::HeavyRageDamagePenalty"
+					"offset"		"0h"
 					
 					// mulss xmm2, *float == 0.5
-					"verify"		"\xF3\x0F\x59\x2D\x2A\x2A\x2A\x2A"
+					"verify"		"\xF3\x0F\x59\x2A\x2A\x2A\x2A\x2A"
 					
 					// nop out the multiply operand
 					"patch"			"\x90\x90\x90\x90\x90\x90\x90\x90"
 				}
 				"windows"
 				{
+					"signature"		"CTFGameRules::ApplyOnDamageAliveModifyRules()"
 					"offset"		"890h"
 					
 					// mulss xmm0, &float == 0.5
@@ -914,6 +915,12 @@
 				"library"	"server"
 				"linux"		"@_ZN12CTFGameRules29ApplyOnDamageAliveModifyRulesERK15CTakeDamageInfoP11CBaseEntityRNS_20DamageModifyExtras_tE"
 				"windows"	"\x55\x8B\xEC\x81\xEC\x2A\x00\x00\x00\x53\x8B\x5D\x0C\x89\x4D\xE8\x56\x57"
+			}
+			"CTFGameRules::ApplyOnDamageAliveModifyRules()::HeavyRageDamagePenalty"
+			{
+				// signature with ApplyOnDamageAliveModifyRules starting with MULSS operation
+				"library"	"server"
+				"linux"		"\xF3\x0F\x59\x2D\x2A\x2A\x2A\x2A\xF3\x0F\x11\xAD\x2A\x2A\x2A\x2A\xE9\x2A\x2A\x2A\x2A\x83\x3D\x2A\x2A\x2A\x2A\x00"
 			}
 			"CTFLunchBox::ApplyBiteEffects()"
 			{
