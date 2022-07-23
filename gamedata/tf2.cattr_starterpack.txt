@@ -734,7 +734,7 @@
 			{
 				"linux"
 				{
-					"signature"		"CTFGameRules::ApplyOnDamageAliveModifyRules()::HeavyRageDamagePenalty"
+					"signature"		"CTFGameRules::ApplyOnDamageAliveModifyRules()::HeavyDmgScale"
 					"offset"		"0h"
 					
 					// mulss xmm2, *float == 0.5
@@ -934,7 +934,7 @@
 				"linux"		"@_ZN12CTFGameRules29ApplyOnDamageAliveModifyRulesERK15CTakeDamageInfoP11CBaseEntityRNS_20DamageModifyExtras_tE"
 				"windows"	"\x55\x8B\xEC\x81\xEC\x2A\x00\x00\x00\x53\x8B\x5D\x0C\x89\x4D\xE8\x56\x57"
 			}
-			"CTFGameRules::ApplyOnDamageAliveModifyRules()::HeavyRageDamagePenalty"
+			"CTFGameRules::ApplyOnDamageAliveModifyRules()::HeavyDmgScale"
 			{
 				// signature with ApplyOnDamageAliveModifyRules starting with MULSS operation
 				"library"	"server"
