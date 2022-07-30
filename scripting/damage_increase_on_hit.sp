@@ -38,7 +38,7 @@ public void OnClientPutInServer(int client) {
 	SDKHook(client, SDKHook_PostThinkPost, OnClientPostThinkPost);
 }
 
-public void OnPlayerSpawn(Event event, const char[] name, bool dontBroadcast) {
+void OnPlayerSpawn(Event event, const char[] name, bool dontBroadcast) {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	if (!client) {
 		return;
@@ -50,7 +50,7 @@ public void OnPlayerSpawn(Event event, const char[] name, bool dontBroadcast) {
 	}
 }
 
-public Action OnTakeDamageAlive(int victim, int& attacker, int& inflictor, float& damage,
+Action OnTakeDamageAlive(int victim, int& attacker, int& inflictor, float& damage,
 		int& damagetype, int& weapon, float damageForce[3], float damagePosition[3]) {
 	if (attacker > MaxClients || attacker < 1 || !IsValidEntity(weapon)) {
 		return Plugin_Continue;
@@ -76,7 +76,7 @@ public Action OnTakeDamageAlive(int victim, int& attacker, int& inflictor, float
 	return Plugin_Changed;
 }
 
-public void OnTakeDamageAlivePost(int victim, int attacker, int inflictor, float damage,
+void OnTakeDamageAlivePost(int victim, int attacker, int inflictor, float damage,
 		int damagetype, int weapon, const float damageForce[3], const float damagePosition[3]) {
 	if (attacker > MaxClients || attacker < 1 || !IsValidEntity(weapon)) {
 		return;
@@ -123,7 +123,7 @@ public void OnTakeDamageAlivePost(int victim, int attacker, int inflictor, float
 	return;
 }
 
-public void OnClientPostThinkPost(int client) {
+void OnClientPostThinkPost(int client) {
 	for (int i; i < sizeof(g_flBonusDamage[]); i++) {
 		if (!g_flBonusDamage[client][i]) {
 			continue;
