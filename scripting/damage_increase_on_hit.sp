@@ -18,6 +18,8 @@
 
 float g_flBonusDamageDecayStartTime[MAXPLAYERS + 1][NUM_ATTR_SLOTS];
 float g_flBonusDamage[MAXPLAYERS + 1][NUM_ATTR_SLOTS];
+float g_flWindowTime[MAXPLAYERS + 1][NUM_ATTR_SLOTS];
+float g_flWindowDamage[MAXPLAYERS + 1][NUM_ATTR_SLOTS];
 
 public void OnPluginStart() {
 	HookEvent("player_spawn", OnPlayerSpawn);
@@ -45,6 +47,7 @@ void OnPlayerSpawn(Event event, const char[] name, bool dontBroadcast) {
 	}
 	
 	for (int i; i < sizeof(g_flBonusDamageDecayStartTime[]); i++) {
+		g_flWindowTime[client][i] = 0.0;
 		g_flBonusDamageDecayStartTime[client][i] = 0.0;
 		g_flBonusDamage[client][i] = 0.0;
 	}
@@ -92,27 +95,41 @@ void OnTakeDamageAlivePost(int victim, int attacker, int inflictor, float damage
 		return;
 	}
 	
-	float flDamageChange = ReadFloatVar(buffer, "amount", 0.0);
-	float flDamageBonusMax = ReadFloatVar(buffer, "max", 0.0);
-	float flDecayStartTime = ReadFloatVar(buffer, "decay_start", 0.0);
-	bool bResetOnKill = !!ReadIntVar(buffer, "reset_on_kill", false);
 	bool bIgnoreSelfDamage = ReadIntVar(buffer, "ignore_self_dmg", false) != 0;
-	
 	if (bIgnoreSelfDamage && attacker == victim) {
 		return;
 	}
 	
-	if (!flDamageChange) {
-		return;
-	}
-	
+	bool bResetOnKill = ReadIntVar(buffer, "reset_on_kill", false) != 0;
 	if (bResetOnKill && GetClientHealth(victim) <= 0) {
 		g_flBonusDamage[attacker][slot] = 0.0;
 		return;
 	}
 	
+	float flDecayStartTime = ReadFloatVar(buffer, "decay_start", 0.0);
 	if (flDecayStartTime > 0.0) {
 		g_flBonusDamageDecayStartTime[attacker][slot] = GetGameTime() + flDecayStartTime;
+	}
+	
+	float flDamageChange = ReadFloatVar(buffer, "amount", 0.0);
+	if (!flDamageChange) {
+		return;
+	}
+	
+	float flDamageBonusMax = ReadFloatVar(buffer, "max", 0.0);
+	float flTimeWindowDuration = ReadFloatVar(buffer, "window_duration", 0.0);
+	if (flTimeWindowDuration > 0.0) {
+		if (GetGameTime() > g_flWindowTime[attacker][slot]) {
+			g_flWindowDamage[attacker][slot] = 0.0;
+			g_flWindowTime[attacker][slot] = GetGameTime() + flTimeWindowDuration;
+		}
+		float flTimeWindowMaxDamageChange = ReadFloatVar(buffer, "window_max", flDamageBonusMax);
+		
+		float flAllowedDamage = flTimeWindowMaxDamageChange - g_flWindowDamage[attacker][slot];
+		if (flDamageChange > flAllowedDamage) {
+			flDamageChange = flAllowedDamage;
+		}
+		g_flWindowDamage[attacker][slot] += flDamageChange;
 	}
 	
 	g_flBonusDamage[attacker][slot] += flDamageChange;
