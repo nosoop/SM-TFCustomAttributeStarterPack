@@ -123,6 +123,9 @@ copy_files = [
 	'configs/customweapons/truth_fruit.cfg',
 	
 	'gamedata/tf2.cattr_starterpack.txt',
+	
+	'scripting/include/tf_cattr_buff_override.inc',
+	'scripting/include/tf_cattr_lunch_effect.inc',
 ]
 
 include_dirs = [
