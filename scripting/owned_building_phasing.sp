@@ -192,6 +192,10 @@ bool CanPhaseThroughObject(int client, int building) {
 		case TFObject_Dispenser: {
 			return g_fAllowPhaseTypes[client] & PHASE_ALLOW_DISPENSERS != 0;
 		}
+		case TFObject_Sapper: {
+			// fix for plugins using sapper as a workaround to get additional sentry counts
+			return g_fAllowPhaseTypes[client] & PHASE_ALLOW_SENTRIES != 0;
+		}
 	}
 	return false;
 }
