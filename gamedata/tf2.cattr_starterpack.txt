@@ -497,6 +497,20 @@
 				"return"		"void"
 				"this"			"entity"
 			}
+			"CTFStunBall::ApplyBallImpactEffectOnVictim()"
+			{
+				"offset"		"CTFStunBall::ApplyBallImpactEffectOnVictim()"
+				"hooktype"		"entity"
+				"return"		"void"
+				"this"			"entity"
+				"arguments"
+				{
+					"target"
+					{
+						"type"	"cbaseentity"
+					}
+				}
+			}
 			"CTFWeaponBaseMelee::OnEntityHit()"
 			{
 				"offset"		"CTFWeaponBaseMelee::OnEntityHit()"
@@ -1278,6 +1292,11 @@
 			{
 				"windows"	"293"
 				"linux"		"294"
+			}
+			"CTFStunBall::ApplyBallImpactEffectOnVictim()"
+			{
+				"windows"	"263"
+				"linux"		"264"
 			}
 			"CTFWeaponBase::DeflectEntity()"
 			{

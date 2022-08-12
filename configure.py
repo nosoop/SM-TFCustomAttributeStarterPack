@@ -20,6 +20,7 @@ plugins = [
   'cloak_debuff_time_scale.sp',
   'condition_stack_on_hit.sp',
   'crossbow_addcond_on_teammate_hit.sp',
+  'custom_ball_impact_effect.sp',
   'custom_lunchbox_effect.sp',
   'damage_increase_on_hit.sp',
   'disable_sniper_unzoom.sp',
