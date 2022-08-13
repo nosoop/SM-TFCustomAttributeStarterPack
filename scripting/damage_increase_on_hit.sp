@@ -125,9 +125,17 @@ void OnTakeDamageAlivePost(int victim, int attacker, int inflictor, float damage
 		}
 		float flTimeWindowMaxDamageChange = ReadFloatVar(buffer, "window_max", flDamageBonusMax);
 		
-		float flAllowedDamage = flTimeWindowMaxDamageChange - g_flWindowDamage[attacker][slot];
+		/**
+		 * Use absolute values for window, because some users apply damage reductions on
+		 * subsequent hits with this attribute.
+		 */
+		float flAllowedDamage = flTimeWindowMaxDamageChange
+				- FloatAbs(g_flWindowDamage[attacker][slot]);
+		
 		if (flDamageChange > flAllowedDamage) {
 			flDamageChange = flAllowedDamage;
+		} else if (flDamageChange < -flAllowedDamage) {
+			flDamageChange = -flAllowedDamage;
 		}
 		g_flWindowDamage[attacker][slot] += flDamageChange;
 	}
