@@ -141,7 +141,9 @@ void OnTakeDamageAlivePost(int victim, int attacker, int inflictor, float damage
 	}
 	
 	g_flBonusDamage[attacker][slot] += flDamageChange;
-	if (g_flBonusDamage[attacker][slot] > flDamageBonusMax) {
+	if (flDamageBonusMax > 0.0 && g_flBonusDamage[attacker][slot] > flDamageBonusMax) {
+		g_flBonusDamage[attacker][slot] = flDamageBonusMax;
+	} else if (flDamageBonusMax < 0.0 && g_flBonusDamage[attacker][slot] < flDamageBonusMax) {
 		g_flBonusDamage[attacker][slot] = flDamageBonusMax;
 	}
 	
