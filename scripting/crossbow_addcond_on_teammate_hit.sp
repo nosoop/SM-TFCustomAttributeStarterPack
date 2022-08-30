@@ -77,7 +77,7 @@ public MRESReturn OnHealingBoltImpactTeamPlayer(int healingBolt, Handle hParams)
 float GetMedigunChargeLevel(int client) {
 	int secondaryWeapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary);
 	if (!IsValidEntity(secondaryWeapon)
-			|| !HasEntProp(secondaryWeapon, Prop_Send, "m_flChargeLevel")) {
+			|| TF2Util_GetWeaponID(secondaryWeapon) != TF_WEAPON_MEDIGUN) {
 		return 0.0;
 	}
 	
@@ -87,7 +87,7 @@ float GetMedigunChargeLevel(int client) {
 void SetMedigunChargeLevel(int client, float flChargeLevel) {
 	int secondaryWeapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary);
 	if (!IsValidEntity(secondaryWeapon)
-			|| !HasEntProp(secondaryWeapon, Prop_Send, "m_flChargeLevel")) {
+			|| TF2Util_GetWeaponID(secondaryWeapon) != TF_WEAPON_MEDIGUN) {
 		return;
 	}
 	SetEntPropFloat(secondaryWeapon, Prop_Send, "m_flChargeLevel", flChargeLevel);

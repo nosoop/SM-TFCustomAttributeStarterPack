@@ -91,7 +91,7 @@ public MRESReturn OnWeaponSecondaryAttack(int weapon) {
 	}
 	
 	int secondary = GetPlayerWeaponSlot(client, 1);
-	if (!IsValidEntity(secondary) || !HasEntProp(secondary, Prop_Send, "m_flChargeLevel")) {
+	if (!IsValidEntity(secondary) || TF2Util_GetWeaponID(secondary) != TF_WEAPON_MEDIGUN) {
 		return;
 	}
 	

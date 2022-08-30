@@ -249,12 +249,12 @@ void DetachGroupOverheal(int medigun) {
 }
 
 bool IsUberchargeDeployed(int weapon) {
-	if (!IsValidEntity(weapon)
-			|| !HasEntProp(weapon, Prop_Send, "m_bChargeRelease")) {
+	if (!IsValidEntity(weapon) || !TF2Util_IsEntityWeapon(weapon)
+			|| TF2Util_GetWeaponID(weapon) != TF_WEAPON_MEDIGUN) {
 		return false;
 	}
 	
-	return !!GetEntProp(weapon, Prop_Send, "m_bChargeRelease");
+	return GetEntProp(weapon, Prop_Send, "m_bChargeRelease") != 0;
 }
 
 bool IsGroupOverhealMedigun(int weapon, GroupOverhealAttributes healprops) {

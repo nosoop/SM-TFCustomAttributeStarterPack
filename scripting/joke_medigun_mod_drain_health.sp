@@ -235,7 +235,8 @@ public MRESReturn OnRecalculateChargeEffectsPre(Address pPlayerShared, Handle hP
 		}
 
 		int weapon = TF2_GetClientActiveWeapon(healer);
-		if (!weapon || !IsValidEntity(weapon)) {
+		if (!weapon || !IsValidEntity(weapon)
+				|| TF2Util_GetWeaponID(weapon) != TF_WEAPON_MEDIGUN) {
 			return MRES_Ignored;
 		}
 
@@ -244,9 +245,7 @@ public MRESReturn OnRecalculateChargeEffectsPre(Address pPlayerShared, Handle hP
 		}
 
 		if (IsTargetInUberState(client)) {
-			if (HasEntProp(weapon, Prop_Send, "m_hHealingTarget")) {
-				SetEntPropEnt(weapon, Prop_Send, "m_hHealingTarget", -1);
-			}
+			SetEntPropEnt(weapon, Prop_Send, "m_hHealingTarget", -1);
 			bIsPlayerBeingDrained = true;
 		}
 	}
