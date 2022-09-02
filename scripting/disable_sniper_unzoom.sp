@@ -42,10 +42,16 @@ void HookSniperRifle(int weapon) {
 }
 
 public MRESReturn OnSniperPrimaryAttackPost(int entity) {
+	int owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
+	if (owner < 1 || owner > MaxClients || !TF2_IsPlayerInCondition(owner, TFCond_Slowed)) {
+		return MRES_Ignored;
+	}
+	
 	// don't stay zoomed if we're out of ammo, otherwise sniper will switch weapon
 	// and jump will be disabled
 	if (TF2_GetWeaponAmmo(entity) && TF2CustAttr_GetInt(entity, "sniper rifle zoomed reload")) {
 		SetEntPropFloat(entity, Prop_Data, "m_flUnzoomTime", -1.0);
+		SetEntProp(entity, Prop_Data, "m_bRezoomAfterShot", false);
 	}
 	return MRES_Ignored;
 }
