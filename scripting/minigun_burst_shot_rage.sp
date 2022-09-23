@@ -24,9 +24,11 @@ enum BoostState {
 
 #define TALOS_BOOST_ACTIVATE_DELAY 1.5
 
+#if defined KARMACHARGER_SOUNDS_ENABLED
 #define TALOS_BOOST_SOUND_LOOP "weapons/talos/talos_boost_loop.wav"
 #define TALOS_BOOST_SOUND_OVER "weapons/talos/talos_boost_over.wav"
 #define TALOS_BOOST_SOUND_START "weapons/talos/talos_boost_start.wav"
+#endif // KARMACHARGER_SOUNDS_ENABLED
 
 BoostState g_BoostState[MAXPLAYERS + 1];
 float g_flStateTransitionTime[MAXPLAYERS + 1];
@@ -72,6 +74,7 @@ public void OnMapStart() {
 		}
 	}
 	
+#if defined KARMACHARGER_SOUNDS_ENABLED
 	AddFileToDownloadsTable("sound/" ... TALOS_BOOST_SOUND_LOOP);
 	AddFileToDownloadsTable("sound/" ... TALOS_BOOST_SOUND_OVER);
 	AddFileToDownloadsTable("sound/" ... TALOS_BOOST_SOUND_START);
@@ -79,6 +82,7 @@ public void OnMapStart() {
 	PrecacheSound(")" ... TALOS_BOOST_SOUND_LOOP);
 	PrecacheSound(")" ... TALOS_BOOST_SOUND_OVER);
 	PrecacheSound(")" ... TALOS_BOOST_SOUND_START);
+#endif // KARMACHARGER_SOUNDS_ENABLED
 }
 
 public void OnPlayerSpawn(Event event, const char[] name, bool dontBroadcast) {
@@ -172,7 +176,9 @@ public void OnClientPostThinkPost(int client) {
 		}
 		case Boost_Prestart: {
 			// player activated boost, begin charging, transition to starting state
+#if defined KARMACHARGER_SOUNDS_ENABLED
 			EmitSoundToClient(client, ")" ... TALOS_BOOST_SOUND_START);
+#endif // KARMACHARGER_SOUNDS_ENABLED
 			
 			g_flBoostActivateTime[client] = GetGameTime() + TALOS_BOOST_ACTIVATE_DELAY;
 			
@@ -202,7 +208,9 @@ public void OnClientPostThinkPost(int client) {
 			// transition to active boost if we're activated
 			if (g_flBoostActivateTime[client] && GetGameTime() > g_flBoostActivateTime[client]
 					&& !bRageDraining) {
+#if defined KARMACHARGER_SOUNDS_ENABLED
 				EmitSoundToClient(client, ")" ... TALOS_BOOST_SOUND_LOOP);
+#endif // KARMACHARGER_SOUNDS_ENABLED
 				SetEntProp(client, Prop_Send, "m_bRageDraining", true);
 				
 				UpdateWeaponResetParity(primaryWeapon);
@@ -219,8 +227,10 @@ public void OnClientPostThinkPost(int client) {
 		case Boost_Active: {
 			// transition to boost disabled if rage isn't draining
 			if (!bRageDraining) {
+#if defined KARMACHARGER_SOUNDS_ENABLED
 				StopSound(client, SNDCHAN_AUTO, ")" ... TALOS_BOOST_SOUND_LOOP);
 				EmitSoundToClient(client, ")" ... TALOS_BOOST_SOUND_OVER);
+#endif // KARMACHARGER_SOUNDS_ENABLED
 				TF2Attrib_RemoveByName(primaryWeapon, "fire rate bonus HIDDEN");
 				TF2Attrib_RemoveByName(primaryWeapon, "weapon spread bonus");
 				
