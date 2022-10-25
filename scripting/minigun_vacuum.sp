@@ -19,7 +19,9 @@
 // #include <stocksoup/datapack>
 #include <stocksoup/sdkports/vector>
 
+#if defined KARMACHARGER_SOUNDS_ENABLED
 #define SOUND_VACUUM_KILL "weapons/enemy_sweeper/vacuum_suck.wav"
+#endif // KARMACHARGER_SOUNDS_ENABLED
 
 enum eMinigunState {
 	AC_STATE_IDLE = 0,
@@ -59,8 +61,10 @@ public void OnPluginStart() {
 }
 
 public void OnMapStart() {
+#if defined KARMACHARGER_SOUNDS_ENABLED
 	AddFileToDownloadsTable("sound/" ... SOUND_VACUUM_KILL);
 	PrecacheSound(SOUND_VACUUM_KILL);
+#endif
 	
 	int minigun = -1;
 	while ((minigun = FindEntityByClassname(minigun, "tf_weapon_minigun")) != -1) {
@@ -205,8 +209,11 @@ bool VacuumAttack(int minigun, const char[] attributeValue) {
 				if (IsValidEntity(ragdoll)) {
 					RemoveEntity(ragdoll);
 				}
-				// EmitGameSoundToAll("Weapon_DumpsterRocket.Reload", minigun);
+#if defined KARMACHARGER_SOUNDS_ENABLED
 				EmitSoundToAll(SOUND_VACUUM_KILL, minigun, SNDCHAN_AUTO, SNDLEVEL_SCREAMING);
+#else
+				EmitGameSoundToAll("Weapon_DumpsterRocket.Reload", minigun);
+#endif
 			}
 		}
 		TF2_AddCondition(ent, TFCond_AirCurrent, flPullInterval * 2.0, owner);
