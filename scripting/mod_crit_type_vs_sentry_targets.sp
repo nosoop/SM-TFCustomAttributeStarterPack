@@ -29,8 +29,7 @@ public Action TF2_OnTakeDamage(int victim, int &attacker, int &inflictor, float 
 	
 	int sentry = -1;
 	while ((sentry = FindEntityByClassname(sentry, "obj_sentrygun")) != -1) {
-		int sentryTarget = HasEntProp(sentry, Prop_Send, "m_hEnemy")?
-				GetEntPropEnt(sentry, Prop_Send, "m_hEnemy") : -1;
+		int sentryTarget = GetEntPropEnt(sentry, Prop_Send, "m_hEnemy");
 		if (IsValidEntity(sentryTarget) && victim == sentryTarget) {
 			critType = modifiedCritType;
 			return Plugin_Changed;
