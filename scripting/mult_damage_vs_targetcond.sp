@@ -41,7 +41,7 @@ Action OnPlayerTakeDamageAlive(int victim, int& attacker, int& inflictor, float&
 	}
 	
 	TFCond cond;
-	if (!ReadTFCondVar(attr, "condition", cond)) {
+	if (!ReadTFCondVar(attr, "condition", cond) || !TF2_IsPlayerInCondition(victim, cond)) {
 		return Plugin_Continue;
 	}
 	
