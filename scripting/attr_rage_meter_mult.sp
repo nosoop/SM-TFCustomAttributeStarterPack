@@ -8,6 +8,8 @@
 #include <dhooks>
 
 #pragma newdecls required
+
+#include <tf2utils>
 #include <tf_custom_attributes>
 #include <stocksoup/memory>
 
@@ -22,8 +24,6 @@ public Plugin myinfo = {
 
 Handle g_DHookOnModifyRage;
 
-static Address g_offset_CTFPlayerShared_pOuter;
-
 public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	
@@ -31,15 +31,11 @@ public void OnPluginStart() {
 	
 	DHookEnableDetour(g_DHookOnModifyRage, false, OnModifyRagePre);
 	
-	g_offset_CTFPlayerShared_pOuter =
-			view_as<Address>(GameConfGetOffset(hGameConf, "CTFPlayerShared::m_pOuter"));
-	
 	delete hGameConf;
 }
 
 public MRESReturn OnModifyRagePre(Address pPlayerShared, Handle hParams) {
-	Address pOuter = DereferencePointer(pPlayerShared + g_offset_CTFPlayerShared_pOuter);
-	int client = GetEntityFromAddress(pOuter);
+	int client = TF2Util_GetPlayerFromSharedAddress(pPlayerShared);
 	
 	// LogServer("updating rage");
 	

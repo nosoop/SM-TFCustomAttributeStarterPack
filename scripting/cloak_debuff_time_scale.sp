@@ -12,6 +12,7 @@
 
 #pragma newdecls required
 
+#include <tf2utils>
 #include <tf_custom_attributes>
 #include <sourcescramble>
 #include <stocksoup/log_server>
@@ -19,8 +20,6 @@
 #include <stocksoup/tf/entity_prop_stocks>
 
 #define FLOAT_MAX view_as<float>(0x7F7FFFFF)
-
-Address g_offset_CTFPlayerShared_pOuter;
 
 float g_flDefaultCloakTimerValue;
 
@@ -65,9 +64,6 @@ public void OnPluginStart() {
 			"CTFPlayerShared::UpdateCloakMeter()");
 	DHookEnableDetour(dtUpdateCloakMeter, false, OnUpdateCloakMeterPre);
 	
-	g_offset_CTFPlayerShared_pOuter =
-			view_as<Address>(GameConfGetOffset(hGameConf, "CTFPlayerShared::m_pOuter"));
-	
 	delete hGameConf;
 }
 
@@ -95,7 +91,7 @@ public MRESReturn OnSetCloakRatesPre(int invisWatch) {
  * Patches the per-client unique reduction rate into the function.
  */
 public MRESReturn OnUpdateCloakMeterPre(Address pShared) {
-	int client = GetClientFromPlayerShared(pShared);
+	int client = TF2Util_GetPlayerFromSharedAddress(pShared);
 	UpdateCloakDebuffAmount(g_flComputedDefuffRates[client]);
 	return MRES_Ignored;
 }
@@ -118,9 +114,4 @@ float CalculateReductionRateFromMultiplier(float flTimeScale) {
 
 void UpdateCloakDebuffAmount(float flValue) {
 	g_CloakTimerAmount.StoreToOffset(0, view_as<int>(flValue), NumberType_Int32);
-}
-
-static int GetClientFromPlayerShared(Address pPlayerShared) {
-	Address pOuter = DereferencePointer(pPlayerShared + g_offset_CTFPlayerShared_pOuter);
-	return GetEntityFromAddress(pOuter);
 }

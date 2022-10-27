@@ -22,13 +22,10 @@
 Handle g_DHookWeaponPostFrame;
 Handle g_SDKCallFindEntityInSphere;
 Handle g_SDKCallGetCombatCharacterPtr;
-Handle g_SDKCallGetBaseEntity;
 
 // read from CTFPlayer::DeathSound() disasm
 // TODO actually read from gameconf? have to find windows sigs if I did
 int offs_CTFPlayer_LastDamageType = 0x2168;
-
-Address g_offset_CTFPlayerShared_pOuter;
 
 bool bIsPlayerDraining[MAXPLAYERS + 1];
 
@@ -72,15 +69,6 @@ public void OnPluginStart() {
 		SetFailState("Failed to setup SDKCall for CBaseEntity::MyCombatCharacterPointer()");
 	}
 
-	StartPrepSDKCall(SDKCall_Raw);
-	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual, "CBaseEntity::GetBaseEntity()");
-	PrepSDKCall_SetReturnInfo(SDKType_CBaseEntity, SDKPass_Pointer);
-	g_SDKCallGetBaseEntity = EndPrepSDKCall();
-
-	if (!g_SDKCallGetBaseEntity) {
-		SetFailState("Failed to setup SDKCall for CBaseEntity::GetBaseEntity()");
-	}
-	
 	Handle dtMedigunAllowedToHealTarget = DHookCreateFromConf(hGameConf,
 			"CWeaponMedigun::AllowedToHealTarget()");
 
@@ -138,8 +126,6 @@ public void OnPluginStart() {
 	}
 	
 	offs_CTFPlayer_LastDamageType = offslastDamage + 0x14;
-
-	g_offset_CTFPlayerShared_pOuter = view_as<Address>(GameConfGetOffset(hGameConf, "CTFPlayerShared::m_pOuter"));
 	
 	delete hGameConf;
 	
@@ -232,7 +218,7 @@ public MRESReturn OnAllowedToHealTargetPre(int medigun, Handle hReturn, Handle h
 }
 
 public MRESReturn OnRecalculateChargeEffectsPre(Address pPlayerShared, Handle hParams) {
-	int client = GetClientFromPlayerShared(pPlayerShared);
+	int client = TF2Util_GetPlayerFromSharedAddress(pPlayerShared);
 
 	bool bIsPlayerBeingDrained = false;
 
@@ -428,13 +414,6 @@ bool IsEntityCombatCharacter(int entity) {
 	return SDKCall(g_SDKCallGetCombatCharacterPtr, entity) != Address_Null;
 }
 
-stock int GetClientFromPlayerShared(Address pPlayerShared)  {
-	Address pOuter = view_as<Address>(LoadFromAddress(pPlayerShared 
-				+ g_offset_CTFPlayerShared_pOuter, NumberType_Int32));
-
-	return GetEntityFromAddress(pOuter);
-}
-
 stock int GetHealerByIndex(int client, int index) {
 	int m_aHealers = FindSendPropInfo("CTFPlayer", "m_nNumHealers") + 12;
 	
@@ -443,10 +422,6 @@ stock int GetHealerByIndex(int client, int index) {
 	
 	return (LoadFromAddress(aHealers + view_as<Address>(index * 0x24), NumberType_Int32) & 0xFFF);
 } 
-
-stock int GetEntityFromAddress(Address pEntity)  {
-	return SDKCall(g_SDKCallGetBaseEntity, pEntity);
-}
 
 stock bool IsEntityInGameClient(int entity) {
 	if (entity <= 0 || entity > MaxClients) {

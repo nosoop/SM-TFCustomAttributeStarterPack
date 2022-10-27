@@ -12,6 +12,7 @@
 #include <stocksoup/tf/entity_prop_stocks>
 #include <tf_custom_attributes>
 #include <tf2attributes>
+#include <tf2utils>
 
 #define PLUGIN_VERSION "1.1.1"
 public Plugin myinfo = {
@@ -28,8 +29,6 @@ public Plugin myinfo = {
 #define CUSTOM_SOLDIER_BUFF_MAX_NAME_LENGTH 64
 
 Handle g_DHookOnModifyRage;
-
-static Address g_offset_CTFPlayerShared_pOuter;
 
 int g_iActiveBuffWeapon[MAXPLAYERS + 1];
 StringMap g_BuffForwards; // <callback>
@@ -48,9 +47,6 @@ public void OnPluginStart() {
 	
 	g_DHookOnModifyRage = DHookCreateFromConf(hGameConf, "CTFPlayerShared::PulseRageBuff()");
 	DHookEnableDetour(g_DHookOnModifyRage, false, OnPulseRageBuffPre);
-	
-	g_offset_CTFPlayerShared_pOuter =
-			view_as<Address>(GameConfGetOffset(hGameConf, "CTFPlayerShared::m_pOuter"));
 	
 	delete hGameConf;
 	
@@ -73,7 +69,7 @@ public int RegisterCustomBuff(Handle plugin, int argc) {
 }
 
 public MRESReturn OnActivateRageBuffPre(Address pPlayerShared, Handle hParams) {
-	int client = GetClientFromPlayerShared(pPlayerShared);
+	int client = TF2Util_GetPlayerFromSharedAddress(pPlayerShared);
 	g_iActiveBuffWeapon[client] = INVALID_ENT_REFERENCE;
 	
 	int inflictor = DHookGetParam(hParams, 1);
@@ -95,7 +91,7 @@ public MRESReturn OnActivateRageBuffPre(Address pPlayerShared, Handle hParams) {
 }
 
 public MRESReturn OnPulseRageBuffPre(Address pPlayerShared, Handle hParams) {
-	int client = GetClientFromPlayerShared(pPlayerShared);
+	int client = TF2Util_GetPlayerFromSharedAddress(pPlayerShared);
 	
 	int buffItem = EntRefToEntIndex(g_iActiveBuffWeapon[client]);
 	if (!IsValidEntity(buffItem)) {
@@ -147,9 +143,4 @@ public MRESReturn OnPulseRageBuffPre(Address pPlayerShared, Handle hParams) {
 	}
 	
 	return MRES_Supercede;
-}
-
-static int GetClientFromPlayerShared(Address pPlayerShared) {
-	Address pOuter = DereferencePointer(pPlayerShared + g_offset_CTFPlayerShared_pOuter);
-	return GetEntityFromAddress(pOuter);
 }
