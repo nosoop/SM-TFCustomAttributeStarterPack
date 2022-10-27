@@ -229,7 +229,7 @@ public MRESReturn OnRecalculateChargeEffectsPre(Address pPlayerShared, Handle hP
 	int numHealers = GetEntProp(client, Prop_Send, "m_nNumHealers");
 
 	for (int i = 0; i < numHealers; i++) {
-		int healer = GetHealerByIndex(client, i);
+		int healer = TF2Util_GetPlayerHealer(client, i);
 		if (!IsEntityInGameClient(healer)) {
 			return MRES_Ignored;
 		}
@@ -413,15 +413,6 @@ static int FindEntityInSphere(int startEntity, const float vecPosition[3], float
 bool IsEntityCombatCharacter(int entity) {
 	return SDKCall(g_SDKCallGetCombatCharacterPtr, entity) != Address_Null;
 }
-
-stock int GetHealerByIndex(int client, int index) {
-	int m_aHealers = FindSendPropInfo("CTFPlayer", "m_nNumHealers") + 12;
-	
-	Address m_Shared = GetEntityAddress(client) + view_as<Address>(m_aHealers);
-	Address aHealers = view_as<Address>(LoadFromAddress(m_Shared, NumberType_Int32));
-	
-	return (LoadFromAddress(aHealers + view_as<Address>(index * 0x24), NumberType_Int32) & 0xFFF);
-} 
 
 stock bool IsEntityInGameClient(int entity) {
 	if (entity <= 0 || entity > MaxClients) {
