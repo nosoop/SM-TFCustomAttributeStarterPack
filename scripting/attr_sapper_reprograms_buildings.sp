@@ -20,6 +20,7 @@
 #include <stocksoup/tf/tempents_stocks>
 #include <stocksoup/tf/hud_notify>
 
+#include <tf2utils>
 #include <tf_custom_attributes>
 
 #pragma newdecls required
@@ -205,18 +206,14 @@ Action SimulateReprogrammedBuilding(int client, int argc) {
 		return Plugin_Handled;
 	}
 	
-	int ent = -1;
-	while ((ent = FindEntityByClassname(ent, "obj_*")) != -1) {
-		if (!HasEntProp(ent, Prop_Send, "m_iObjectType")
-				|| GetEntProp(ent, Prop_Send, "m_iObjectType") != view_as<any>(objectType)) {
-			continue;
-		}
-		
-		if (GetEntPropEnt(ent, Prop_Send, "m_hBuilder") != target) {
+	for (int i, n = TF2Util_GetPlayerObjectCount(target); i < n; i++) {
+		int ent = TF2Util_GetPlayerObject(target, i);
+		if (GetEntProp(ent, Prop_Send, "m_iObjectType") != view_as<any>(objectType)) {
 			continue;
 		}
 		ReprogramBuilding(ent, owner, false);
 	}
+	return Plugin_Handled;
 }
 
 // contains temporary client index
@@ -390,13 +387,9 @@ MRESReturn OnRemoveAllObjectsPre(int client, Handle hParams) {
 	}
 	
 	// remove non-reprogrammed buildings we own
-	int ent = -1;
-	while ((ent = FindEntityByClassname(ent, "obj_*")) != -1) {
-		if (!HasEntProp(ent, Prop_Send, "m_hBuilder")
-				|| GetEntPropEnt(ent, Prop_Send, "m_hBuilder") != client) {
-			// not a building we own
-			continue;
-		}
+	// we iterate backwards through this in case removals mutate the array
+	for (int i = TF2Util_GetPlayerObjectCount(client); i-- > 0;) {
+		int ent = TF2Util_GetPlayerObject(client, i);
 		
 		if (!CanBuildingDetonate(ent, .forced = true)) {
 			// this was reprogrammed, so don't destroy it
