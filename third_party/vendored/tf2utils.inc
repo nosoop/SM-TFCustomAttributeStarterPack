@@ -125,11 +125,151 @@ native float TF2Util_GetPlayerBurnDuration(int client);
 /**
  * Updates the remaining burn time on a given player.  This does not ignite players.  This
  * bypasses the 10 second maximum burn duration limitation added in Jungle Inferno; however,
- * this will be clamped the next time the game needs to update the burn duration.
+ * the burn duration will be clamped the next time the player is (re)ignited.
  * 
  * @error Player is not already burning.
  */
 native void TF2Util_SetPlayerBurnDuration(int client, float duration);
+
+/**
+ * Sets a client on fire.  This is effectively the same as `TF2_IgnitePlayer` but with the
+ * additional ability to set the weapon (allowing attribute modifiers to take effect).
+ * 
+ * @param client      Target client index.
+ * @param attacker    Attacker client index, or INVALID_ENT_REFERENCE for none.
+ * @param duration    Duration of fire, in seconds.
+ * @param weapon      Weapon entity, or INVALID_ENT_REFERENCE for none.
+ * 
+ * @note              As of Jungle Inferno, fire duration is capped to 10 seconds.
+ * @error             Invalid clients, or non-weapon entity.
+ */
+native void TF2Util_IgnitePlayer(int client, int attacker, float duration,
+		int weapon = INVALID_ENT_REFERENCE);
+
+/**
+ * @param client    Client index.
+ * @return          Number of entries within the bleed list.
+ * @error           Invalid client index, or bleed list index is out of bounds.
+ */
+native int TF2Util_GetPlayerActiveBleedCount(int client);
+
+/**
+ * @param client    Client index.
+ * @param index     Index into the player's bleed list.
+ * @return          Attacker client associated with the bleed effect.
+ * @error           Invalid client index, or bleed list index is out of bounds.
+ */
+native int TF2Util_GetPlayerBleedAttacker(int client, int index);
+
+/**
+ * @param client    Client index.
+ * @param index     Index into the player's bleed list.
+ * @return          Weapon associated with the bleed effect, or INVALID_ENT_REFERENCE if invalid.
+ * @error           Invalid client index, or bleed list index is out of bounds.
+ */
+native int TF2Util_GetPlayerBleedWeapon(int client, int index);
+
+/**
+ * @param client    Client index.
+ * @param index     Index into the player's bleed list.
+ * @return          Time remaining until this bleed effect deals damage to the given client.
+ * @error           Invalid client index, or bleed list index is out of bounds.
+ */
+native float TF2Util_GetPlayerBleedNextDamageTick(int client, int index);
+
+/**
+ * @param client    Client index.
+ * @param index     Index into the player's bleed list.
+ * @return          Time remaining for the bleed effect.
+ * @error           Invalid client index, or bleed list index is out of bounds.
+ */
+native float TF2Util_GetPlayerBleedDuration(int client, int index);
+
+/**
+ * @param client    Client index.
+ * @param index     Index into the player's bleed list.
+ * @return          Amount of damage inflicted per bleed 'tick'.
+ * @error           Invalid client index, or bleed list index is out of bounds.
+ */
+native int TF2Util_GetPlayerBleedDamage(int client, int index);
+
+/**
+ * @param client    Client index.
+ * @param index     Index into the player's bleed list.
+ * @return          Custom damage type associated with the given bleed effect.
+ * @error           Invalid client index, or bleed list index is out of bounds.
+ */
+native int TF2Util_GetPlayerBleedCustomDamageType(int client, int index);
+
+/**
+ * Induces the bleed effect on a client.  This is effectively the same as `TF2_MakeBleed`, with
+ * support for additional parameters that the game provides.
+ * 
+ * If the player already has a matching attacker / weapon combination, that entry will be
+ * updated instead.
+ * 
+ * @param client          Client index.
+ * @param attacker        Attacking client's index.
+ * @param duration        Duration of the effect.  If this is TFCondDuration_Infinite,
+ *                        bleeding continues until the player removes it via medkit or
+ *                        resupply.
+ * @param weapon          Weapon associated with the bleed effect, or INVALID_ENT_REFERENCE to
+ *                        not provide a weapon (behaving the same as `TF2_MakeBleed`).
+ * @param damage          Amount of damage inflicted per bleed 'tick'.
+ * @param damagecustom    Custom damage type (see TF_CUSTOM_* constants).
+ * @return                Index into the player's bleed list where the effect was added, or -1
+ *                        if the plugin could not determine the index.
+ */
+native int TF2Util_MakePlayerBleed(int client, int attacker, float duration,
+		int weapon = INVALID_ENT_REFERENCE, int damage = 4,
+		int damagecustom = TF_CUSTOM_BLEEDING);
+
+/**
+ * Returns true if the given player is immune to pushback.
+ * 
+ * @param client    Client index.
+ * 
+ * @error           Invalid client or not in game.
+ */
+native bool TF2Util_IsPlayerImmuneToPushback(int client);
+
+/**
+ * Returns the player's respawn time override, if any.  This is the number of seconds that a
+ * player will spend waiting to be respawned after their last death (CTFPlayer::m_flDeathTime).
+ * 
+ * When a player dies, the game will set this value to -1.0 or the RespawnTime value of an
+ * active trigger_player_respawn_override entity that the player died in, if one exists.
+ * (This happens *after* the `player_death` event is fired, so you cannot retrieve their respawn
+ * time override during a hook on that event.)
+ * 
+ * The amount of time remaining can be computed as follows:
+ * 
+ *     flRemainingTime = flDeathTime + flRespawnTimeOverride - GetGameTime();
+ * 
+ * If the player does not have an override on their respawn time (i.e. they are part of normal
+ * respawn waves), this will return -1.0.  If the player is alive, this will return whatever is
+ * stored on the entity (normally -1.0), and *not* any buffered value that was set using
+ * `TF2Util_SetPlayerRespawnTimeOverride`.
+ * 
+ * @error Invalid client.
+ */
+native float TF2Util_GetPlayerRespawnTimeOverride(int client);
+
+/**
+ * Changes the player's respawn time override.  See `TF2Util_GetPlayerRespawnTimeOverride` above
+ * for an explanation of the value.
+ * 
+ * If the player is not alive, setting this value to -1.0 will remove any existing respawn time
+ * overrides, and the player will respawn in the next wave they are allowed to spawn in.
+ * 
+ * If the player is alive, setting this value to one other than -1.0 will cause TF2Utils to
+ * buffer the value and update the player's respawn time override at some point after they die
+ * (allowing plugins to set a respawn time override while the player is alive or during a
+ * `player_death` event hook).
+ * 
+ * @error Invalid client.
+ */
+native void TF2Util_SetPlayerRespawnTimeOverride(int client, float time);
 
 /**
  * Returns the player's shoot position.
@@ -137,24 +277,34 @@ native void TF2Util_SetPlayerBurnDuration(int client, float duration);
 native void TF2Util_GetPlayerShootPosition(int client, float result[3]);
 
 /**
- * @return Object (building) entity index at the given index.
- * @error Entity is not a client or index is out of bounds.
+ * @return    Object (building) entity index at the given array index, or -1 on invalid object
+ *            entity reference.
+ * @error     Invalid client or index is out of bounds.
  */
 native int TF2Util_GetPlayerObject(int client, int index);
 
 /**
- * @return Number of objects (buildings) in a given client's object array.
- * @error Entity is not a client.
+ * @return    Number of objects (buildings) in a given client's object array.
+ * @error     Invalid client.
  */
 native int TF2Util_GetPlayerObjectCount(int client);
 
 /**
- * Returns the healer entity index at the given position in the player's healer array.
+ * Returns the healer entity index at the given index in the player's healer array.
  * To get the number of healers available, use the m_nNumHealers netprop.
  * 
- * @return Healer entity index at the given index.
+ * @return    Healer entity index at the given array index, or -1 on invalid healer entity
+ *            reference.
+ * @error     Index is out of bounds.
  */
 native int TF2Util_GetPlayerHealer(int client, int index);
+
+/**
+ * Returns the time that the player was last damaged.
+ * 
+ * @error    Invalid client, or index is out of bounds.
+ */
+native float TF2Util_GetPlayerLastDamageReceivedTime(int client);
 
 /**
  * Returns whether or not the given entity is a weapon.
@@ -171,7 +321,7 @@ native bool TF2Util_IsEntityWeapon(int entity);
 native bool TF2Util_IsEntityWearable(int entity);
 
 /**
- * Returns the slot for the given weapon entity.  This corresponds to the TFWeaponSlot_*
+ * Returns the weapon entity's designated weapon slot.  This corresponds to the TFWeaponSlot_*
  * constants in tf2_stocks.
  * 
  * @error Entity is not valid or not a weapon.
@@ -195,13 +345,15 @@ native int TF2Util_GetWeaponID(int entity);
 native int TF2Util_GetWeaponMaxClip(int entity);
 
 /**
- * @return Client's wearable entity at the given index.
- * @error Index is negative or out of bounds.
+ * @return    Client's wearable entity index at the given wearable array index, or -1 on invalid
+ *            wearable entity reference.
+ * @error     Invalid client, or index is negative or out of bounds.
  */
 native int TF2Util_GetPlayerWearable(int client, int index);
 
 /**
- * @return Number of items in the player's wearable array.
+ * @return    Number of items in the player's wearable array.
+ * @error     Invalid client.
  */
 native int TF2Util_GetPlayerWearableCount(int client);
 
@@ -218,7 +370,8 @@ native int TF2Util_GetPlayerWearableCount(int client);
  * instead want to use `TF2Util_GetPlayerWearable` / `TF2Util_GetPlayerWearableCount`.
  * Identifying specific occupied cosmetic loadout slots is currently not supported.
  * 
- * @return Entity on the given client occupying the given loadout slot.
+ * @return    Entity index on the given client occupying the given loadout slot, or -1 on
+ *            invalid entity reference or no entity matched.
  */
 native int TF2Util_GetPlayerLoadoutEntity(int client, int loadoutSlot,
 		bool includeWearableWeapons = true);
@@ -230,6 +383,13 @@ native int TF2Util_GetPlayerLoadoutEntity(int client, int loadoutSlot,
  *        failed to verify that the wearable was successfully attached (outdated gamedata).
  */
 native void TF2Util_EquipPlayerWearable(int client, int wearable);
+
+/**
+ * Marks a wearable as "always valid", preventing it from removal during resupply events.
+ * 
+ * @error Entity is not a wearable.
+ */
+native void TF2Util_SetWearableAlwaysValid(int wearable, bool alwaysValid);
 
 /**
  * Forces an update to the given player's speed.
@@ -254,8 +414,28 @@ native void TF2Util_UpdatePlayerSpeed(int client, bool immediate = false);
  *                               the position is in an active spawn room.  Has no effect if no
  *                               entity is provided.
  */
-native bool TF2Util_IsPointInRespawnRoom(const float[3] position,
+native bool TF2Util_IsPointInRespawnRoom(const float position[3],
 		int entity = INVALID_ENT_REFERENCE, bool bRestrictToSameTeam = false);
+
+/**
+ * Returns whether or not the given custom damage type is for a "damage over time" effect.
+ * This is provided to allow plugins to identify periodic damage events without hardcoding that
+ * information themselves.
+ * 
+ * @param damagecustom    Custom damage type.  This is provided by the SDKHooks OnTakeDamage
+ *                        set of hooks as 'damagecustom', among other places.
+ * @return                True if the given value matches a known DOT effect; false otherwise.
+ */
+native bool TF2Util_IsCustomDamageTypeDOT(int damagecustom);
+
+/**
+ * Given the address of a CTFPlayerShared instance, returns the player associated with it.
+ * 
+ * Here be dragons.
+ * 
+ * @param pShared    Address of CTFPlayerShared instance.
+ */
+native int TF2Util_GetPlayerFromSharedAddress(Address pShared);
 
 /**
  * Returns the current maximum health of the player.

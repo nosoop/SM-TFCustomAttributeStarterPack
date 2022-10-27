@@ -46,6 +46,7 @@ plugins = [
   'mod_crit_type_vs_condition.sp',
   'mod_crit_type_vs_sentry_targets.sp',
   'mult_damage_vs_sappers.sp',
+  'mult_damage_vs_targetcond.sp',
   'mult_basegrenade_explode_radius.sp',
   'mvm_attributes.sp',
   'override_building_health.sp',
