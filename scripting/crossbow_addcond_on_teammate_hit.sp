@@ -9,10 +9,11 @@
 
 #pragma newdecls required
 
-#include <tf2utils>
 #include <stocksoup/var_strings>
 #include <stocksoup/tf/entity_prop_stocks>
 #include <tf_custom_attributes>
+
+#include "shared/tf_var_strings.sp"
 
 public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
@@ -90,45 +91,4 @@ void SetMedigunChargeLevel(int client, float flChargeLevel) {
 		return;
 	}
 	SetEntPropFloat(secondaryWeapon, Prop_Send, "m_flChargeLevel", flChargeLevel);
-}
-
-bool ReadTFCondVar(const char[] varstring, const char[] key, TFCond &value) {
-	char condString[32];
-	if (!ReadStringVar(varstring, key, condString, sizeof(condString))) {
-		return false;
-	}
-	
-	int result;
-	if (StringToIntEx(condString, result)) {
-		value = view_as<TFCond>(result);
-		return true;
-	}
-	
-	static StringMap s_Conditions;
-	if (!s_Conditions) {
-		char buffer[64];
-		
-		s_Conditions = new StringMap();
-		for (TFCond cond; cond <= TF2Util_GetLastCondition(); cond++) {
-			if (TF2Util_GetConditionName(cond, buffer, sizeof(buffer))) {
-				s_Conditions.SetValue(buffer, cond);
-			}
-		}
-	}
-	
-	if (s_Conditions.GetValue(condString, value)) {
-		return true;
-	}
-	
-	// log message if given string does not resolve to a condition
-	static StringMap s_LoggedConditions;
-	if (!s_LoggedConditions) {
-		s_LoggedConditions = new StringMap();
-	}
-	any ignored;
-	if (!s_LoggedConditions.GetValue(condString, ignored)) {
-		LogError("Could not translate condition name %s to index.", condString);
-		s_LoggedConditions.SetValue(condString, true);
-	}
-	return false;
 }
