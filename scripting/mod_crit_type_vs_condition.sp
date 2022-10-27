@@ -20,17 +20,21 @@ public Action TF2_OnTakeDamage(int victim, int &attacker, int &inflictor, float 
 	
 	// we use a bitwise or here because we don't want to short-circuit the check
 	// attacker condition crit mod might be higher than the target's
-	if (ApplyTargetConditionCritMod(victim, weapon, critType)
-			| ApplyAttackerConditionCritMod(attacker, weapon, critType)) {
+	if (ApplyTargetConditionCritMod(victim, weapon, damagecustom, critType)
+			| ApplyAttackerConditionCritMod(attacker, weapon, damagecustom, critType)) {
 		return Plugin_Changed;
 	}
 	return Plugin_Continue;
 }
 
-bool ApplyTargetConditionCritMod(int victim, int weapon, CritType &critType) {
+bool ApplyTargetConditionCritMod(int victim, int weapon, int damagecustom, CritType &critType) {
 	char attr[64];
 	if (!TF2CustAttr_GetString(weapon, "mod crit type on target condition",
 			attr, sizeof(attr))) {
+		return false;
+	}
+	
+	if (ReadIntVar(attr, "no_dot") && TF2Util_IsCustomDamageTypeDOT(damagecustom)) {
 		return false;
 	}
 	
@@ -47,7 +51,8 @@ bool ApplyTargetConditionCritMod(int victim, int weapon, CritType &critType) {
 	return false;
 }
 
-bool ApplyAttackerConditionCritMod(int attacker, int weapon, CritType &critType) {
+bool ApplyAttackerConditionCritMod(int attacker, int weapon, int damagecustom,
+		CritType &critType) {
 	if (attacker < 1 || attacker > MaxClients) {
 		return false;
 	}
@@ -55,6 +60,10 @@ bool ApplyAttackerConditionCritMod(int attacker, int weapon, CritType &critType)
 	char attr[64];
 	if (!TF2CustAttr_GetString(weapon, "mod crit type on attacker condition",
 			attr, sizeof(attr))) {
+		return false;
+	}
+	
+	if (ReadIntVar(attr, "no_dot") && TF2Util_IsCustomDamageTypeDOT(damagecustom)) {
 		return false;
 	}
 	
