@@ -47,7 +47,7 @@ Action OnPlayerTakeDamageAlive(int victim, int& attacker, int& inflictor, float&
 	
 	damage *= ReadFloatVar(attr, "scale", 1.0);
 	
-	return Plugin_Continue;
+	return Plugin_Changed;
 }
 
 bool ReadTFCondVar(const char[] varstring, const char[] key, TFCond &value) {
