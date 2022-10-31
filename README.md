@@ -93,8 +93,12 @@ To run the plugins from this project, you will need the compiled releases of the
 
 - [TF2 Custom Attributes][custattr]:  the core plugin, keeps track of equipment and their
 associated key / value "attribute" pairs
-- [TF2Attributes (my fork)][tf2attributes]:  interoperation with game attributes
+- [TF2Attributes][tf2attributes]:  interoperation with game attributes
+	- This previously required [@nosoop's fork of the project][], but all of the functionality
+	has been merged upstream.
 - [DHooks with detour support][dynhooks]:  engine-level hooks
+	- The current stable version of SourceMod (1.11 or newer) now comes with this preinstalled.
+	You only need to download this separately if you are using 1.10.
 - [Custom Status HUD][]:  unified HUD library for drawing text elements on-screen
 - [TF2 Max Speed Detour][maxspeed-ext]:  allows plugins to transform player maximum speed
 before application
@@ -115,7 +119,8 @@ not need these:
 
 Includes are bundled in the `third_party/` subdirectory to ensure builds are consistent.
 
-[tf2attributes]: https://github.com/nosoop/tf2attributes
+[tf2attributes]: https://github.com/FlaminSarge/tf2attributes
+[@nosoop's fork of the project]: https://github.com/nosoop/tf2attributes
 [dynhooks]: https://forums.alliedmods.net/showpost.php?p=2588686&postcount=589
 [stocksoup]: https://github.com/nosoop/stocksoup
 [Custom Status HUD]: https://github.com/nosoop/SM-CustomStatusHUD
