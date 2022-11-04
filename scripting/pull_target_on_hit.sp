@@ -11,6 +11,7 @@
 
 #pragma newdecls required
 
+#include <tf2utils>
 #include <tf_custom_attributes>
 #include <stocksoup/var_strings>
 
@@ -33,7 +34,7 @@ void OnTakeDamageAlivePost(int victim, int attacker, int inflictor, float damage
 	 * don't trigger on condition-based damage
 	 * someday I'll look into what game function to hook for this case
 	 */
-	if (!IsValidEntity(weapon) || IsConditionBasedDamageCustom(damagecustom)) {
+	if (!IsValidEntity(weapon) || TF2Util_IsCustomDamageTypeDOT(damagecustom)) {
 		return;
 	}
 	
@@ -60,13 +61,4 @@ void OnTakeDamageAlivePost(int victim, int attacker, int inflictor, float damage
 	TeleportEntity(victim, NULL_VECTOR, NULL_VECTOR, vecPullForce);
 	
 	return;
-}
-
-bool IsConditionBasedDamageCustom(int damagecustom) {
-	switch (damagecustom) {
-		case TF_CUSTOM_BLEEDING, TF_CUSTOM_BURNING: {
-			return true;
-		}
-	}
-	return false;
 }
