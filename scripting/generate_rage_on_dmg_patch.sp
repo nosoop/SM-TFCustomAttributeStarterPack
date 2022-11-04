@@ -71,7 +71,7 @@ public void OnPluginStart() {
 	
 }
 
-public MRESReturn OnApplyOnDamageModifyRulesPre(Address pGameRules, Handle hReturn,
+MRESReturn OnApplyOnDamageModifyRulesPre(Address pGameRules, Handle hReturn,
 		Handle hParams) {
 	g_PatchDisableHeavyRageDamagePenalty.Disable();
 	
@@ -93,7 +93,7 @@ public MRESReturn OnApplyOnDamageModifyRulesPre(Address pGameRules, Handle hRetu
 	return MRES_Ignored;
 }
 
-public MRESReturn OnApplyPushFromDamagePre(int client, Handle hParams) {
+MRESReturn OnApplyPushFromDamagePre(int client, Handle hParams) {
 	g_PatchDisableHeavyRageKnockback.Disable();
 	
 	Address pTakeDamageInfo = DHookGetParam(hParams, 1);
@@ -115,7 +115,7 @@ public MRESReturn OnApplyPushFromDamagePre(int client, Handle hParams) {
 	return MRES_Ignored;
 }
 
-public MRESReturn OnHandleRageGainPre(Handle hParams) {
+MRESReturn OnHandleRageGainPre(Handle hParams) {
 	g_PatchHandleRageGain.Disable();
 	if (DHookIsNullParam(hParams, 1)) {
 		return MRES_Ignored;

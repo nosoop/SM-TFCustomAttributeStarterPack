@@ -53,7 +53,7 @@ void HookFlamethrower(int flamethrower) {
 			.callback = OnFlamethrowerDeflectPost);
 }
 
-public MRESReturn OnFlamethrowerDeflectPost(int flamethrower, Handle hParams) {
+MRESReturn OnFlamethrowerDeflectPost(int flamethrower, Handle hParams) {
 	int target = DHookGetParam(hParams, 1);
 	int owner = DHookGetParam(hParams, 2);
 	

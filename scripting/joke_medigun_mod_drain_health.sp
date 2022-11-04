@@ -166,7 +166,7 @@ public void OnClientDisconnect_Post(int iClient) {
 }
 
 static bool s_ForceCritDeathSound;
-public void OnTakeDamageAlivePost(int victim, int attacker, int inflictor, float damage,
+void OnTakeDamageAlivePost(int victim, int attacker, int inflictor, float damage,
 		int damagetype) {
 	if (!s_ForceCritDeathSound) {
 		return;
@@ -183,7 +183,7 @@ public void OnEntityCreated(int entity, const char[] className) {
 }
 
 static bool s_ForceGibRagdoll;
-public MRESReturn OnCreateRagdollPre(int client, Handle hParams) {
+MRESReturn OnCreateRagdollPre(int client, Handle hParams) {
 	if (!s_ForceGibRagdoll) {
 		return MRES_Ignored;
 	}
@@ -192,7 +192,7 @@ public MRESReturn OnCreateRagdollPre(int client, Handle hParams) {
 }
 
 // setting this up as a post hook causes windows srcds to crash
-public MRESReturn OnAllowedToHealTargetPre(int medigun, Handle hReturn, Handle hParams) {
+MRESReturn OnAllowedToHealTargetPre(int medigun, Handle hReturn, Handle hParams) {
 	if (!TF2CustAttr_GetFloat(medigun, "medigun drains health")) {
 		return MRES_Ignored;
 	}
@@ -217,7 +217,7 @@ public MRESReturn OnAllowedToHealTargetPre(int medigun, Handle hReturn, Handle h
 	return MRES_Supercede;
 }
 
-public MRESReturn OnRecalculateChargeEffectsPre(Address pPlayerShared, Handle hParams) {
+MRESReturn OnRecalculateChargeEffectsPre(Address pPlayerShared, Handle hParams) {
 	int client = TF2Util_GetPlayerFromSharedAddress(pPlayerShared);
 
 	bool bIsPlayerBeingDrained = false;
@@ -257,7 +257,7 @@ public MRESReturn OnRecalculateChargeEffectsPre(Address pPlayerShared, Handle hP
 	return MRES_Ignored;
 }
 
-public MRESReturn OnMedigunPostFramePost(int medigun) {
+MRESReturn OnMedigunPostFramePost(int medigun) {
 	int healer = TF2_GetEntityOwner(medigun);
 	if (!bIsPlayerDraining[healer]) {
 		return MRES_Ignored;
@@ -307,7 +307,7 @@ public MRESReturn OnMedigunPostFramePost(int medigun) {
 	return MRES_Ignored;
 }
 
-public MRESReturn OnStopHealingPre(Address pPlayerShared, Handle hParams) {
+MRESReturn OnStopHealingPre(Address pPlayerShared, Handle hParams) {
 	int healer = DHookGetParam(hParams, 1);
 	if (!IsEntityInGameClient(healer)) {
 		return MRES_Ignored;
@@ -327,7 +327,7 @@ public MRESReturn OnStopHealingPre(Address pPlayerShared, Handle hParams) {
 	return MRES_Ignored;
 }
 
-public void OnPlayerDeath(Event event, const char[] name, bool dontBroadcast) {
+void OnPlayerDeath(Event event, const char[] name, bool dontBroadcast) {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	
 	if (!s_ForceGibRagdoll) {
@@ -345,7 +345,7 @@ public void OnPlayerDeath(Event event, const char[] name, bool dontBroadcast) {
 	TE_SendToAll();
 }
 
-public MRESReturn OnMedigunSecondaryAttackPre(int medigun) {
+MRESReturn OnMedigunSecondaryAttackPre(int medigun) {
 	// TODO handle medigun
 	if (TF2CustAttr_GetFloat(medigun, "ubercharge nukes everything in radius") == 0.0) {
 		return MRES_Ignored;

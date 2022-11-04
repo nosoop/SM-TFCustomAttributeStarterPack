@@ -55,7 +55,7 @@ static int s_InflictingGrenade;
 static bool s_bDirectHit;
 static int s_nPlayersDamaged;
 
-public MRESReturn OnGrendeExplodePre(int grenade, Handle hParams) {
+MRESReturn OnGrendeExplodePre(int grenade, Handle hParams) {
 	// reset counters
 	s_bDirectHit = !GetEntProp(grenade, Prop_Send, "m_bTouched");
 	s_nPlayersDamaged = 0;
@@ -87,7 +87,7 @@ public MRESReturn OnGrendeExplodePre(int grenade, Handle hParams) {
 	return MRES_Ignored;
 }
 
-public void OnTakeDamageAlivePost(int victim, int attacker, int inflictor, float damage,
+void OnTakeDamageAlivePost(int victim, int attacker, int inflictor, float damage,
 		int damagetype, int weapon, const float damageForce[3], const float damagePosition[3]) {
 	if (!IsValidEntity(inflictor) || !IsValidEntity(weapon) || victim == attacker) {
 		return;
@@ -102,7 +102,7 @@ public void OnTakeDamageAlivePost(int victim, int attacker, int inflictor, float
 	s_nPlayersDamaged++;
 }
 
-public MRESReturn OnGrendeExplodePost(int grenade, Handle hParams) {
+MRESReturn OnGrendeExplodePost(int grenade, Handle hParams) {
 	// there shouldn't be any nested grenade calls... right?
 	s_InflictingGrenade = INVALID_ENT_REFERENCE;
 	

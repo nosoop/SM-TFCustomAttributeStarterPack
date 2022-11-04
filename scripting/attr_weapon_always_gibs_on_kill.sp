@@ -47,7 +47,7 @@ public void OnClientPutInServer(int client) {
 	DHookEntity(g_DHookShouldGib, false, client, .callback = OnPlayerShouldGib);
 }
 
-public MRESReturn OnPlayerShouldGib(int client, Handle hReturn, Handle hParams) {
+MRESReturn OnPlayerShouldGib(int client, Handle hReturn, Handle hParams) {
 	SetTakeDamageInfoContext(hParams, 1);
 	
 	int weapon = GetDamageInfoHandle(TakeDamageInfo_Weapon);

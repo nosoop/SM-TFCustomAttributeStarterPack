@@ -38,7 +38,7 @@ public void OnPluginStart() {
 
 bool s_bContextBypassMedicRegen;
 
-public MRESReturn OnPlayerRegenThinkPre(int client) {
+MRESReturn OnPlayerRegenThinkPre(int client) {
 	int hActiveWeapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
 	if (!IsValidEntity(hActiveWeapon)) {
 		return MRES_Ignored;
@@ -57,7 +57,7 @@ public MRESReturn OnPlayerRegenThinkPre(int client) {
 	return MRES_Ignored;
 }
 
-public MRESReturn OnPlayerRegenThinkPost(int client) {
+MRESReturn OnPlayerRegenThinkPost(int client) {
 	if (s_bContextBypassMedicRegen) {
 		SetEntData(client, offs_CTFPlayer_iClass, view_as<int>(TFClass_Medic));
 	}

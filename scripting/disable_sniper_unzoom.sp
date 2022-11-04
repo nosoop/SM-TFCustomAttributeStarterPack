@@ -41,7 +41,7 @@ void HookSniperRifle(int weapon) {
 	DHookEntity(g_DHookItemPostFrame, true, weapon, .callback = OnSniperPrimaryAttackPost);
 }
 
-public MRESReturn OnSniperPrimaryAttackPost(int entity) {
+MRESReturn OnSniperPrimaryAttackPost(int entity) {
 	int owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
 	if (owner < 1 || owner > MaxClients || !TF2_IsPlayerInCondition(owner, TFCond_Slowed)) {
 		return MRES_Ignored;

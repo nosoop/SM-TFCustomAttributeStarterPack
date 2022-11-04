@@ -74,7 +74,7 @@ public void OnPluginStart() {
  * As of this writing, the game reduces debuffs by 0.75s per second (~42% debuff duration
  * reduction).
  */
-public MRESReturn OnSetCloakRatesPre(int invisWatch) {
+MRESReturn OnSetCloakRatesPre(int invisWatch) {
 	int owner = TF2_GetEntityOwner(invisWatch);
 	if (owner < 1 || owner > MaxClients) {
 		return MRES_Ignored;
@@ -90,7 +90,7 @@ public MRESReturn OnSetCloakRatesPre(int invisWatch) {
 /**
  * Patches the per-client unique reduction rate into the function.
  */
-public MRESReturn OnUpdateCloakMeterPre(Address pShared) {
+MRESReturn OnUpdateCloakMeterPre(Address pShared) {
 	int client = TF2Util_GetPlayerFromSharedAddress(pShared);
 	UpdateCloakDebuffAmount(g_flComputedDefuffRates[client]);
 	return MRES_Ignored;

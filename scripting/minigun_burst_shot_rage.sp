@@ -85,7 +85,7 @@ public void OnMapStart() {
 #endif // KARMACHARGER_SOUNDS_ENABLED
 }
 
-public void OnPlayerSpawn(Event event, const char[] name, bool dontBroadcast) {
+void OnPlayerSpawn(Event event, const char[] name, bool dontBroadcast) {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	g_flBoostPenaltyDecayRate[client] = 0.0;
 }
@@ -98,7 +98,7 @@ public void OnClientPutInServer(int client) {
 	DHookEntity(g_DHookRemoveAmmo, false, client, .callback = OnPlayerRemoveAmmo);
 }
 
-public MRESReturn OnMinigunActivatePushBackPre(int minigun) {
+MRESReturn OnMinigunActivatePushBackPre(int minigun) {
 	int owner = TF2_GetEntityOwner(minigun);
 	if (!IsValidEntity(owner)) {
 		return MRES_Ignored;
@@ -140,7 +140,7 @@ void ActivateBurstMode(int client) {
 	g_BoostState[client] = Boost_Prestart;
 }
 
-public void OnClientPostThinkPost(int client) {
+void OnClientPostThinkPost(int client) {
 	int primaryWeapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Primary);
 	
 	char attr[128];
@@ -258,7 +258,7 @@ public void OnClientPostThinkPost(int client) {
 	}
 }
 
-public MRESReturn OnPlayerRemoveAmmo(int client, Handle hReturn, Handle hParams) {
+MRESReturn OnPlayerRemoveAmmo(int client, Handle hReturn, Handle hParams) {
 	if (g_BoostState[client] != Boost_Active) {
 		return MRES_Ignored;
 	}

@@ -34,7 +34,7 @@ public void OnPluginStart() {
 	delete hGameConf;
 }
 
-public MRESReturn OnModifyRagePre(Address pPlayerShared, Handle hParams) {
+MRESReturn OnModifyRagePre(Address pPlayerShared, Handle hParams) {
 	int client = TF2Util_GetPlayerFromSharedAddress(pPlayerShared);
 	
 	// LogServer("updating rage");

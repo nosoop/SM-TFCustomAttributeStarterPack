@@ -57,7 +57,7 @@ public void OnPluginStart() {
 	delete hGameConf;
 }
 
-public MRESReturn OnBaseGunFireProjectilePre(int weapon, Handle hParams) {
+MRESReturn OnBaseGunFireProjectilePre(int weapon, Handle hParams) {
 	int owner = TF2_GetEntityOwner(weapon);
 	if (owner < 1 || owner > MaxClients) {
 		return MRES_Ignored;

@@ -72,7 +72,7 @@ public int RegisterCustomLunchboxEffect(Handle plugin, int argc) {
 	AddToForward(hFwd, plugin, GetNativeFunction(2));
 }
 
-public MRESReturn OnDoTauntAttackPre(int client) {
+MRESReturn OnDoTauntAttackPre(int client) {
 	if (GetClientTauntAttack(client) != TF_TAUNTATTACK_LUNCHBOX) {
 		return MRES_Ignored;
 	}
@@ -94,7 +94,7 @@ public MRESReturn OnDoTauntAttackPre(int client) {
 	return MRES_Supercede;
 }
 
-public MRESReturn OnLunchBoxApplyBiteEffects(int weapon, Handle hParams) {
+MRESReturn OnLunchBoxApplyBiteEffects(int weapon, Handle hParams) {
 	char attr[64];
 	if (!IsValidEntity(weapon)
 			|| !TF2CustAttr_GetString(weapon, "custom lunchbox effect", attr, sizeof(attr))) {

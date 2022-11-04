@@ -83,7 +83,7 @@ static void HookMinigun(int minigun) {
 }
 
 
-public MRESReturn OnMinigunPostFramePre(int minigun) {
+MRESReturn OnMinigunPostFramePre(int minigun) {
 	int owner = TF2_GetEntityOwner(minigun);
 	if (owner < 1 || owner > MaxClients) {
 		return MRES_Ignored;

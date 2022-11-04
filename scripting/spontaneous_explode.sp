@@ -81,7 +81,7 @@ public void OnMapStart() {
 	}
 }
 
-public MRESReturn OnBaseGunFireProjectilePre(int weapon, Handle hParams) {
+MRESReturn OnBaseGunFireProjectilePre(int weapon, Handle hParams) {
 	int owner = TF2_GetEntityOwner(weapon);
 	if (owner < 1 || owner > MaxClients) {
 		return MRES_Ignored;
@@ -102,7 +102,7 @@ public MRESReturn OnBaseGunFireProjectilePre(int weapon, Handle hParams) {
 }
 
 static bool s_ForceGibRagdoll;
-public MRESReturn OnCreateRagdollPre(int client, Handle hParams) {
+MRESReturn OnCreateRagdollPre(int client, Handle hParams) {
 	if (!s_ForceGibRagdoll) {
 		return MRES_Ignored;
 	}
@@ -111,8 +111,7 @@ public MRESReturn OnCreateRagdollPre(int client, Handle hParams) {
 }
 
 static bool s_ForceCritDeathSound;
-public void OnTakeDamageAlivePost(int victim, int attacker, int inflictor, float damage,
-		int damagetype) {
+void OnTakeDamageAlivePost(int victim, int attacker, int inflictor, float damage, int damagetype) {
 	if (!s_ForceCritDeathSound) {
 		return;
 	}

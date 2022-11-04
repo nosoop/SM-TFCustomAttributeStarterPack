@@ -25,7 +25,7 @@ public void OnPluginStart() {
 	HookEvent("player_hurt", OnPlayerHurt, EventHookMode_Post);
 }
 
-public void OnPlayerHurt(Event event, const char[] name, bool dontBroadcast) {
+void OnPlayerHurt(Event event, const char[] name, bool dontBroadcast) {
 	int victim = GetClientOfUserId(event.GetInt("userid"));
 	if (victim < 1 || victim > MaxClients) {
 		return;

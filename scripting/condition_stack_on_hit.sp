@@ -25,7 +25,7 @@ public void OnClientPutInServer(int client) {
 	SDKHook(client, SDKHook_OnTakeDamagePost, OnTakeDamagePost);
 }
 
-public void OnTakeDamagePost(int victim, int attacker, int inflictor, float damage,
+void OnTakeDamagePost(int victim, int attacker, int inflictor, float damage,
 		int damagetype, int weapon, const float damageForce[3], const float damagePosition[3]) {
 	char attr[256];
 	if (!IsValidEntity(weapon)

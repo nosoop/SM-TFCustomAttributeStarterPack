@@ -64,7 +64,7 @@ public void OnMapStart() {
 	}
 }
 
-public MRESReturn OnActivateRageBuffPre(Address pPlayerShared, Handle hParams) {
+MRESReturn OnActivateRageBuffPre(Address pPlayerShared, Handle hParams) {
 	int inflictor = DHookGetParam(hParams, 1);
 	if (inflictor < 1 || inflictor > MaxClients) {
 		return MRES_Ignored;
@@ -85,7 +85,7 @@ public MRESReturn OnActivateRageBuffPre(Address pPlayerShared, Handle hParams) {
 	return MRES_Ignored;
 }
 
-public void OnHuntModeUpdate(int owner, int target, const char[] name, int buffItem) {
+void OnHuntModeUpdate(int owner, int target, const char[] name, int buffItem) {
 	// only apply to self
 	if (target != owner) {
 		return;
@@ -102,7 +102,7 @@ void ActivateHuntMode(int client) {
 	EmitSoundToAll(SOUND_HUNT_ACTIVATE, client);
 }
 
-public void OnHuntThinkPost(int client) {
+void OnHuntThinkPost(int client) {
 	if (GetGameTime() > g_flHuntModeEndTime[client]) {
 		SDKUnhook(client, SDKHook_PostThinkPost, OnHuntThinkPost);
 		return;

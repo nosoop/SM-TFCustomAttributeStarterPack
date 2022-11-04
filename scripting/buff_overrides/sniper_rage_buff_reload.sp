@@ -43,7 +43,7 @@ public void OnLibraryAdded(const char[] name) {
 	}
 }
 
-public void OnFullAutoUpdate(int owner, int target, const char[] name, int buffItem) {
+void OnFullAutoUpdate(int owner, int target, const char[] name, int buffItem) {
 	// only apply to self
 	if (target != owner) {
 		return;
@@ -58,7 +58,7 @@ public void OnFullAutoUpdate(int owner, int target, const char[] name, int buffI
 	g_flBuffEndTime[owner] = GetGameTime() + BUFF_PULSE_CONDITION_DURATION;
 }
 
-public void OnWeaponSwitchPost(int client, int weapon) {
+void OnWeaponSwitchPost(int client, int weapon) {
 	if (g_flBuffEndTime[client] > GetGameTime() && IsValidEntity(weapon)
 			&& weapon == EntRefToEntIndex(g_BuffWeaponRef[client])) {
 		float value = TF2CustAttr_GetFloat(weapon, "sniper rifle full auto rate", 0.4);

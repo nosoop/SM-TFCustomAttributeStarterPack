@@ -63,7 +63,7 @@ public void OnEntityCreated(int entity, const char[] className) {
 	DHookEntity(g_DHookProjectileTouch, true, entity, .callback = OnProjectileTouchPost);
 }
 
-public MRESReturn OnProjectileTouchPost(int entity, Handle hParams) {
+MRESReturn OnProjectileTouchPost(int entity, Handle hParams) {
 	int originalLauncher = GetEntPropEnt(entity, Prop_Send, "m_hOriginalLauncher");
 	if (!IsValidEntity(originalLauncher)) {
 		return MRES_Ignored;

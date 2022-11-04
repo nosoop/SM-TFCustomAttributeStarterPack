@@ -18,6 +18,10 @@ float g_flTagEndTime[MAXPLAYERS + 1];
 float g_flGlowOnHitEndTime[MAXPLAYERS + 1];
 float g_flGlowOnHitDuration[MAXPLAYERS + 1];
 
+public void OnPluginStart() {
+	HookEvent("post_inventory_application", OnInventoryAppliedPost);
+}
+
 public void OnMapStart() {
 	for (int i = 1; i <= MaxClients; i++) {
 		if (IsClientInGame(i)) {
@@ -30,7 +34,7 @@ public void OnCustomBuffHandlerAvailable() {
 	TF2CustomAttrRageBuff_Register("tag enemies on hit", OnCritBannerPulse);
 }
 
-public void OnCritBannerPulse(int owner, int target, const char[] name, int buffItem) {
+void OnCritBannerPulse(int owner, int target, const char[] name, int buffItem) {
 	TFTeam buffTeam = TF2_GetClientTeam(owner);
 	
 	// disallow enemies, allow disguised players, disallow cloaked
@@ -70,7 +74,7 @@ public void OnClientDisconnect(int client) {
 	}
 }
 
-public void OnInventoryAppliedPost(Event event, const char[] name, bool dontBroadcast) {
+void OnInventoryAppliedPost(Event event, const char[] name, bool dontBroadcast) {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	
 	for (int i = MaxClients; i --> 1;) {
@@ -81,7 +85,7 @@ public void OnInventoryAppliedPost(Event event, const char[] name, bool dontBroa
 	}
 }
 
-public void OnClientPostThinkPost(int client) {
+void OnClientPostThinkPost(int client) {
 	if (!IsValidEntity(g_iGlowEnt[client])) {
 		return;
 	}
@@ -99,7 +103,7 @@ bool GlowValidOnVictim(int client) {
 	return IsPlayerAlive(client);
 }
 
-public void OnTakeDamagePost(int victim, int attacker, int inflictor, float damage,
+void OnTakeDamagePost(int victim, int attacker, int inflictor, float damage,
 		int damagetype, int weapon, const float damageForce[3], const float damagePosition[3]) {
 	if (victim == attacker || attacker < 1 || attacker > MaxClients
 			|| GetGameTime() > g_flGlowOnHitEndTime[attacker]) {
@@ -115,7 +119,7 @@ public void OnTakeDamagePost(int victim, int attacker, int inflictor, float dama
 	SDKHook(g_iGlowEnt[victim], SDKHook_SetTransmit, OnGlowShouldTransmit);
 }
 
-public Action OnGlowShouldTransmit(int glow, int client) {
+Action OnGlowShouldTransmit(int glow, int client) {
 	int glowTarget = GetEntPropEnt(glow, Prop_Data, "m_hParent");
 	if (!IsValidEntity(glowTarget)) {
 		return Plugin_Stop;

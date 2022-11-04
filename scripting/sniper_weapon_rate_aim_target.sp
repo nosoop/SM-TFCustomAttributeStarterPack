@@ -77,7 +77,7 @@ public void OnClientPutInServer(int client) {
 	SDKHook(client, SDKHook_OnTakeDamageAlivePost, OnTakeDamageAlivePost);
 }
 
-public void OnClientPostThinkPost(int client) {
+void OnClientPostThinkPost(int client) {
 	if (IsValidEntity(g_iConditionFx[client]) && GetGameTime() > g_flEffectExpiry[client]) {
 		RemoveEntity(g_iConditionFx[client]);
 	}
@@ -93,7 +93,7 @@ public void OnClientPostThinkPost(int client) {
 	EmitGameSoundToClient(client, "DisciplineDevice.PowerDown");
 }
 
-public MRESReturn OnSniperRifleAttackPost(int sniperrifle) {
+MRESReturn OnSniperRifleAttackPost(int sniperrifle) {
 	if (GetEntPropFloat(sniperrifle, Prop_Send, "m_flChargedDamage") < 150.0) {
 		return MRES_Ignored;
 	}
@@ -124,7 +124,7 @@ public MRESReturn OnSniperRifleAttackPost(int sniperrifle) {
 	return MRES_Ignored;
 }
 
-public void OnTakeDamageAlivePost(int victim, int attacker, int inflictor, float damage,
+void OnTakeDamageAlivePost(int victim, int attacker, int inflictor, float damage,
 		int damagetype, int weapon, const float damageForce[3], const float damagePosition[3]) {
 	if (!weapon || !IsValidEntity(weapon)) {
 		return; 

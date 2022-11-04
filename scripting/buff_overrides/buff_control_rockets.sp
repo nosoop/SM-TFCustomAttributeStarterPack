@@ -88,7 +88,7 @@ void HomingRocketThink(int rocket) {
 	TeleportEntity(rocket, NULL_VECTOR, angVelocity, NULL_VECTOR);
 }
 
-public void OnRocketControlPulse(int owner, int target, const char[] name, int buffItem) {
+void OnRocketControlPulse(int owner, int target, const char[] name, int buffItem) {
 	// only apply to self
 	if (target != owner) {
 		return;
@@ -121,7 +121,7 @@ void ComputeAimPoint(int client, float vecAimPoint[3]) {
 }
 
 // hit non-player entities
-public bool TraceEntityFilterPlayer(int entity, int contentsMask) {
+bool TraceEntityFilterPlayer(int entity, int contentsMask) {
 	return entity > MaxClients || !entity;
 }
 

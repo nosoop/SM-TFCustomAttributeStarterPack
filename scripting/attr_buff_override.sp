@@ -53,7 +53,7 @@ public void OnPluginStart() {
 	g_BuffForwards = new StringMap();
 }
 
-public int RegisterCustomBuff(Handle plugin, int argc) {
+int RegisterCustomBuff(Handle plugin, int argc) {
 	char buffName[CUSTOM_SOLDIER_BUFF_MAX_NAME_LENGTH];
 	GetNativeString(1, buffName, sizeof(buffName));
 	if (!buffName[0]) {
@@ -68,7 +68,7 @@ public int RegisterCustomBuff(Handle plugin, int argc) {
 	AddToForward(hFwd, plugin, GetNativeFunction(2));
 }
 
-public MRESReturn OnActivateRageBuffPre(Address pPlayerShared, Handle hParams) {
+MRESReturn OnActivateRageBuffPre(Address pPlayerShared, Handle hParams) {
 	int client = TF2Util_GetPlayerFromSharedAddress(pPlayerShared);
 	g_iActiveBuffWeapon[client] = INVALID_ENT_REFERENCE;
 	
@@ -90,7 +90,7 @@ public MRESReturn OnActivateRageBuffPre(Address pPlayerShared, Handle hParams) {
 	return MRES_Ignored;
 }
 
-public MRESReturn OnPulseRageBuffPre(Address pPlayerShared, Handle hParams) {
+MRESReturn OnPulseRageBuffPre(Address pPlayerShared, Handle hParams) {
 	int client = TF2Util_GetPlayerFromSharedAddress(pPlayerShared);
 	
 	int buffItem = EntRefToEntIndex(g_iActiveBuffWeapon[client]);

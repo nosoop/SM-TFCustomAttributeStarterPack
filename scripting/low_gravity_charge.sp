@@ -51,7 +51,7 @@ public void OnClientPutInServer(int client) {
 	SDKHook(client, SDKHook_WeaponSwitchPost, OnClientWeaponSwitchPost);
 }
 
-public void OnClientPostThinkPost(int client) {
+void OnClientPostThinkPost(int client) {
 	if (!g_bAppliedGravityCharge[client] || GetEntityFlags(client) & FL_ONGROUND == 0) {
 		return;
 	}
@@ -63,7 +63,7 @@ public void OnClientPostThinkPost(int client) {
 	return;
 }
 
-public void OnClientWeaponSwitchPost(int client, int weapon) {
+void OnClientWeaponSwitchPost(int client, int weapon) {
 	UpdateChargingWeaponCritState(client, weapon);
 }
 

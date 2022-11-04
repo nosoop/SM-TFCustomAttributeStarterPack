@@ -71,7 +71,7 @@ public void OnClientPutInServer(int client) {
 
 static int s_iJarWeapon;
 
-public MRESReturn OnJarExplodePre(Handle hParams) {
+MRESReturn OnJarExplodePre(Handle hParams) {
 	s_iJarWeapon = INVALID_ENT_REFERENCE;
 	
 	int originalLauncher = DHookGetParam(hParams, 3);
@@ -91,13 +91,13 @@ public MRESReturn OnJarExplodePre(Handle hParams) {
 	return MRES_ChangedHandled;
 }
 
-public MRESReturn OnJarExplodePost(Handle hParams) {
+MRESReturn OnJarExplodePost(Handle hParams) {
 	s_iJarWeapon = INVALID_ENT_REFERENCE;
 	return MRES_Ignored;
 }
 
 // this handles mad milk
-public Action OnPlayerJarated(UserMsg msg_id, BfRead msg, const int[] players, int playersNum,
+Action OnPlayerJarated(UserMsg msg_id, BfRead msg, const int[] players, int playersNum,
 		bool reliable, bool init) {
 	if (!IsValidEntity(s_iJarWeapon)) {
 		return Plugin_Continue;
@@ -124,7 +124,7 @@ public Action OnPlayerJarated(UserMsg msg_id, BfRead msg, const int[] players, i
 	#pragma unused client
 }
 
-public void OnClientPostThinkPost(int client) {
+void OnClientPostThinkPost(int client) {
 	if (g_iPoisonDmgRemaining[client] <= 0 || g_flNextPoisonTime[client] > GetGameTime()) {
 		// no poison damage or next poison time isn't reached yet
 		return;
@@ -152,7 +152,7 @@ public void OnClientPostThinkPost(int client) {
 	g_iConditionFx[client] = INVALID_ENT_REFERENCE;
 }
 
-public Action ApplySelfEffect(int client, int argc) {
+Action ApplySelfEffect(int client, int argc) {
 	ApplyPoisonEffect(client, 3, 0.5, 10.0);
 	return Plugin_Handled;
 }

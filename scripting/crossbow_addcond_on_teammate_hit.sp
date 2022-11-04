@@ -28,7 +28,7 @@ public void OnPluginStart() {
 	delete hGameConf;
 }
 
-public MRESReturn OnHealingBoltImpactTeamPlayer(int healingBolt, Handle hParams) {
+MRESReturn OnHealingBoltImpactTeamPlayer(int healingBolt, Handle hParams) {
 	int originalLauncher = GetEntPropEnt(healingBolt, Prop_Send, "m_hOriginalLauncher");
 	if (!IsValidEntity(originalLauncher)) {
 		return MRES_Ignored;

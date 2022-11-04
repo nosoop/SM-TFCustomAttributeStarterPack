@@ -63,7 +63,7 @@ public void OnEntityCreated(int entity, const char[] className) {
 /**
  * Called when the syringe hits another entity.
  */
-public MRESReturn OnProjectileTouch(int entity, Handle hParams) {
+MRESReturn OnProjectileTouch(int entity, Handle hParams) {
 	// retrieves the entity from the parameter list
 	int other = DHookGetParam(hParams, 1);
 	

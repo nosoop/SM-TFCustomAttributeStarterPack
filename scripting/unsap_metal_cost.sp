@@ -24,7 +24,7 @@ public void OnObjectSapped(Event event, const char[] name, bool dontBroadcast) {
 	SDKHook(sapperobj, SDKHook_OnTakeDamage, OnSapperTakeDamage);
 }
 
-public Action OnSapperTakeDamage(int victim, int& attacker, int& inflictor, float& damage,
+Action OnSapperTakeDamage(int victim, int& attacker, int& inflictor, float& damage,
 		int& damagetype, int& weapon, float damageForce[3], float damagePosition[3],
 		int damagecustom) {
 	if (!IsValidEntity(weapon)) {

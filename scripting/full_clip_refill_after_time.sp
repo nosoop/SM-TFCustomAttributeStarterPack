@@ -44,7 +44,7 @@ public void OnMapStart() {
 	
 }
 
-public void OnInventoryAppliedPost(Event event, const char[] name, bool dontBroadcast) {
+void OnInventoryAppliedPost(Event event, const char[] name, bool dontBroadcast) {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	for (int i; i < sizeof(g_flFullClipRefillTime[]); i++) {
 		g_flFullClipRefillTime[client][i] = 0.0;
@@ -65,7 +65,7 @@ void HookWeaponEntity(int weapon) {
 	DHookEntity(g_DHookPrimaryAttack, true, weapon, .callback = OnWeaponPrimaryAttackPost);
 }
 
-public void OnClientPostThinkPost(int client) {
+void OnClientPostThinkPost(int client) {
 	if (!IsPlayerAlive(client)) {
 		return;
 	}
@@ -89,7 +89,7 @@ public void OnClientPostThinkPost(int client) {
 	}
 }
 
-public MRESReturn OnWeaponPrimaryAttackPost(int weapon) {
+MRESReturn OnWeaponPrimaryAttackPost(int weapon) {
 	int owner = TF2_GetEntityOwner(weapon);
 	if (owner < 1 || owner > MaxClients) {
 		return MRES_Ignored;

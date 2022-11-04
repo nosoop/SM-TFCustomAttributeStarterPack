@@ -62,7 +62,7 @@ public void OnClientPutInServer(int client) {
 	SDKHook(client, SDKHook_WeaponCanSwitchTo, OnClientWeaponCanSwitchTo);
 }
 
-public void OnPlayerLoadoutRefresh(Event event, const char[] name, bool dontBroadcast) {
+void OnPlayerLoadoutRefresh(Event event, const char[] name, bool dontBroadcast) {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	g_flClientSapLockTime[client] = 0.0;
 }
@@ -70,7 +70,7 @@ public void OnPlayerLoadoutRefresh(Event event, const char[] name, bool dontBroa
 /**
  * Called when an object is sapped; checks if we should be setting up the reprogrammer.
  */
-public void OnObjectSapped(Event event, const char[] name, bool dontBroadcast) {
+void OnObjectSapped(Event event, const char[] name, bool dontBroadcast) {
 	int attacker = GetClientOfUserId(event.GetInt("userid"));
 	int sapperattach = event.GetInt("sapperid");
 	
@@ -116,7 +116,7 @@ void ForceSwitchFromSecondaryWeapon(int client) {
 /**
  * Called when the cooldown has finished and sends an audible notification to the client.
  */
-public Action OnSapperCooldownEnd(Handle timer, DataPack pack) {
+Action OnSapperCooldownEnd(Handle timer, DataPack pack) {
 	pack.Reset();
 	int client = ReadPackClient(pack);
 	float regenTime = pack.ReadFloat();
@@ -130,7 +130,7 @@ public Action OnSapperCooldownEnd(Handle timer, DataPack pack) {
 /**
  * Called when attempting to switch weapons.  Deny switching to sapper if not allowed.
  */
-public Action OnClientWeaponCanSwitchTo(int client, int weapon) {
+Action OnClientWeaponCanSwitchTo(int client, int weapon) {
 	if (weapon != GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary)
 			|| g_flClientSapLockTime[client] < GetGameTime()) {
 		return Plugin_Continue;

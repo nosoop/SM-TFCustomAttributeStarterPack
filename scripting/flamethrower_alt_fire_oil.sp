@@ -191,7 +191,7 @@ public void OnGameFrame() {
 /**
  * Overwrites the standard airblast behavior, shooting oil instead.
  */
-public MRESReturn OnFlamethrowerSecondaryAttack(int weapon) {
+MRESReturn OnFlamethrowerSecondaryAttack(int weapon) {
 	if (!TF2CustAttr_GetInt(weapon, "oil replaces airblast")) {
 		return MRES_Ignored;
 	}
@@ -239,7 +239,7 @@ public MRESReturn OnFlamethrowerSecondaryAttack(int weapon) {
  * 
  * We skip the burn call, as that causes issues with the burning particle effect.
  */
-public MRESReturn OnBallOfFireTouchPre(int fireball, Handle hParams) {
+MRESReturn OnBallOfFireTouchPre(int fireball, Handle hParams) {
 	int target = DHookGetParam(hParams, 1);
 	if (!target || !IsValidEntity(target)) {
 		return MRES_Ignored;
@@ -308,7 +308,7 @@ void LeakOil(int weapon) {
 /** 
  * Checks if the oil projectile has made contact with the world, creating an oil puddle if so.
  */
-public void OnOilProjectileUpdate(int oilEntity) {
+void OnOilProjectileUpdate(int oilEntity) {
 	if (!GetEntProp(oilEntity, Prop_Send, "m_bTouched")) {
 		return;
 	}
@@ -380,7 +380,7 @@ void CreateOilPuddle(int owner, const float vecOrigin[3]) {
  * Called when the oil spill's damage trigger entity is hit.
  * The Huo-Long Heater's spin-up effect does not affect this.
  */
-public Action OnOilTriggerTakeDamage(int victim, int &attacker, int &inflictor, float &damage,
+Action OnOilTriggerTakeDamage(int victim, int &attacker, int &inflictor, float &damage,
 		int &damagetype, int &weapon, float damageForce[3], float damagePosition[3]) {
 	int oilpuddle = GetEntPropEnt(victim, Prop_Data, "m_hParent");
 	if (!IsValidEntity(oilpuddle)) {
@@ -399,7 +399,7 @@ public Action OnOilTriggerTakeDamage(int victim, int &attacker, int &inflictor, 
  * 
  * Adds the oil puddle to the plugin's "burning oil puddle" list for damage checks.
  */
-public void OnOilTriggerIgnite(const char[] output, int caller, int activator, float delay) {
+void OnOilTriggerIgnite(const char[] output, int caller, int activator, float delay) {
 	int oilpuddle = GetEntPropEnt(caller, Prop_Data, "m_hParent");
 	if (!IsValidEntity(oilpuddle)) {
 		return;
@@ -467,7 +467,7 @@ void OilPuddleIgniteThink(int oilpuddle) {
 /** 
  * Burn any oil puddles near Huo-Long Heater heavies.
  */
-public MRESReturn OnMinigunRingOfFirePre(int minigun, Handle hParams) {
+MRESReturn OnMinigunRingOfFirePre(int minigun, Handle hParams) {
 	float flNextFireRingTime = GetEntDataFloat(minigun, offs_CTFMinigun_flNextFireRingTime);
 	if (flNextFireRingTime > GetGameTime()) {
 		return MRES_Ignored;

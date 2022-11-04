@@ -35,7 +35,7 @@ public void OnPluginStart() {
 	delete hGameConf;
 }
 
-public MRESReturn OnLunchBoxSecondaryAttackPre(int lunchbox) {
+MRESReturn OnLunchBoxSecondaryAttackPre(int lunchbox) {
 	g_OverwriteLunchboxEntityClass.Disable();
 	
 	char buffer[MAX_CLASSNAME_LENGTH];

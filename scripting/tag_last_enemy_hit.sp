@@ -50,7 +50,7 @@ public void OnClientDisconnect(int client) {
 	}
 }
 
-public void OnInventoryAppliedPost(Event event, const char[] name, bool dontBroadcast) {
+void OnInventoryAppliedPost(Event event, const char[] name, bool dontBroadcast) {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	
 	for (int i = MaxClients; i --> 1;) {
@@ -61,7 +61,7 @@ public void OnInventoryAppliedPost(Event event, const char[] name, bool dontBroa
 	}
 }
 
-public void OnClientPostThinkPost(int client) {
+void OnClientPostThinkPost(int client) {
 	if (!IsValidEntity(g_iGlowEnt[client])) {
 		return;
 	}
@@ -97,7 +97,7 @@ bool GlowValidOnVictim(int client) {
 	return IsPlayerAlive(client);
 }
 
-public void OnTakeDamagePost(int victim, int attacker, int inflictor, float damage,
+void OnTakeDamagePost(int victim, int attacker, int inflictor, float damage,
 		int damagetype, int weapon, const float damageForce[3], const float damagePosition[3]) {
 	if (!IsValidEntity(weapon) || victim == attacker) {
 		return;
@@ -117,7 +117,7 @@ public void OnTakeDamagePost(int victim, int attacker, int inflictor, float dama
 	SDKHook(g_iGlowEnt[attacker], SDKHook_SetTransmit, OnGlowShouldTransmit);
 }
 
-public Action OnGlowShouldTransmit(int glow, int client) {
+Action OnGlowShouldTransmit(int glow, int client) {
 	int glowTarget = GetEntPropEnt(glow, Prop_Data, "m_hParent");
 	if (!IsValidEntity(glowTarget)) {
 		return Plugin_Stop;

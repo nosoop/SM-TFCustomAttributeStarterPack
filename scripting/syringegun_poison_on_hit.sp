@@ -61,7 +61,7 @@ public void OnEntityCreated(int entity, const char[] name) {
 	SDKHook(entity, SDKHook_SpawnPost, OnEntitySpawnPost);
 }
 
-public void OnEntitySpawnPost(int entity) {
+void OnEntitySpawnPost(int entity) {
 	if (IsMedicWeapon(entity)) {
 		OnMedicWeaponCreated(entity);
 	}
@@ -79,7 +79,7 @@ public void OnClientPutInServer(int client) {
 	SDKHook(client, SDKHook_OnTakeDamageAlivePost, OnTakeDamageAlivePost);
 }
 
-public MRESReturn OnWeaponSecondaryAttack(int weapon) {
+MRESReturn OnWeaponSecondaryAttack(int weapon) {
 	char attr[256];
 	if (!TF2CustAttr_GetString(weapon, "syringegun poison on hit", attr, sizeof(attr))) {
 		return;
@@ -105,7 +105,7 @@ public MRESReturn OnWeaponSecondaryAttack(int weapon) {
 	g_flPoisonBuffEndTime[client] = GetGameTime() + ReadFloatVar(attr, "buff_duration");
 }
 
-public void OnTakeDamageAlivePost(int victim, int attacker, int inflictor, float damage,
+void OnTakeDamageAlivePost(int victim, int attacker, int inflictor, float damage,
 		int damagetype, int weapon, const float damageForce[3], const float damagePosition[3]) {
 	if (attacker < 1 || attacker > MaxClients || !IsValidEntity(weapon)
 			|| GetGameTime() > g_flPoisonBuffEndTime[attacker]) {
@@ -137,7 +137,7 @@ public void OnTakeDamageAlivePost(int victim, int attacker, int inflictor, float
 	}
 }
 
-public void OnClientPostThinkPost(int client) {
+void OnClientPostThinkPost(int client) {
 	if (g_iPoisonDmgRemaining[client] <= 0 || g_flNextPoisonTime[client] > GetGameTime()) {
 		// no poison damage or next poison time isn't reached yet
 		return;

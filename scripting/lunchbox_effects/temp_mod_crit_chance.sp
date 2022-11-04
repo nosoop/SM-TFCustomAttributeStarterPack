@@ -31,7 +31,7 @@ void OnCustomLunchboxHandlerAvailable() {
 	TF2CustomAttrLunchbox_Register("mod crit chance", ApplyModCritChance);
 }
 
-public void ApplyModCritChance(int owner, int weapon, const char[] effectName) {
+void ApplyModCritChance(int owner, int weapon, const char[] effectName) {
 	if (!IsValidEntity(weapon)) {
 		return;
 	}

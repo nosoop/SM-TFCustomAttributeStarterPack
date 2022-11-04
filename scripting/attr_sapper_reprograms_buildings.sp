@@ -228,7 +228,7 @@ static int s_ActualBuildingBuilder;
  * It's unfortunate that we have to do this scoped stuff, because ke::SaveAndSet and extension
  * detours handle this case in a much cleaner manner.
  */
-public MRESReturn OnSentryGunThinkPre(int sentry) {
+MRESReturn OnSentryGunThinkPre(int sentry) {
 	s_ActualBuildingOwner = GetEntPropEnt(sentry, Prop_Send, "m_hOwnerEntity");
 	s_ActualBuildingBuilder = GetEntPropEnt(sentry, Prop_Send, "m_hBuilder");
 	
@@ -245,7 +245,7 @@ public MRESReturn OnSentryGunThinkPre(int sentry) {
 /**
  * Restores the actual builder on "reprogrammed" buildings.
  */
-public MRESReturn OnSentryGunThinkPost(int sentry) {
+MRESReturn OnSentryGunThinkPost(int sentry) {
 	SetEntDataEnt2(sentry, offs_hBuilder, s_ActualBuildingBuilder);
 	SetEntDataEnt2(sentry, offs_hOwner, s_ActualBuildingOwner);
 	
@@ -256,7 +256,7 @@ public MRESReturn OnSentryGunThinkPost(int sentry) {
 /**
  * Called when an object is sapped; checks if we should be setting up the reprogrammer.
  */
-public void OnObjectSapped(Event event, const char[] name, bool dontBroadcast) {
+void OnObjectSapped(Event event, const char[] name, bool dontBroadcast) {
 	int attacker = GetClientOfUserId(event.GetInt("userid"));
 	int sapperattach = event.GetInt("sapperid");
 	
@@ -289,7 +289,7 @@ public void OnObjectSapped(Event event, const char[] name, bool dontBroadcast) {
 	data.WriteFloat(flSelfDestructTime);
 }
 
-public Action OnReprogramComplete(Handle timer, DataPack data) {
+Action OnReprogramComplete(Handle timer, DataPack data) {
 	data.Reset();
 	
 	int sapperattach = ReadPackEntity(data);
@@ -331,7 +331,7 @@ void ReprogramBuilding(int building, int owner, bool destroyable) {
 	AddConvertedBuildingInfo(building, owner, destroyable);
 }
 
-public Action OnReprogrammedBuildingSelfDestruct(Handle timer, int buildingref) {
+Action OnReprogrammedBuildingSelfDestruct(Handle timer, int buildingref) {
 	int building = EntRefToEntIndex(buildingref);
 	if (!IsValidEntity(building)) {
 		// :crab: building is dead :crab:
@@ -351,7 +351,7 @@ public Action OnReprogrammedBuildingSelfDestruct(Handle timer, int buildingref) 
 	return Plugin_Handled;
 }
 
-public MRESReturn OnPlayerDetonateBuildingPre(int client, Handle hParams) {
+MRESReturn OnPlayerDetonateBuildingPre(int client, Handle hParams) {
 	int objectType = DHookGetParam(hParams, 1);
 	int objectMode = DHookGetParam(hParams, 2);
 	bool bForceRemoval = DHookGetParam(hParams, 3);

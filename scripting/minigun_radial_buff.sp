@@ -88,7 +88,7 @@ public void OnEntityCreated(int entity, const char[] className) {
 	}
 }
 
-public void OnClientPostThinkPost(int client) {
+void OnClientPostThinkPost(int client) {
 	if (IsValidEntity(g_iConditionFx[client]) && GetGameTime() > g_flEffectExpiry[client]) {
 		RemoveEntity(g_iConditionFx[client]);
 	}
@@ -98,7 +98,7 @@ static void HookMinigun(int minigun) {
 	DHookEntity(g_DHookItemPostFrame, false, minigun, .callback = OnMinigunPostFramePre);
 }
 
-public MRESReturn OnMinigunPostFramePre(int minigun) {
+MRESReturn OnMinigunPostFramePre(int minigun) {
 	int owner = TF2_GetEntityOwner(minigun);
 	if (owner < 1 || owner > MaxClients) {
 		return MRES_Ignored;

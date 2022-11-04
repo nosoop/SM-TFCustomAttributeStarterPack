@@ -130,7 +130,7 @@ MRESReturn OnMedigunRemoved(int medigun) {
 	}
 }
 
-public void OnPlayerPostThinkPost(int client) {
+void OnPlayerPostThinkPost(int client) {
 	int activeWeapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
 	int secondary = GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary);
 	
@@ -220,7 +220,7 @@ public void OnPlayerPostThinkPost(int client) {
 	}
 }
 
-public MRESReturn OnGetPlayerProvidedCharge(int client, Handle hReturn) {
+MRESReturn OnGetPlayerProvidedCharge(int client, Handle hReturn) {
 	if (!IsClientInGame(client)) {
 		return MRES_Ignored;
 	}

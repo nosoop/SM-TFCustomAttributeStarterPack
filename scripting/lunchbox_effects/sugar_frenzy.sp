@@ -42,7 +42,7 @@ public void OnCustomDrinkHandlerAvailable() {
 	TF2CustomAttrDrink_Register("sugar frenzy", SugarFrenzyEffect);
 }
 
-public void OnClientPostThinkPost(int client) {
+void OnClientPostThinkPost(int client) {
 	if (!g_flBuffEndTime[client] || g_flBuffEndTime[client] >= GetGameTime()) {
 		return;
 	}
@@ -58,7 +58,7 @@ public void OnClientPostThinkPost(int client) {
 	g_flBuffEndTime[client] = 0.0;
 }
 
-public void SugarFrenzyEffect(int owner, int weapon, const char[] effectName) {
+void SugarFrenzyEffect(int owner, int weapon, const char[] effectName) {
 	if (!IsValidEntity(weapon)) {
 		return;
 	}
@@ -91,7 +91,7 @@ public void SugarFrenzyEffect(int owner, int weapon, const char[] effectName) {
 	ClearAttributeCache(owner);
 }
 
-public Action ClearAttributeCacheTimer(Handle timer, int clientserial) {
+Action ClearAttributeCacheTimer(Handle timer, int clientserial) {
 	int client = GetClientFromSerial(clientserial);
 	if (!client) {
 		return Plugin_Handled;

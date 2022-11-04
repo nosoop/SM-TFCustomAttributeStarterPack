@@ -39,7 +39,7 @@ public void OnEntityCreated(int entity, const char[] className) {
 	}
 }
 
-public MRESReturn OnGetGrenadeDamageRadiusPost(int grenade, Handle hReturn) {
+MRESReturn OnGetGrenadeDamageRadiusPost(int grenade, Handle hReturn) {
 	float flRadius = DHookGetReturn(hReturn);
 	
 	int originalLauncher = GetEntPropEnt(grenade, Prop_Send, "m_hOriginalLauncher");

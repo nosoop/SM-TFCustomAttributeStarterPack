@@ -23,7 +23,7 @@ public void OnPluginStart() {
 	HookEvent("player_builtobject", OnObjectBuilt);
 }
 
-public void OnObjectBuilt(Event event, const char[] className, bool dontBroadcast) {
+void OnObjectBuilt(Event event, const char[] className, bool dontBroadcast) {
 	int building = event.GetInt("index");
 	int builder = GetClientOfUserId(event.GetInt("userid"));
 	

@@ -89,8 +89,8 @@ public void OnEntityCreated(int entity, const char[] className) {
 	}
 }
 
-public void OnTakeDamagePost(int victim, int attacker, int inflictor, float damage,
-		int damagetype, int weapon, const float damageForce[3], const float damagePosition[3]) {
+void OnTakeDamagePost(int victim, int attacker, int inflictor, float damage, int damagetype,
+		int weapon, const float damageForce[3], const float damagePosition[3]) {
 	if (!IsValidEntity(inflictor) || !IsValidEntity(weapon)) {
 		return;
 	}
@@ -103,7 +103,7 @@ public void OnTakeDamagePost(int victim, int attacker, int inflictor, float dama
 	TF2_RemoveCondition(victim, TFCond_Bleeding);
 }
 
-public MRESReturn OnSecondaryAttackPre(int weapon) {
+MRESReturn OnSecondaryAttackPre(int weapon) {
 	int owner = TF2_GetEntityOwner(weapon);
 	if (owner < 1 || owner > MaxClients) {
 		return MRES_Ignored;
@@ -224,7 +224,7 @@ public Action OnCustomStatusHUDUpdate(int client, StringMap entries) {
 	return changed? Plugin_Changed : Plugin_Continue;
 }
 
-public Action OnClientWeaponCanSwitchTo(int client, int weapon) {
+Action OnClientWeaponCanSwitchTo(int client, int weapon) {
 	int slot = TF2Util_GetWeaponSlot(weapon);
 	if (slot < 0 || slot >= sizeof(g_flGunThrowRegenerateTime[])) {
 		return Plugin_Continue;

@@ -58,7 +58,7 @@ public void OnClientPutInServer(int client) {
 
 static int s_iTomatoWeapon;
 static float s_flJarDuration;
-public MRESReturn OnJarExplodePre(Handle hParams) {
+MRESReturn OnJarExplodePre(Handle hParams) {
 	s_iTomatoWeapon = INVALID_ENT_REFERENCE;
 	
 	int originalLauncher = DHookGetParam(hParams, 3);
@@ -76,13 +76,13 @@ public MRESReturn OnJarExplodePre(Handle hParams) {
 	return MRES_ChangedHandled;
 }
 
-public MRESReturn OnJarExplodePost(Handle hParams) {
+MRESReturn OnJarExplodePost(Handle hParams) {
 	s_iTomatoWeapon = INVALID_ENT_REFERENCE;
 	return MRES_Ignored;
 }
 
 // this handles mad milk
-public Action OnPlayerJarated(UserMsg msg_id, BfRead msg, const int[] players, int playersNum,
+Action OnPlayerJarated(UserMsg msg_id, BfRead msg, const int[] players, int playersNum,
 		bool reliable, bool init) {
 	if (!IsValidEntity(s_iTomatoWeapon)) {
 		return Plugin_Continue;
@@ -98,7 +98,7 @@ public Action OnPlayerJarated(UserMsg msg_id, BfRead msg, const int[] players, i
 	#pragma unused client
 }
 
-public void OnClientPostThinkPost(int client) {
+void OnClientPostThinkPost(int client) {
 	if (!IsValidEntity(g_iConditionFx[client])) {
 		return;
 	}
@@ -111,7 +111,7 @@ public void OnClientPostThinkPost(int client) {
 	g_iConditionFx[client] = INVALID_ENT_REFERENCE;
 }
 
-public void OnTakeDamagePost(int victim, int attacker, int inflictor, float damage,
+void OnTakeDamagePost(int victim, int attacker, int inflictor, float damage,
 		int damagetype, int weapon, const float damageForce[3], const float damagePosition[3],
 		int damagecustom) {
 	if (GetGameTime() > g_flConditionEnd[victim]) {
@@ -122,7 +122,7 @@ public void OnTakeDamagePost(int victim, int attacker, int inflictor, float dama
 	TF2_MakeBleed(victim, attacker, g_flBleedEffectDuration[victim]);
 }
 
-public Action ApplySelfEffect(int client, int argc) {
+Action ApplySelfEffect(int client, int argc) {
 	ApplyEffect(client, 5.0, 5.0);
 	return Plugin_Handled;
 }

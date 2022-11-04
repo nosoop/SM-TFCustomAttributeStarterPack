@@ -40,7 +40,7 @@ public void OnClientPutInServer(int client) {
 	SDKHook(client, SDKHook_OnTakeDamageAlivePost, OnClientTakeDamageAlivePost);
 }
 
-public void OnClientPreThinkPost(int client) {
+void OnClientPreThinkPost(int client) {
 	if (g_flNailgunStunTime[client] <= 0.0) {
 		return;
 	}
@@ -53,7 +53,7 @@ public void OnClientPreThinkPost(int client) {
 	}
 }
 
-public void OnClientTakeDamageAlivePost(int victim, int attacker, int inflictor, float damage,
+void OnClientTakeDamageAlivePost(int victim, int attacker, int inflictor, float damage,
 		int damagetype, int weapon, const float damageForce[3], const float damagePosition[3],
 		int damagecustom) {
 	if (!IsValidEntity(weapon)) {

@@ -51,7 +51,7 @@ public void OnEntityCreated(int entity, const char[] name) {
 	SDKHook(entity, SDKHook_SpawnPost, OnEntitySpawnPost);
 }
 
-public void OnEntitySpawnPost(int entity) {
+void OnEntitySpawnPost(int entity) {
 	if (IsEntityMeleeWeapon(entity)) {
 		OnMeleeCreated(entity);
 	}
@@ -66,7 +66,7 @@ public void OnClientPutInServer(int client) {
 	SDKHook(client, SDKHook_PostThinkPost, OnClientPostThinkPost);
 }
 
-public void OnClientPostThinkPost(int client) {
+void OnClientPostThinkPost(int client) {
 	if (!g_flBuffEndTime[client] || g_flBuffEndTime[client] >= GetGameTime()) {
 		return;
 	}
@@ -76,7 +76,7 @@ public void OnClientPostThinkPost(int client) {
 	g_flBuffEndTime[client] = 0.0;
 }
 
-public MRESReturn OnMeleeEntityHitPost(int weapon, Handle hParams) {
+MRESReturn OnMeleeEntityHitPost(int weapon, Handle hParams) {
 	int entity = DHookGetParam(hParams, 1);
 	if (entity < 1 || entity > MaxClients) {
 		return MRES_Ignored;
