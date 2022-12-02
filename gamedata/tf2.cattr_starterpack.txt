@@ -23,11 +23,11 @@
 				"signature"		"CTFProjectile_Flare::Explode_Air()"
 				"linux"
 				{
-					"offset"	"1113" // 0x459
+					"offset"	"1128" // 0x459
 				}
 				"windows"
 				{
-					"offset"	"561" // 0x231
+					"offset"	"559" // 0x231
 				}
 			}
 		}
@@ -760,7 +760,7 @@
 				"windows"
 				{
 					"signature"		"CTFGameRules::ApplyOnDamageAliveModifyRules()"
-					"offset"		"890h"
+					"offset"		"898h"
 					
 					// mulss xmm0, &float == 0.5
 					"verify"		"\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A"
@@ -775,10 +775,10 @@
 				"signature" "CTFLunchBox::SecondaryAttack()"
 				"linux"
 				{
-					"offset"		"262h"
+					"offset"		"271h"
 					
 					// mov eax, "item_healthammokit"; cmp ecx, 5; jz +0x14
-					"verify"		"\xB8\x2A\x2A\x2A\x2A\x83\xF9\x05\x74\x14"
+					"verify"		"\xB8\x2A\x2A\x2A\x2A\x83\x2A\x05\x74\x14"
 					
 					// mov eax, pszOverride; nop; nop; nop; jmp +0x14
 					"patch"			"\xB8\x00\x00\x00\x00\x90\x90\x90\xEB\x14"
@@ -792,13 +792,13 @@
 				"signature"			"CTFPlayer::ApplyPushFromDamage()"
 				"linux"
 				{
-					"offset"		"754h"
+					"offset"		"684h"
 					"verify"		"\x74"
 					"patch"			"\x71"
 				}
 				"windows"
 				{
-					"offset"		"846h"
+					"offset"		"84Eh"
 					"verify"		"\x74"
 					"patch"			"\xEB" // unconditional JMP
 				}
@@ -808,7 +808,7 @@
 				"signature"		"CTFPlayerShared::UpdateCloakMeter()"
 				"linux"
 				{
-					"offset"		"13Bh"
+					"offset"		"123h"
 					"verify"		"\xF3\x0F\x10\x1D\x2A\x2A\x2A\x2A"
 					"patch"			"\xF3\x0F\x10\x1D\x00\x00\x00\x00"
 				}
@@ -858,13 +858,13 @@
 				"signature"			"CWeaponMedigun::DrainCharge()"
 				"linux"
 				{
-					"offset"		"CCh"
+					"offset"		"CFh"
 					"verify"		"\xF3\x0F\x59\x15\x2A\x2A\x2A\x2A"
 					"patch"			"\xF3\x0F\x59\x15\x00\x00\x00\x00"
 				}
 				"windows"
 				{
-					"offset"		"BAh"
+					"offset"		"BEh"
 					"verify"		"\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A"
 					"patch"			"\xF3\x0F\x59\x05\x00\x00\x00\x00"
 				}
@@ -877,7 +877,7 @@
 			{
 				"library"	"server"
 				"linux"		"@_ZN17CBaseCombatWeapon12FinishReloadEv"
-				"windows"	"\x55\x8B\xEC\x51\x57\x8B\xF9\x8B\x8F\x90\x05\x00\x00"
+				"windows"	"\x55\x8B\xEC\x51\x57\x8B\xF9\x8B\x8F\x2A\x05\x00\x00"
 			}
 			"CBaseObject::DestroyScreens()"
 			{
@@ -885,7 +885,7 @@
 				// ... to CBaseObject::DestroyScreens() is two calls above the string in that block
 				"library"	"server"
 				"linux"		"@_ZN11CBaseObject14DestroyScreensEv"
-				"windows"	"\x56\x57\x8B\xF9\x8B\xB7\xC0\x09\x00\x00"
+				"windows"	"\x56\x57\x8B\xF9\x8B\xB7\x2A\x09\x00\x00"
 			}
 			"CBaseObject::SetControlPanelsActive()"
 			{
@@ -894,7 +894,7 @@
 				// ... to CBaseObject::SetControlPanelsActive() as first call in previous function
 				"library"	"server"
 				"linux"		"@_ZN11CBaseObject22SetControlPanelsActiveEb"
-				"windows"	"\x55\x8B\xEC\x53\x8B\xD9\x56\x8B\xB3\xC0\x09\x00\x00"
+				"windows"	"\x55\x8B\xEC\x53\x8B\xD9\x56\x8B\xB3\x2A\x09\x00\x00"
 			}
 			"CBaseObject::SpawnControlPanels()"
 			{
@@ -932,14 +932,14 @@
 				// find "set_charged_airblast", "set_buff_type", and "mult_airblast_cost" in same block
 				"library"	"server"
 				"linux"		"@_ZN15CTFFlameThrower15SecondaryAttackEv"
-				"windows"	"\x55\x8B\xEC\x83\xEC\x0C\x56\x57\x8B\xF9\xE8\x2A\x2A\x2A\x2A\x8B\xF0\x85\xF6\x0F\x84\x2A\x2A\x2A\x2A\xF3\x0F\x10\x87\xF0\x07\x00\x00"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x0C\x56\x57\x8B\xF9\xE8\x2A\x2A\x2A\x2A\x8B\xF0\x85\xF6\x0F\x84\x2A\x2A\x2A\x2A\xF3\x0F\x10\x87\x2A\x2A\x00\x00"
 			}
 			"CTFWeaponInvis::SetCloakRates()"
 			{
 				// unique x-ref to string "mult_cloak_meter_consume_rate"
 				"library"	"server"
 				"linux"		"@_ZN14CTFWeaponInvis13SetCloakRatesEv"
-				"windows"	"\x55\x8B\xEC\x83\xEC\x08\x56\x57\x8B\xF9\xE8\x2A\x2A\x2A\x2A\x8B\xF0\x85\xF6\x74\x2A\x8B\x16\x8B\xCE\x8B\x92\x40\x01\x00\x00\xFF\xD2\x84\xC0\x75\x2A"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x08\x56\x57\x8B\xF9\xE8\x2A\x2A\x2A\x2A\x8B\xF0\x85\xF6\x74\x2A\x8B\x16\x8B\xCE\x8B\x92\x2A\x01\x00\x00\xFF\xD2\x84\xC0\x75\x2A"
 			}
 			"CTFGameRules::ApplyOnDamageAliveModifyRules()"
 			{
@@ -967,7 +967,7 @@
 				// on windows, called within a function containing xref "tf_projectile_mechanicalarmorb" before the long trace-related block
 				"library"	"server"
 				"linux"		"@_ZN16CTFMechanicalArm11ShockAttackEv"
-				"windows"	"\x56\x57\x8B\xF9\xE8\x2A\x2A\x2A\x2A\x8B\xF0\x85\xF6\x74\x2A\x8B\x16\x8B\xCE\x8B\x92\x40\x01\x00\x00\xFF\xD2\x84\xC0\x74\x2A\x80\xBE\x0B\x02\x00\x00\x03"
+				"windows"	"\x56\x57\x8B\xF9\xE8\x2A\x2A\x2A\x2A\x8B\xF0\x85\xF6\x74\x2A\x8B\x16\x8B\xCE\x8B\x92\x48\x01\x00\x00\xFF\xD2\x84\xC0\x74\x2A\x80\xBE\x2A\x02\x00\x00\x03"
 			}
 			"CTFLunchBox::SecondaryAttack()"
 			{
@@ -1000,7 +1000,7 @@
 			{
 				"library"	"server"
 				"linux"		"@_ZN10CTFMinigun8WindDownEv"
-				"windows"	"\x55\x8B\xEC\x83\xEC\x08\x56\x57\x8B\xF9\xE8\x2A\x2A\x2A\x2A\x8B\xF0\x85\xF6\x0F\x84\x2A\x2A\x2A\x2A\x8B\x16\x8B\xCE\x8B\x92\x40\x01\x00\x00\xFF\xD2\x84\xC0\x0F\x84\x2A\x2A\x2A\x2A\x8B\x07\x8B\xCF\x53"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x08\x56\x57\x8B\xF9\xE8\x2A\x2A\x2A\x2A\x8B\xF0\x85\xF6\x0F\x84\x2A\x2A\x2A\x2A\x8B\x16\x8B\xCE\x8B\x92\x2A\x01\x00\x00\xFF\xD2\x84\xC0\x0F\x84\x2A\x2A\x2A\x2A\x8B\x07\x8B\xCF\x53"
 			}
 			"CTFPlayer::ApplyPushFromDamage()"
 			{
@@ -1015,7 +1015,7 @@
 				// disambiguate from CreateFeignDeathRagdoll with offset around 0x1100 (as opposed to 0x2200s) at the start of the function
 				"library"	"server"
 				"linux"		"@_ZN9CTFPlayer19CreateRagdollEntityEbbbbbbbbib"
-				"windows"	"\x2A\x2A\x2A\x2A\x2A\x2A\x53\x56\x8B\xF1\x8B\x2A\x2A\x11\x00\x00"
+				"windows"	"\x2A\x2A\x2A\x2A\x2A\x2A\xF1\x8B\x8E\x2A\x12\x00\x00\x57"
 			}
 			"CTFPlayer::DetonateObjectOfType()"
 			{
@@ -1044,7 +1044,7 @@
 				// first call in "CTFPlayer::DetonateObjectOfType()"
 				"library"	"server"
 				"linux"		"@_ZNK9CTFPlayer15GetObjectOfTypeEii"
-				"windows"	"\x55\x8B\xEC\x51\x53\x8B\xC1\x56\x57\x33\xFF\x89\x45\xFC\x8B\x98\x2A\x21\x00\x00"
+				"windows"	"\x55\x8B\xEC\x51\x53\x8B\xC1\x56\x57\x33\xFF\x89\x45\xFC\x8B\x98\x2A\x22\x00\x00"
 			}
 			"CTFPlayer::RegenThink()"
 			{
@@ -1058,7 +1058,7 @@
 				// containing non-unique string "object_removed"
 				"library"		"server"
 				"linux"			"@_ZN9CTFPlayer16RemoveAllObjectsEb"
-				"windows"		"\x55\x8B\xEC\x83\xEC\x08\x8B\xC1\x57"
+				"windows"		"\x55\x8B\xEC\x83\xEC\x08\x8B\xC1\x56\x89\x45\xF8"
 			}
 			"CTFPlayerShared::ActivateRageBuff()"
 			{
@@ -1080,7 +1080,7 @@
 				// last call in assembly block containing unique string "rage_on_hit"
 				"library"	"server"
 				"linux"		"@_ZN15CTFPlayerShared10ModifyRageEf"
-				"windows"	"\x55\x8B\xEC\xF3\x0F\x10\x81\x8C\x02\x00\x00"
+				"windows"	"\x55\x8B\xEC\xF3\x0F\x10\x81\x2A\x02\x00\x00"
 			}
 			"CTFPlayerShared::PulseRageBuff()"
 			{
@@ -1136,7 +1136,7 @@
 				// contains non-unique string "weapon_blocks_healing" with references to CTFPlayerShared offset in the next few blocks
 				"library"	"server"
 				"linux"		"@_ZN14CWeaponMedigun19AllowedToHealTargetEP11CBaseEntity"
-				"windows"	"\x55\x8B\xEC\x53\x8B\xD9\x56\x57\x8B\xB3\xE8\x01\x00\x00\x83\xFE\xFF\x0F\x84\x64\x01"
+				"windows"	"\x55\x8B\xEC\x53\x8B\xD9\x57\x8B\x93\x10\x02\x00\x00\x85\xD2\x0F\x84\x73\x01\x2A\x2A"
 			}
 			"CWeaponMedigun::HealTargetThink()"
 			{
@@ -1188,7 +1188,7 @@
 				// contains unique xref to "add_uber_time"
 				"library"	"server"
 				"linux"		"@_ZN14CWeaponMedigun11DrainChargeEv"
-				"windows"	"\x55\x8B\xEC\x83\xEC\x08\x57\x8B\xF9\x80\xBF\xF9\x07\x00\x00\x00"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x08\x57\x8B\xF9\x80\xBF\x21\x08\x00\x00\x00"
 			}
 		}
 		
@@ -1196,163 +1196,161 @@
 		{
 			"CBaseCombatWeapon::ItemPostFrame()"
 			{
-				"windows"	"269"
-				"linux"		"275"
+				"windows"	"272"
+				"linux"		"278"
 			}
 			"CBaseCombatWeapon::SecondaryAttack()"
 			{
-				"windows"	"284"
-				"linux"		"290"
+				"windows"	"287"
+				"linux"		"293"
 			}
 			"CBaseEntity::GetBaseEntity()"
 			{
-				// DEPRECATED: This item is no longer used by plugins and will be removed in the future
 				"windows"	"5"
 				"linux"		"6"
 			}
 			"CBaseEntity::GetEnemy()"
 			{
-				"windows"	"99"
-				"linux"		"99"
+				"windows"	"101"
+				"linux"		"101"
 			}
 			"CBaseEntity::MyCombatCharacterPointer()"
 			{
-				"windows"	"71"
-				"linux"		"72"
+				"windows"	"73"
+				"linux"		"74"
 			}
 			"CBaseEntity::UpdateOnRemove()"
 			{
-				"windows"	"108"
-				"linux"		"109"
+				"windows"	"110"
+				"linux"		"111"
 			}
 			"CBaseGrenade::Explode()"
-			{
-				"windows"	"232"
-				"linux"		"233"
-			}
-			"CBaseObject::CanBeUpgraded(CTFPlayer)"
-			{
-				// note: windows offsets aren't correct on the vtable dumper
-				"windows"	"379"
-				"linux"		"380"
-			}
-			"CBaseObject::DetonateObject()"
-			{
-				// these are correct on the vtable dumper
-				"windows"	"348"
-				"linux"		"350"
-			}
-			"CBaseObject::ChangeTeam()"
-			{
-				"windows"	"94"
-				"linux"		"95"
-			}
-			"CBaseObject::GetMaxUpgradeLevel()"
-			{
-				// note: windows offsets aren't correct on the vtable dumper
-				"windows"	"384"
-				"linux"		"385"
-			}
-			"CBaseObject::StartUpgrading()"
-			{
-				// note: windows offsets aren't correct on the vtable dumper
-				"windows"	"380"
-				"linux"		"381"
-			}
-			"CBaseGrenade::GetDamageRadius()"
-			{
-				"windows"	"238"
-				"linux"		"239"
-			}
-			"CTFWeaponBaseGrenadeProj::InitGrenade(int float)"
-			{
-				"windows"	"240"
-				"linux"		"242"
-			}
-			"CBasePlayer::OnEmitFootstepSound()"
-			{
-				"windows"	"372"
-				"linux"		"373"
-			}
-			"CTFBaseProjectile::ProjectileTouch()"
-			{
-				"windows"	"236"
-				"linux"		"239"
-			}
-			"CTFBaseRocket::RocketTouch()"
 			{
 				"windows"	"235"
 				"linux"		"236"
 			}
+			"CBaseObject::CanBeUpgraded(CTFPlayer)"
+			{
+				// note: windows offsets aren't correct on the vtable dumper
+				"windows"	"382"
+				"linux"		"383"
+			}
+			"CBaseObject::DetonateObject()"
+			{
+				// these are correct on the vtable dumper
+				"windows"	"351"
+				"linux"		"353"
+			}
+			"CBaseObject::ChangeTeam()"
+			{
+				"windows"	"96"
+				"linux"		"97"
+			}
+			"CBaseObject::GetMaxUpgradeLevel()"
+			{
+				// note: windows offsets aren't correct on the vtable dumper
+				"windows"	"387"
+				"linux"		"388"
+			}
+			"CBaseObject::StartUpgrading()"
+			{
+				// note: windows offsets aren't correct on the vtable dumper
+				"windows"	"383"
+				"linux"		"384"
+			}
+			"CBaseGrenade::GetDamageRadius()"
+			{
+				"windows"	"241"
+				"linux"		"242"
+			}
+			"CTFWeaponBaseGrenadeProj::InitGrenade(int float)"
+			{
+				"windows"	"243"
+				"linux"		"245"
+			}
+			"CBasePlayer::OnEmitFootstepSound()"
+			{
+				"windows"	"375"
+				"linux"		"376"
+			}
+			"CTFBaseProjectile::ProjectileTouch()"
+			{
+				"windows"	"239"
+				"linux"		"242"
+			}
+			"CTFBaseRocket::RocketTouch()"
+			{
+				"windows"	"238"
+				"linux"		"239"
+			}
 			"CTFPlayer::RemoveAmmo()"
 			{
-				"windows"	"261"
-				"linux"		"261"
+				"windows"	"264"
+				"linux"		"264"
 			}
 			"CTFPlayer::ShouldGib()"
 			{
-				"windows"	"293"
-				"linux"		"294"
+				"windows"	"296"
+				"linux"		"297"
 			}
 			"CTFStunBall::ApplyBallImpactEffectOnVictim()"
 			{
-				"windows"	"263"
-				"linux"		"264"
+				"windows"	"266"
+				"linux"		"267"
 			}
 			"CTFWeaponBase::DeflectEntity()"
 			{
-				"windows"	"417"
-				"linux"		"424"
+				"windows"	"420"
+				"linux"		"427"
 			}
 			"CTFWeaponBase::Detach()"
 			{
-				"windows"	"267"
-				"linux"		"273"
+				"windows"	"270"
+				"linux"		"276"
 			}
 			"CTFWeaponBase::Equip()"
 			{
-				"windows"	"230"
-				"linux"		"236"
+				"windows"	"233"
+				"linux"		"239"
 			}
 			"CTFWeaponBase::GetProjectileFireSetup()"
 			{
-				"windows"	"397"
-				"linux"		"404"
+				"windows"	"400"
+				"linux"		"407"
 			}
 			"CTFWeaponBase::PrimaryAttack()"
 			{
-				"windows"	"283"
-				"linux"		"289"
+				"windows"	"286"
+				"linux"		"292"
 			}
 			"CTFWeaponBase::FinishReload()"
 			{
-				"windows"	"278"
-				"linux"		"284"
+				"windows"	"281"
+				"linux"		"287"
 			}
 			"CTFWeaponBaseGun::FireEnergyBall()"
 			{
-				"windows"	"474"
-				"linux"		"481"
+				"windows"	"477"
+				"linux"		"484"
 			}
 			"CTFWeaponBaseMelee::OnEntityHit()"
 			{
-				"windows"	"473"
-				"linux"		"480"
+				"windows"	"476"
+				"linux"		"483"
 			}
 			
 			// member offsets
 			"CTFMinigun::m_flNextFireRingTime"
 			{
 				// updated at the end of CTFMinigun::RingOfFireAttack()
-				"windows"	"2200"
-				"linux"		"2204"
+				"windows"	"2248"
+				"linux"		"2252"
 			}
 			"CTFPlayerShared::m_pOuter"
 			{
-				// DEPRECATED: This item is no longer used by plugins and will be removed in the future
-				// any plugins depending on this should use TF2Util_GetPlayerFromSharedAddress instead
-				"linux"		"400"
-				"windows"	"400"
+				// checked in CTFPlayerShared::HasDemoShieldEquipped()
+				"linux"		"396"
+				"windows"	"396"
 			}
 		}
 	}
