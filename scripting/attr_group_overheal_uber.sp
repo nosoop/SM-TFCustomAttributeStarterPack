@@ -60,6 +60,7 @@ public void OnPluginStart() {
 			VDECODE_FLAG_ALLOWNULL | VDECODE_FLAG_ALLOWWORLD);
 	PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef);
 	PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
+	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
 	g_SDKCallFindEntityInSphere = EndPrepSDKCall();
 	
 	StartPrepSDKCall(SDKCall_Raw);
@@ -275,7 +276,7 @@ bool IsGroupOverhealMedigun(int weapon, GroupOverhealAttributes healprops) {
 }
 
 int FindEntityInSphere(int startEntity, const float vecPosition[3], float flRadius) {
-	return SDKCall(g_SDKCallFindEntityInSphere, startEntity, vecPosition, flRadius);
+	return SDKCall(g_SDKCallFindEntityInSphere, startEntity, vecPosition, flRadius, Address_Null);
 }
 
 /**
