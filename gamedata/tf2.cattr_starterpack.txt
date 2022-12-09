@@ -10,7 +10,7 @@
 				"signature"			"CTFPlayer::DoTauntAttack()"
 				"linux"
 				{
-					"offset"		"75"
+					"offset"		"91"
 				}
 				"windows"
 				{
@@ -842,7 +842,7 @@
 				"signature"			"CTFWeaponBase::ApplyOnHitAttributes()"
 				"linux"
 				{
-					"offset"		"8E2h"
+					"offset"		"8DFh"
 					"verify"		"\x74"
 					"patch"			"\xEB"
 				}
@@ -1049,16 +1049,16 @@
 			"CTFPlayer::RegenThink()"
 			{
 				// contsins string "RegenThink" in block after first jump
-				"library"		"server"
-				"linux"			"@_ZN9CTFPlayer10RegenThinkEv"
-				"windows"		"\x55\x8B\xEC\x83\xEC\x74\x57\x8B\xF9\x8B\x07"
+				"library"	"server"
+				"linux"		"@_ZN9CTFPlayer10RegenThinkEv"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x74\x57\x8B\xF9\x8B\x07"
 			}
 			"CTFPlayer::RemoveAllObjects()"
 			{
 				// containing non-unique string "object_removed"
-				"library"		"server"
-				"linux"			"@_ZN9CTFPlayer16RemoveAllObjectsEb"
-				"windows"		"\x55\x8B\xEC\x83\xEC\x08\x8B\xC1\x56\x89\x45\xF8"
+				"library"	"server"
+				"linux"		"@_ZN9CTFPlayer16RemoveAllObjectsEb"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x08\x8B\xC1\x56\x89\x45\xF8"
 			}
 			"CTFPlayerShared::ActivateRageBuff()"
 			{
@@ -1099,9 +1099,9 @@
 			"CTFPlayerShared::UpdateCloakMeter()"
 			{
 				// find raw contents of g_aDebuffConditions and jump to xref function with most references
-				"library"		"server"
-				"linux"			"@_ZN15CTFPlayerShared16UpdateCloakMeterEv"
-				"windows"		"\x55\x8B\xEC\x83\xEC\x18\x56\x8B\xF1\x6A\x08"
+				"library"	"server"
+				"linux"		"@_ZN15CTFPlayerShared16UpdateCloakMeterEv"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x18\x56\x8B\xF1\x6A\x08"
 			}
 			"CTFProjectile_Flare::Explode_Air()"
 			{
@@ -1143,7 +1143,7 @@
 				// contains two references to string "MedigunHealTargetThink"
 				"library"	"server"
 				"linux"		"@_ZN14CWeaponMedigun15HealTargetThinkEv"
-				"windows"	"\x55\x8B\xEC\x51\x53\x57\x8B\xF9\x8B\x87\xD8\x07\x00\x00"
+				"windows"	"\x55\x8B\xEC\x51\x53\x57\x8B\xF9\x8B\x2A\x2A\x2A\x00\x00\x85\xC9"
 			}
 			"CWeaponMedigun::SecondaryAttack()"
 			{
