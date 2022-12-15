@@ -842,7 +842,7 @@
 				"signature"			"CTFWeaponBase::ApplyOnHitAttributes()"
 				"linux"
 				{
-					"offset"		"8DFh"
+					"offset"		"8E2h"
 					"verify"		"\x74"
 					"patch"			"\xEB"
 				}
