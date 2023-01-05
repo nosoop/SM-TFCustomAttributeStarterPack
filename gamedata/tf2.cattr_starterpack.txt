@@ -1300,8 +1300,8 @@
 			}
 			"CTFWeaponBase::DeflectEntity()"
 			{
-				"windows"	"420"
-				"linux"		"427"
+				"windows"	"421"
+				"linux"		"428"
 			}
 			"CTFWeaponBase::Detach()"
 			{
@@ -1315,8 +1315,8 @@
 			}
 			"CTFWeaponBase::GetProjectileFireSetup()"
 			{
-				"windows"	"400"
-				"linux"		"407"
+				"windows"	"401"
+				"linux"		"408"
 			}
 			"CTFWeaponBase::PrimaryAttack()"
 			{
@@ -1330,13 +1330,13 @@
 			}
 			"CTFWeaponBaseGun::FireEnergyBall()"
 			{
-				"windows"	"477"
-				"linux"		"484"
+				"windows"	"478"
+				"linux"		"485"
 			}
 			"CTFWeaponBaseMelee::OnEntityHit()"
 			{
-				"windows"	"476"
-				"linux"		"483"
+				"windows"	"477"
+				"linux"		"484"
 			}
 			
 			// member offsets
