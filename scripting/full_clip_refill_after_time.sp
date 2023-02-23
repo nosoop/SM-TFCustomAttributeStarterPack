@@ -29,12 +29,6 @@ public void OnPluginStart() {
 }
 
 public void OnMapStart() {
-	for (int i = 1; i <= MaxClients; i++) {
-		if (IsClientInGame(i)) {
-			OnClientPutInServer(i);
-		}
-	}
-	
 	int entity = -1;
 	while ((entity = FindEntityByClassname(entity, "*")) != -1) {
 		if (TF2Util_IsEntityWeapon(entity)) {
