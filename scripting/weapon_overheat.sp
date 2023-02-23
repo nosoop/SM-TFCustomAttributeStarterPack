@@ -129,7 +129,7 @@ public void OnGameFrame() {
 		if (!IsClientInGame(i)) {
 			continue;
 		}
-		OnPlayerPostThinkPost(i);
+		OnClientPostThinkPost(i);
 	}
 }
 
