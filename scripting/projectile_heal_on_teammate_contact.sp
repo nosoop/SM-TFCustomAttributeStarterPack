@@ -10,7 +10,6 @@
 #include <sdktools>
 
 #include <tf_custom_attributes>
-#include <stocksoup/tf/player>
 #include <stocksoup/var_strings>
 
 #include <tf2utils>
@@ -92,7 +91,7 @@ MRESReturn OnProjectileTouch(int entity, Handle hParams) {
 	}
 	
 	float flOverhealMax = ReadFloatVar(buffer, "overheal_max", 0.0);
-	float flMaxHealAmount = (TF2Util_GetPlayerMaxHealth(other) * (1.0 + flOverhealMax))
+	float flMaxHealAmount = (TF2Util_GetEntityMaxHealth(other) * (1.0 + flOverhealMax))
 			- GetClientHealth(other);
 	
 	if (flMaxHealAmount <= 0) {
@@ -103,12 +102,19 @@ MRESReturn OnProjectileTouch(int entity, Handle hParams) {
 	
 	/**
 	 * do the heal, remove the syringe, and prevent the default behavior
-	 * 
-	 * note that if you were looking for better integration it'd be better to call
-	 * CTFPlayer::TakeHealth() and adjust for heal modifiers (which is done inline for the
-	 * crossbow bolt).
 	 */
-	TF2_HealPlayer(other, RoundFloat(flHealAmount), true, true);
+	int nHealed = TF2Util_TakeHealth(other, flHealAmount, TAKEHEALTH_IGNORE_MAXHEALTH);
+	if (nHealed > 0) {
+		Event event = CreateEvent("player_healonhit");
+		if (event) {
+			event.SetInt("amount", nHealed);
+			event.SetInt("entindex", other);
+			
+			event.FireToClient(other);
+			delete event;
+		}
+	}
+	
 	RemoveEntity(entity);
 	return MRES_Supercede;
 }

@@ -6,8 +6,8 @@
 
 #pragma newdecls required
 
+#include <tf2utils>
 #include <tf_custom_attributes>
-#include <stocksoup/tf/player>
 
 Handle g_DHookFlamethrowerDeflect;
 
@@ -57,6 +57,15 @@ MRESReturn OnFlamethrowerDeflectPost(int flamethrower, Handle hParams) {
 	
 	int healAmount = TF2CustAttr_GetInt(flamethrower, "airblast projectiles restores health");
 	
-	// TODO use CTFPlayer::TakeHealth()
-	TF2_HealPlayer(owner, healAmount, .notify = true);
+	int nHealed = TF2Util_TakeHealth(owner, float(healAmount));
+	if (nHealed > 0) {
+		Event event = CreateEvent("player_healonhit");
+		if (event) {
+			event.SetInt("amount", nHealed);
+			event.SetInt("entindex", owner);
+			
+			event.FireToClient(owner);
+			delete event;
+		}
+	}
 }
