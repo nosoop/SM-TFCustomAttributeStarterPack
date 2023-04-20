@@ -6,6 +6,7 @@
 #include <tf_custom_attributes>
 
 #include <stocksoup/tf/weapon>
+#include <dhooks_gameconf_shim>
 
 #pragma newdecls required
 
@@ -27,9 +28,11 @@ public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
 		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
+	} else if (!ReadDHooksDefinitions("tf2.cattr_starterpack")) {
+		SetFailState("Failed to read DHooks definitions (tf2.cattr_starterpack).");
 	}
 	
-	Handle dtWeaponIncrementAmmo = DHookCreateFromConf(hGameConf, "CTFWeaponBase::IncrementAmmo()");
+	Handle dtWeaponIncrementAmmo = GetDHooksDefinition(hGameConf, "CTFWeaponBase::IncrementAmmo()");
 	if (!dtWeaponIncrementAmmo) {
 		SetFailState("Failed to create detour %s", "CTFWeaponBase::IncrementAmmo()");
 	}
@@ -38,12 +41,13 @@ public void OnPluginStart() {
 	// handles weapons that replenish the entire clip at once
 	// (to override behavior on pistols, SMGs, &c.)
 	// this is bugged with Rocket Launchers
-	Handle dtWeaponFinishReload = DHookCreateFromConf(hGameConf, "CBaseCombatWeapon::FinishReload()");
+	Handle dtWeaponFinishReload = GetDHooksDefinition(hGameConf, "CBaseCombatWeapon::FinishReload()");
 	if (!dtWeaponFinishReload) {
 		SetFailState("Failed to create detour %s", "CBaseCombatWeapon::FinishReload()");
 	}
 	DHookEnableDetour(dtWeaponFinishReload, false, OnWeaponReplenishClipPre);
 	
+	ClearDHooksDefinitions();
 	delete hGameConf;
 }
 

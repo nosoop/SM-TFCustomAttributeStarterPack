@@ -19,6 +19,8 @@
 #include <smlib/clients>
 #include <tf2utils>
 
+#include <dhooks_gameconf_shim>
+
 Handle g_DHookWeaponPostFrame;
 Handle g_SDKCallFindEntityInSphere;
 Handle g_SDKCallGetCombatCharacterPtr;
@@ -43,6 +45,10 @@ public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
 		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
+	}
+	
+	if (!ReadDHooksDefinitions("tf2.cattr_starterpack")) {
+		SetFailState("Failed to read DHooks definitions (tf2.cattr_starterpack).");
 	}
 	
 	StartPrepSDKCall(SDKCall_EntityList);
@@ -70,7 +76,7 @@ public void OnPluginStart() {
 		SetFailState("Failed to setup SDKCall for CBaseEntity::MyCombatCharacterPointer()");
 	}
 
-	Handle dtMedigunAllowedToHealTarget = DHookCreateFromConf(hGameConf,
+	Handle dtMedigunAllowedToHealTarget = GetDHooksDefinition(hGameConf,
 			"CWeaponMedigun::AllowedToHealTarget()");
 
 	if (!dtMedigunAllowedToHealTarget) {
@@ -79,7 +85,7 @@ public void OnPluginStart() {
 
 	DHookEnableDetour(dtMedigunAllowedToHealTarget, false, OnAllowedToHealTargetPre);
 
-	Handle dtRecalculateChargeEffects = DHookCreateFromConf(hGameConf,
+	Handle dtRecalculateChargeEffects = GetDHooksDefinition(hGameConf,
 			"CTFPlayerShared::RecalculateChargeEffects()");
 
 	if (!dtRecalculateChargeEffects) {
@@ -88,7 +94,7 @@ public void OnPluginStart() {
 	
 	DHookEnableDetour(dtRecalculateChargeEffects, false, OnRecalculateChargeEffectsPre);
 
-	Handle dtStopHealing = DHookCreateFromConf(hGameConf,
+	Handle dtStopHealing = GetDHooksDefinition(hGameConf,
 			"CTFPlayerShared::StopHealing()");
 
 	if (!dtStopHealing) {
@@ -97,7 +103,7 @@ public void OnPluginStart() {
 
 	DHookEnableDetour(dtStopHealing, false, OnStopHealingPre);
 
-	Handle dtMedigunSecondaryAttack = DHookCreateFromConf(hGameConf,
+	Handle dtMedigunSecondaryAttack = GetDHooksDefinition(hGameConf,
 			"CWeaponMedigun::SecondaryAttack()");
 
 	if (!dtMedigunSecondaryAttack) {
@@ -106,14 +112,14 @@ public void OnPluginStart() {
 
 	DHookEnableDetour(dtMedigunSecondaryAttack, false, OnMedigunSecondaryAttackPre);
 	
-	g_DHookWeaponPostFrame = DHookCreateFromConf(hGameConf,
+	g_DHookWeaponPostFrame = GetDHooksDefinition(hGameConf,
 			"CBaseCombatWeapon::ItemPostFrame()");
 
 	if (!g_DHookWeaponPostFrame) {
 		SetFailState("Failed to setup detour for CBaseCombatWeapon::ItemPostFrame()");
 	}
 	
-	Handle dtCreateRagdoll = DHookCreateFromConf(hGameConf, "CTFPlayer::CreateRagdollEntity()");
+	Handle dtCreateRagdoll = GetDHooksDefinition(hGameConf, "CTFPlayer::CreateRagdollEntity()");
 	
 	if (!dtCreateRagdoll) {
 		SetFailState("Failed to setup detour for CTFPlayer::CreateRagdollEntity()");
@@ -127,6 +133,8 @@ public void OnPluginStart() {
 	}
 	
 	offs_CTFPlayer_LastDamageType = offslastDamage + 0x14;
+	
+	ClearDHooksDefinitions();
 	
 	delete hGameConf;
 	

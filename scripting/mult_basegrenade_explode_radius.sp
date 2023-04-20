@@ -10,6 +10,7 @@
 #pragma newdecls required
 
 #include <tf_custom_attributes>
+#include <dhooks_gameconf_shim>
 
 Handle g_SDKCallGetEnemy;
 Handle g_DHookGrenadeGetDamageRadius;
@@ -18,9 +19,11 @@ public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
 		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
+	} else if (!ReadDHooksDefinitions("tf2.cattr_starterpack")) {
+		SetFailState("Failed to read DHooks definitions (tf2.cattr_starterpack).");
 	}
 	
-	g_DHookGrenadeGetDamageRadius = DHookCreateFromConf(hGameConf,
+	g_DHookGrenadeGetDamageRadius = GetDHooksDefinition(hGameConf,
 			"CBaseGrenade::GetDamageRadius()");
 	
 	StartPrepSDKCall(SDKCall_Entity);
@@ -28,6 +31,7 @@ public void OnPluginStart() {
 	PrepSDKCall_SetReturnInfo(SDKType_CBaseEntity, SDKPass_Pointer);
 	g_SDKCallGetEnemy = EndPrepSDKCall();
 	
+	ClearDHooksDefinitions();
 	delete hGameConf;
 }
 

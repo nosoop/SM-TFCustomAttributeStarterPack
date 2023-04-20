@@ -13,6 +13,7 @@
 #include <custom_status_hud>
 
 #include <tf_custom_attributes>
+#include <dhooks_gameconf_shim>
 
 enum BoostState {
 	Boost_None,
@@ -53,14 +54,17 @@ public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
 		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
+	} else if (!ReadDHooksDefinitions("tf2.cattr_starterpack")) {
+		SetFailState("Failed to read DHooks definitions (tf2.cattr_starterpack).");
 	}
 	
-	g_DHookRemoveAmmo = DHookCreateFromConf(hGameConf, "CTFPlayer::RemoveAmmo()");
+	g_DHookRemoveAmmo = GetDHooksDefinition(hGameConf, "CTFPlayer::RemoveAmmo()");
 	
-	Handle dtMinigunActivatePushBack = DHookCreateFromConf(hGameConf,
+	Handle dtMinigunActivatePushBack = GetDHooksDefinition(hGameConf,
 			"CTFMinigun::ActivatePushBackAttackMode()");
 	DHookEnableDetour(dtMinigunActivatePushBack, false, OnMinigunActivatePushBackPre);
 	
+	ClearDHooksDefinitions();
 	delete hGameConf;
 	
 	HookEvent("player_spawn", OnPlayerSpawn);

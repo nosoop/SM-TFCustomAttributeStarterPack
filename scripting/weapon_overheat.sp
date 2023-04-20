@@ -20,6 +20,8 @@
 #include <stocksoup/tf/entity_prop_stocks>
 #include <stocksoup/var_strings>
 
+#include <dhooks_gameconf_shim>
+
 #define NUM_WEAPON_SLOTS 5
 
 Handle g_DHookPrimaryAttack;
@@ -71,13 +73,15 @@ public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
 		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
+	} else if (!ReadDHooksDefinitions("tf2.cattr_starterpack")) {
+		SetFailState("Failed to read DHooks definitions (tf2.cattr_starterpack).");
 	}
 	
-	g_DHookPrimaryAttack = DHookCreateFromConf(hGameConf, "CTFWeaponBase::PrimaryAttack()");
-	g_DHookSecondaryAttack = DHookCreateFromConf(hGameConf,
+	g_DHookPrimaryAttack = GetDHooksDefinition(hGameConf, "CTFWeaponBase::PrimaryAttack()");
+	g_DHookSecondaryAttack = GetDHooksDefinition(hGameConf,
 			"CBaseCombatWeapon::SecondaryAttack()");
 	
-	Handle dtMinigunSharedAttack = DHookCreateFromConf(hGameConf, "CTFMinigun::SharedAttack()");
+	Handle dtMinigunSharedAttack = GetDHooksDefinition(hGameConf, "CTFMinigun::SharedAttack()");
 	DHookEnableDetour(dtMinigunSharedAttack, false, OnMinigunAttackPre);
 	DHookEnableDetour(dtMinigunSharedAttack, true, OnMinigunAttackPost);
 	
@@ -85,12 +89,13 @@ public void OnPluginStart() {
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CTFMinigun::WindDown()");
 	g_SDKCallMinigunWindDown = EndPrepSDKCall();
 	
-	Handle dtMechanicalArmShockAttack = DHookCreateFromConf(hGameConf, "CTFMechanicalArm::ShockAttack()");
+	Handle dtMechanicalArmShockAttack = GetDHooksDefinition(hGameConf, "CTFMechanicalArm::ShockAttack()");
 	if (!dtMechanicalArmShockAttack) {
 		SetFailState("Failed to create detour %s", "CTFMechanicalArm::ShockAttack()");
 	}
 	DHookEnableDetour(dtMechanicalArmShockAttack, true, OnMechanicalArmShockAttackPost);
 	
+	ClearDHooksDefinitions();
 	delete hGameConf;
 	
 	HookEvent("post_inventory_application", OnInventoryAppliedPost);

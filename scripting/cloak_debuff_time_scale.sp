@@ -18,6 +18,7 @@
 #include <stocksoup/log_server>
 #include <stocksoup/memory>
 #include <stocksoup/tf/entity_prop_stocks>
+#include <dhooks_gameconf_shim>
 
 #define FLOAT_MAX view_as<float>(0x7F7FFFFF)
 
@@ -32,6 +33,8 @@ public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
 		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
+	} else if (!ReadDHooksDefinitions("tf2.cattr_starterpack")) {
+		SetFailState("Failed to read DHooks definitions (tf2.cattr_starterpack).");
 	}
 	
 	g_PatchCloakTimer = MemoryPatch.CreateFromConf(hGameConf,
@@ -57,12 +60,14 @@ public void OnPluginStart() {
 		StoreToAddress(ppFloat, view_as<int>(g_CloakTimerAmount.Address), NumberType_Int32);
 	}
 	
-	Handle dtSetCloakRates = DHookCreateFromConf(hGameConf, "CTFWeaponInvis::SetCloakRates()");
+	Handle dtSetCloakRates = GetDHooksDefinition(hGameConf, "CTFWeaponInvis::SetCloakRates()");
 	DHookEnableDetour(dtSetCloakRates, false, OnSetCloakRatesPre);
 	
-	Handle dtUpdateCloakMeter = DHookCreateFromConf(hGameConf,
+	Handle dtUpdateCloakMeter = GetDHooksDefinition(hGameConf,
 			"CTFPlayerShared::UpdateCloakMeter()");
 	DHookEnableDetour(dtUpdateCloakMeter, false, OnUpdateCloakMeterPre);
+	
+	ClearDHooksDefinitions();
 	
 	delete hGameConf;
 }

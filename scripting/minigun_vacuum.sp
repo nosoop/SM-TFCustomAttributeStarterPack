@@ -18,6 +18,7 @@
 #include <stocksoup/math>
 // #include <stocksoup/datapack>
 #include <stocksoup/sdkports/vector>
+#include <dhooks_gameconf_shim>
 
 #if defined KARMACHARGER_SOUNDS_ENABLED
 #define SOUND_VACUUM_KILL "weapons/enemy_sweeper/vacuum_suck.wav"
@@ -43,9 +44,11 @@ public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
 		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
+	} else if (!ReadDHooksDefinitions("tf2.cattr_starterpack")) {
+		SetFailState("Failed to read DHooks definitions (tf2.cattr_starterpack).");
 	}
 	
-	g_DHookItemPostFrame = DHookCreateFromConf(hGameConf, "CBaseCombatWeapon::ItemPostFrame()");
+	g_DHookItemPostFrame = GetDHooksDefinition(hGameConf, "CBaseCombatWeapon::ItemPostFrame()");
 	
 	StartPrepSDKCall(SDKCall_EntityList);
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature,
@@ -58,6 +61,7 @@ public void OnPluginStart() {
 	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
 	g_SDKCallFindEntityInSphere = EndPrepSDKCall();
 	
+	ClearDHooksDefinitions();
 	delete hGameConf;
 }
 

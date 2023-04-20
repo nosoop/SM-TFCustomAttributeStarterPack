@@ -22,6 +22,7 @@
 
 #include <tf2utils>
 #include <tf_custom_attributes>
+#include <dhooks_gameconf_shim>
 
 #pragma newdecls required
 #include <stocksoup/log_server>
@@ -69,9 +70,11 @@ public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
 		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
+	} else if (!ReadDHooksDefinitions("tf2.cattr_starterpack")) {
+		SetFailState("Failed to read DHooks definitions (tf2.cattr_starterpack).");
 	}
 	
-	Handle dtSentryFire = DHookCreateFromConf(hGameConf, "CObjectSentrygun::SentryThink()");
+	Handle dtSentryFire = GetDHooksDefinition(hGameConf, "CObjectSentrygun::SentryThink()");
 	DHookEnableDetour(dtSentryFire, false, OnSentryGunThinkPre);
 	DHookEnableDetour(dtSentryFire, true, OnSentryGunThinkPost);
 	
@@ -105,19 +108,20 @@ public void OnPluginStart() {
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual, "CBaseObject::DetonateObject()");
 	g_SDKBuildingDetonate = EndPrepSDKCall();
 	
-	Handle dtDetonateObjectOfType = DHookCreateFromConf(hGameConf,
+	Handle dtDetonateObjectOfType = GetDHooksDefinition(hGameConf,
 			"CTFPlayer::DetonateObjectOfType()");
 	DHookEnableDetour(dtDetonateObjectOfType, false, OnPlayerDetonateBuildingPre);
 	
 	offs_WeaponBase_fnEquip = GameConfGetOffset(hGameConf, "CTFWeaponBase::Equip()");
 	offs_WeaponBase_fnDetach = GameConfGetOffset(hGameConf, "CTFWeaponBase::Detach()");
 	
-	Handle dtRemoveAllObjects = DHookCreateFromConf(hGameConf, "CTFPlayer::RemoveAllObjects()");
+	Handle dtRemoveAllObjects = GetDHooksDefinition(hGameConf, "CTFPlayer::RemoveAllObjects()");
 	if (!dtRemoveAllObjects) {
 		SetFailState("Failed to create detour %s", "CTFPlayer::RemoveAllObjects()");
 	}
 	DHookEnableDetour(dtRemoveAllObjects, false, OnRemoveAllObjectsPre);
 	
+	ClearDHooksDefinitions();
 	delete hGameConf;
 	
 	HookEvent("player_sapped_object", OnObjectSapped);

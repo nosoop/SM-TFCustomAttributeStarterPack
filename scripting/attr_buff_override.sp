@@ -8,6 +8,7 @@
 #include <dhooks>
 
 #pragma newdecls required
+#include <dhooks_gameconf_shim>
 #include <stocksoup/memory>
 #include <stocksoup/tf/entity_prop_stocks>
 #include <tf_custom_attributes>
@@ -42,12 +43,17 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	
-	Handle dtActivateRageBuff = DHookCreateFromConf(hGameConf, "CTFPlayerShared::ActivateRageBuff()");
+	if (!ReadDHooksDefinitions("tf2.cattr_starterpack")) {
+		SetFailState("Failed to read DHooks definitions (tf2.cattr_starterpack).");
+	}
+	
+	Handle dtActivateRageBuff = GetDHooksDefinition(hGameConf, "CTFPlayerShared::ActivateRageBuff()");
 	DHookEnableDetour(dtActivateRageBuff, false, OnActivateRageBuffPre);
 	
-	g_DHookOnModifyRage = DHookCreateFromConf(hGameConf, "CTFPlayerShared::PulseRageBuff()");
+	g_DHookOnModifyRage = GetDHooksDefinition(hGameConf, "CTFPlayerShared::PulseRageBuff()");
 	DHookEnableDetour(g_DHookOnModifyRage, false, OnPulseRageBuffPre);
 	
+	ClearDHooksDefinitions();
 	delete hGameConf;
 	
 	g_BuffForwards = new StringMap();

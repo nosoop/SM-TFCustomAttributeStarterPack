@@ -16,6 +16,7 @@
 #include <tf2_stocks>
 #include <dhooks>
 #include <tf_custom_attributes>
+#include <dhooks_gameconf_shim>
 
 #define FLARE_SELF_BLAST_RADIUS 100.0
 
@@ -25,6 +26,8 @@ public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
 		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
+	} else if (!ReadDHooksDefinitions("tf2.cattr_starterpack")) {
+		SetFailState("Failed to read DHooks definitions (tf2.cattr_starterpack).");
 	}
 	
 	g_pflFlareSelfDamageRadius = GameConfGetAddress(hGameConf,
@@ -39,7 +42,7 @@ public void OnPluginStart() {
 		g_pflFlareSelfDamageRadius = Address_Null;
 	} else {
 		// we have a valid pointer to *something*, we can go ahead and patch
-		Handle dtFlareExplodeAir = DHookCreateFromConf(hGameConf,
+		Handle dtFlareExplodeAir = GetDHooksDefinition(hGameConf,
 				"CTFProjectile_Flare::Explode_Air()");
 		if (!dtFlareExplodeAir) {
 			SetFailState("Failed to create detour %s", "CTFProjectile_Flare::Explode_Air()");
@@ -47,6 +50,7 @@ public void OnPluginStart() {
 		DHookEnableDetour(dtFlareExplodeAir, false, OnProjectileFlareExplodeAir);
 	}
 	
+	ClearDHooksDefinitions();
 	delete hGameConf;
 }
 

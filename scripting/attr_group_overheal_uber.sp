@@ -16,6 +16,7 @@
 #include <stocksoup/tf/econ>
 #include <stocksoup/tf/entity_prop_stocks>
 #include <stocksoup/tf/tempents_stocks>
+#include <dhooks_gameconf_shim>
 
 #include <tf2utils>
 
@@ -50,6 +51,8 @@ public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
 		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
+	} else if (!ReadDHooksDefinitions("tf2.cattr_starterpack")) {
+		SetFailState("Failed to read DHooks definitions (tf2.cattr_starterpack).");
 	}
 	
 	StartPrepSDKCall(SDKCall_EntityList);
@@ -78,15 +81,16 @@ public void OnPluginStart() {
 	PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer);
 	g_SDKCallPlayerSharedStopHealing = EndPrepSDKCall();
 	
-	g_DHookUpdateOnRemove = DHookCreateFromConf(hGameConf, "CBaseEntity::UpdateOnRemove()");
+	g_DHookUpdateOnRemove = GetDHooksDefinition(hGameConf, "CBaseEntity::UpdateOnRemove()");
 	if (!g_DHookUpdateOnRemove) {
 		SetFailState("Failed to create detour %s", "CBaseEntity::UpdateOnRemove()");
 	}
 	
-	Handle dtGetChargeType = DHookCreateFromConf(hGameConf,
+	Handle dtGetChargeType = GetDHooksDefinition(hGameConf,
 			"CTFPlayer::GetChargeEffectBeingProvided()");
 	DHookEnableDetour(dtGetChargeType, false, OnGetPlayerProvidedCharge);
 	
+	ClearDHooksDefinitions();
 	delete hGameConf;
 }
 

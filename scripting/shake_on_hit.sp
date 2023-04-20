@@ -16,6 +16,7 @@
 #include <tf_custom_attributes>
 #include <stocksoup/var_strings>
 #include <stocksoup/tf/entity_prop_stocks>
+#include <dhooks_gameconf_shim>
 
 Handle g_DHookMeleeOnEntityHit;
 
@@ -23,13 +24,15 @@ public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
 		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
+	} else if (!ReadDHooksDefinitions("tf2.cattr_starterpack")) {
+		SetFailState("Failed to read DHooks definitions (tf2.cattr_starterpack).");
 	}
 	
-	g_DHookMeleeOnEntityHit = DHookCreateFromConf(hGameConf,
+	g_DHookMeleeOnEntityHit = GetDHooksDefinition(hGameConf,
 			"CTFWeaponBaseMelee::OnEntityHit()");
 	
+	ClearDHooksDefinitions();
 	delete hGameConf;
-	
 }
 
 public void OnMapStart() {

@@ -8,6 +8,7 @@
 
 #include <sourcescramble>
 #include <tf_custom_attributes>
+#include <dhooks_gameconf_shim>
 
 #define MAX_CLASSNAME_LENGTH 64
 
@@ -18,10 +19,12 @@ public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
 		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
+	} else if (!ReadDHooksDefinitions("tf2.cattr_starterpack")) {
+		SetFailState("Failed to read DHooks definitions (tf2.cattr_starterpack).");
 	}
 	
 	Handle dtLunchboxSecondaryAttack =
-			DHookCreateFromConf(hGameConf, "CTFLunchBox::SecondaryAttack()");
+			GetDHooksDefinition(hGameConf, "CTFLunchBox::SecondaryAttack()");
 	if (!dtLunchboxSecondaryAttack) {
 		SetFailState("Failed to create detour %s", "CTFLunchBox::SecondaryAttack()");
 	}
@@ -32,6 +35,7 @@ public void OnPluginStart() {
 	
 	g_pszLunchboxClass = new MemoryBlock(MAX_CLASSNAME_LENGTH);
 	
+	ClearDHooksDefinitions();
 	delete hGameConf;
 }
 

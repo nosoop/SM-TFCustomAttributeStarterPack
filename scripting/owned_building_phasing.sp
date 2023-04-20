@@ -12,6 +12,7 @@
 
 #include <stocksoup/var_strings>
 #include <tf_custom_attributes>
+#include <dhooks_gameconf_shim>
 
 #define PHASE_ALLOW_SENTRIES      (1 << 0)
 #define PHASE_ALLOW_DISPENSERS    (1 << 1)
@@ -25,15 +26,18 @@ public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
 		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
+	} else if (!ReadDHooksDefinitions("tf2.cattr_starterpack")) {
+		SetFailState("Failed to read DHooks definitions (tf2.cattr_starterpack).");
 	}
 	
-	Handle dtShouldHitEntity = DHookCreateFromConf(hGameConf,
+	Handle dtShouldHitEntity = GetDHooksDefinition(hGameConf,
 			"CTraceFilterObject::ShouldHitEntity()");
 	if (!dtShouldHitEntity) {
 		SetFailState("Failed to create detour " ... "CTraceFilterObject::ShouldHitEntity()");
 	}
 	DHookEnableDetour(dtShouldHitEntity, true, TraceFilterObjectShouldHitEntityPost);
 	
+	ClearDHooksDefinitions();
 	delete hGameConf;
 	
 	CreateTimer(0.1, UpdateBuildingPhaseState, .flags = TIMER_REPEAT);

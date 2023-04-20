@@ -13,6 +13,7 @@
 #include <stocksoup/tf/tempents_stocks>
 #include <tf_cattr_buff_override>
 #include <tf_custom_attributes>
+#include <dhooks_gameconf_shim>
 
 #define PLUGIN_VERSION "1.0.0"
 public Plugin myinfo = {
@@ -31,12 +32,15 @@ public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
 		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
+	} else if (!ReadDHooksDefinitions("tf2.cattr_starterpack")) {
+		SetFailState("Failed to read DHooks definitions (tf2.cattr_starterpack).");
 	}
 	
-	Handle detourActivateRageBuff = DHookCreateFromConf(hGameConf,
+	Handle detourActivateRageBuff = GetDHooksDefinition(hGameConf,
 			"CTFPlayerShared::ActivateRageBuff()");
 	DHookEnableDetour(detourActivateRageBuff, false, OnActivateRageBuffPre);
 	
+	ClearDHooksDefinitions();
 	delete hGameConf;
 }
 

@@ -12,6 +12,7 @@
 #include <stocksoup/log_server>
 #include <stocksoup/tf/entity_prop_stocks>
 #include <tf_custom_attributes>
+#include <dhooks_gameconf_shim>
 
 #define CUSTOM_LUNCHBOX_EFFECT_MAX_NAME_LENGTH 64
 
@@ -34,14 +35,16 @@ public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
 		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
+	} else if (!ReadDHooksDefinitions("tf2.cattr_starterpack")) {
+		SetFailState("Failed to read DHooks definitions (tf2.cattr_starterpack).");
 	}
 	
 	Handle dtLunchBoxPrimaryAttack =
-			DHookCreateFromConf(hGameConf, "CTFPlayer::DoTauntAttack()");
+			GetDHooksDefinition(hGameConf, "CTFPlayer::DoTauntAttack()");
 	DHookEnableDetour(dtLunchBoxPrimaryAttack, false, OnDoTauntAttackPre);
 	
 	Handle dtLunchBoxOnBiteEffect =
-			DHookCreateFromConf(hGameConf, "CTFLunchBox::ApplyBiteEffects()");
+			GetDHooksDefinition(hGameConf, "CTFLunchBox::ApplyBiteEffects()");
 	DHookEnableDetour(dtLunchBoxOnBiteEffect, false, OnLunchBoxApplyBiteEffects);
 	
 	Address pTauntAttackInfo = GameConfGetAddress(hGameConf,
@@ -52,6 +55,7 @@ public void OnPluginStart() {
 	}
 	LogServer("offsetof(CTFPlayer, m_iTauntAttack) == 0x%04X", offs_CTFPlayer_iTauntAttack);
 	
+	ClearDHooksDefinitions();
 	delete hGameConf;
 	
 	g_DrinkForwards = new StringMap();

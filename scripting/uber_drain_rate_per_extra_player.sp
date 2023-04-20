@@ -11,6 +11,7 @@
 #include <sourcescramble>
 #include <stocksoup/memory>
 #include <tf_custom_attributes>
+#include <dhooks_gameconf_shim>
 
 #define BASE_UBER_DRAIN_RATE    0.5
 
@@ -20,9 +21,11 @@ public void OnPluginStart() {
 	GameData hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
 		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
+	} else if (!ReadDHooksDefinitions("tf2.cattr_starterpack")) {
+		SetFailState("Failed to read DHooks definitions (tf2.cattr_starterpack).");
 	}
 	
-	Handle dtMedigunDrainCharge = DHookCreateFromConf(hGameConf,
+	Handle dtMedigunDrainCharge = GetDHooksDefinition(hGameConf,
 			"CWeaponMedigun::DrainCharge()");
 	if (!dtMedigunDrainCharge) {
 		SetFailState("Failed to create detour " ... "CWeaponMedigun::DrainCharge()");
@@ -49,6 +52,7 @@ public void OnPluginStart() {
 	StoreToAddress(ppValue, view_as<any>(GetAddressOfCell(g_flUberDrainMultiplier)),
 			NumberType_Int32);
 	
+	ClearDHooksDefinitions();
 	delete hGameConf;
 }
 

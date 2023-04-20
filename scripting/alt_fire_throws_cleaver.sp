@@ -15,6 +15,7 @@
 #include <stocksoup/tf/entity_prop_stocks>
 #include <tf_custom_attributes>
 #include <custom_status_hud>
+#include <dhooks_gameconf_shim>
 
 Handle g_SDKCallInitGrenade;
 Handle g_DHookSecondaryAttack;
@@ -26,6 +27,8 @@ public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
 		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
+	} else if (!ReadDHooksDefinitions("tf2.cattr_starterpack")) {
+		SetFailState("Failed to read DHooks definitions (tf2.cattr_starterpack).");
 	}
 	
 	StartPrepSDKCall(SDKCall_Entity);
@@ -38,7 +41,7 @@ public void OnPluginStart() {
 	PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
 	g_SDKCallInitGrenade = EndPrepSDKCall();
 	
-	g_DHookSecondaryAttack = DHookCreateFromConf(hGameConf,
+	g_DHookSecondaryAttack = GetDHooksDefinition(hGameConf,
 			"CBaseCombatWeapon::SecondaryAttack()");
 	
 	delete hGameConf;
@@ -54,6 +57,7 @@ public void OnPluginStart() {
 	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
 	g_SDKCallWeaponSwitch = EndPrepSDKCall();
 	
+	ClearDHooksDefinitions();
 	delete hGameConf;
 }
 

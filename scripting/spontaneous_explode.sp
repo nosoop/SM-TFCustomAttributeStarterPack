@@ -20,6 +20,7 @@
 #include <stocksoup/value_remap>
 
 #include <smlib/clients>
+#include <dhooks_gameconf_shim>
 
 Handle g_SDKCallFindEntityInSphere;
 Handle g_SDKCallGetCombatCharacterPtr;
@@ -40,6 +41,8 @@ public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
 		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
+	} else if (!ReadDHooksDefinitions("tf2.cattr_starterpack")) {
+		SetFailState("Failed to read DHooks definitions (tf2.cattr_starterpack).");
 	}
 	
 	StartPrepSDKCall(SDKCall_EntityList);
@@ -59,11 +62,11 @@ public void OnPluginStart() {
 	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
 	g_SDKCallGetCombatCharacterPtr = EndPrepSDKCall();
 	
-	Handle dtBaseGunFireProjectile = DHookCreateFromConf(hGameConf,
+	Handle dtBaseGunFireProjectile = GetDHooksDefinition(hGameConf,
 			"CTFWeaponBaseGun::FireProjectile()");
 	DHookEnableDetour(dtBaseGunFireProjectile, false, OnBaseGunFireProjectilePre);
 	
-	Handle dtCreateRagdoll = DHookCreateFromConf(hGameConf, "CTFPlayer::CreateRagdollEntity()");
+	Handle dtCreateRagdoll = GetDHooksDefinition(hGameConf, "CTFPlayer::CreateRagdollEntity()");
 	DHookEnableDetour(dtCreateRagdoll, false, OnCreateRagdollPre);
 	
 	int offslastDamage = FindSendPropInfo("CTFPlayer", "m_flMvMLastDamageTime");
@@ -73,6 +76,7 @@ public void OnPluginStart() {
 	
 	offs_CTFPlayer_LastDamageType = offslastDamage + 0x14;
 	
+	ClearDHooksDefinitions();
 	delete hGameConf;
 }
 

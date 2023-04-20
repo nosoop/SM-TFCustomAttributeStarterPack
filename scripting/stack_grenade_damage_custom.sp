@@ -13,6 +13,7 @@
 #include <stocksoup/var_strings>
 #include <stocksoup/tf/entity_prop_stocks>
 #include <tf_custom_attributes>
+#include <dhooks_gameconf_shim>
 
 Handle g_DHookGrenadeExplode;
 int g_nDamageStack[MAXPLAYERS + 1];
@@ -21,10 +22,13 @@ public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
 		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
+	} else if (!ReadDHooksDefinitions("tf2.cattr_starterpack")) {
+		SetFailState("Failed to read DHooks definitions (tf2.cattr_starterpack).");
 	}
 	
-	g_DHookGrenadeExplode = DHookCreateFromConf(hGameConf, "CBaseGrenade::Explode()");
+	g_DHookGrenadeExplode = GetDHooksDefinition(hGameConf, "CBaseGrenade::Explode()");
 	
+	ClearDHooksDefinitions();
 	delete hGameConf;
 }
 

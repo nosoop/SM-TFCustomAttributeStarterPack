@@ -9,6 +9,7 @@
 #include <dhooks>
 #include <sdktools>
 #include <tf_custom_attributes>
+#include <dhooks_gameconf_shim>
 
 public Plugin myinfo = {
 	name = "[TF2] Custom Attribute: Custom Ball Impact Effect",
@@ -35,14 +36,18 @@ public void OnPluginStart() {
 	GameData hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
 		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
+	} else if (!ReadDHooksDefinitions("tf2.cattr_starterpack")) {
+		SetFailState("Failed to read DHooks definitions (tf2.cattr_starterpack).");
 	}
 	
-	g_DHookApplyBallImpactEffect = DHookCreateFromConf(hGameConf,
+	g_DHookApplyBallImpactEffect = GetDHooksDefinition(hGameConf,
 			"CTFStunBall::ApplyBallImpactEffectOnVictim()");
 	if (!g_DHookApplyBallImpactEffect) {
 		SetFailState("Failed to create virtual hook "
 				... "CTFStunBall::ApplyBallImpactEffectOnVictim()");
 	}
+	
+	ClearDHooksDefinitions();
 	delete hGameConf;
 	
 	g_BallImpactEffectForwards = new StringMap();

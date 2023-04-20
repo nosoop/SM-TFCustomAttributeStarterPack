@@ -13,6 +13,7 @@
 #include <stocksoup/tf/weapon>
 #include <stocksoup/tf/econ>
 #include <tf_custom_attributes>
+#include <dhooks_gameconf_shim>
 
 #define OIL_PUDDLE_MODEL "models/props_farm/haypile001.mdl"
 
@@ -50,13 +51,15 @@ public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
 		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
+	} else if (!ReadDHooksDefinitions("tf2.cattr_starterpack")) {
+		SetFailState("Failed to read DHooks definitions (tf2.cattr_starterpack).");
 	}
 	
-	Handle dtFlamethrowerSecondary = DHookCreateFromConf(hGameConf,
+	Handle dtFlamethrowerSecondary = GetDHooksDefinition(hGameConf,
 			"CTFFlameThrower::SecondaryAttack()");
 	DHookEnableDetour(dtFlamethrowerSecondary, false, OnFlamethrowerSecondaryAttack);
 	
-	Handle dtRingOfFireAttack = DHookCreateFromConf(hGameConf,
+	Handle dtRingOfFireAttack = GetDHooksDefinition(hGameConf,
 			"CTFMinigun::RingOfFireAttack()");
 	DHookEnableDetour(dtRingOfFireAttack, false, OnMinigunRingOfFirePre);
 	
@@ -81,11 +84,12 @@ public void OnPluginStart() {
 	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
 	g_SDKCallFindEntityInSphere = EndPrepSDKCall();
 	
-	g_DHookRocketTouch = DHookCreateFromConf(hGameConf, "CTFBaseRocket::RocketTouch()");
+	g_DHookRocketTouch = GetDHooksDefinition(hGameConf, "CTFBaseRocket::RocketTouch()");
 	
 	offs_CTFMinigun_flNextFireRingTime = GameConfGetOffset(hGameConf,
 			"CTFMinigun::m_flNextFireRingTime");
 	
+	ClearDHooksDefinitions();
 	delete hGameConf;
 	
 	g_OilPuddleWorldRefs = new ArrayList();

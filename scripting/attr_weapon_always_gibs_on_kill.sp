@@ -12,6 +12,7 @@
 
 #include <tf_custom_attributes>
 #include <dhook_takedamageinfo>
+#include <dhooks_gameconf_shim>
 
 #define PLUGIN_VERSION "0.0.0"
 public Plugin myinfo = {
@@ -28,10 +29,13 @@ public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
 		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
+	} else if (!ReadDHooksDefinitions("tf2.cattr_starterpack")) {
+		SetFailState("Failed to read DHooks definitions (tf2.cattr_starterpack).");
 	}
 	
-	g_DHookShouldGib = DHookCreateFromConf(hGameConf, "CTFPlayer::ShouldGib()");
+	g_DHookShouldGib = GetDHooksDefinition(hGameConf, "CTFPlayer::ShouldGib()");
 	
+	ClearDHooksDefinitions();
 	delete hGameConf;
 }
 

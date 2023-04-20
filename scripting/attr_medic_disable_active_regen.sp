@@ -5,6 +5,7 @@
 #include <tf2_stocks>
 
 #include <tf_custom_attributes>
+#include <dhooks_gameconf_shim>
 
 #pragma newdecls required
 
@@ -14,15 +15,18 @@ public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
 		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
+	} else if (!ReadDHooksDefinitions("tf2.cattr_starterpack")) {
+		SetFailState("Failed to read DHooks definitions (tf2.cattr_starterpack).");
 	}
 	
-	Handle dtRegenThink = DHookCreateFromConf(hGameConf, "CTFPlayer::RegenThink()");
+	Handle dtRegenThink = GetDHooksDefinition(hGameConf, "CTFPlayer::RegenThink()");
 	
 	DHookEnableDetour(dtRegenThink, false, OnPlayerRegenThinkPre);
 	DHookEnableDetour(dtRegenThink, true, OnPlayerRegenThinkPost);
 	
 	offs_CTFPlayer_iClass = FindSendPropInfo("CTFPlayer", "m_iClass");
 	
+	ClearDHooksDefinitions();
 	delete hGameConf;
 }
 

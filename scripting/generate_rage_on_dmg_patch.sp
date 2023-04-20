@@ -17,6 +17,7 @@
 #include <stocksoup/tf/entity_prop_stocks>
 #include <tf2attributes>
 #include <tf_custom_attributes>
+#include <dhooks_gameconf_shim>
 
 MemoryPatch g_PatchHandleRageGain;
 MemoryPatch g_PatchDisableHeavyRageKnockback;
@@ -27,6 +28,8 @@ public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
 		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
+	} else if (!ReadDHooksDefinitions("tf2.cattr_starterpack")) {
+		SetFailState("Failed to read DHooks definitions (tf2.cattr_starterpack).");
 	}
 	
 	g_PatchHandleRageGain = MemoryPatch.CreateFromConf(hGameConf,
@@ -56,17 +59,18 @@ public void OnPluginStart() {
 				... "::DisableHeavyRageDamagePenalty");
 	}
 	
-	Handle dtApplyOnDamageAliveModifyRules = DHookCreateFromConf(hGameConf,
+	Handle dtApplyOnDamageAliveModifyRules = GetDHooksDefinition(hGameConf,
 			"CTFGameRules::ApplyOnDamageAliveModifyRules()");
 	DHookEnableDetour(dtApplyOnDamageAliveModifyRules, false, OnApplyOnDamageModifyRulesPre);
 	
-	Handle dtApplyPushFromDamage = DHookCreateFromConf(hGameConf,
+	Handle dtApplyPushFromDamage = GetDHooksDefinition(hGameConf,
 			"CTFPlayer::ApplyPushFromDamage()");
 	DHookEnableDetour(dtApplyPushFromDamage, false, OnApplyPushFromDamagePre);
 	
-	Handle dtHandleRageGain = DHookCreateFromConf(hGameConf, "HandleRageGain()");
+	Handle dtHandleRageGain = GetDHooksDefinition(hGameConf, "HandleRageGain()");
 	DHookEnableDetour(dtHandleRageGain, false, OnHandleRageGainPre);
 	
+	ClearDHooksDefinitions();
 	delete hGameConf;
 	
 }

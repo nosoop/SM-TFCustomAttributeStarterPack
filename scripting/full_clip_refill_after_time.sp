@@ -10,6 +10,7 @@
 #include <tf_custom_attributes>
 #include <stocksoup/tf/entity_prop_stocks>
 #include <custom_status_hud>
+#include <dhooks_gameconf_shim>
 
 Handle g_DHookPrimaryAttack;
 
@@ -19,10 +20,13 @@ public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
 		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
+	} else if (!ReadDHooksDefinitions("tf2.cattr_starterpack")) {
+		SetFailState("Failed to read DHooks definitions (tf2.cattr_starterpack).");
 	}
 	
-	g_DHookPrimaryAttack = DHookCreateFromConf(hGameConf, "CTFWeaponBase::PrimaryAttack()");
+	g_DHookPrimaryAttack = GetDHooksDefinition(hGameConf, "CTFWeaponBase::PrimaryAttack()");
 	
+	ClearDHooksDefinitions();
 	delete hGameConf;
 	
 	HookEvent("post_inventory_application", OnInventoryAppliedPost);

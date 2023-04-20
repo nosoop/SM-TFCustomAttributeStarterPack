@@ -13,6 +13,7 @@
 #include <stocksoup/tf/weapon>
 #include <tf_custom_attributes>
 #include <tf2attributes>
+#include <dhooks_gameconf_shim>
 
 Handle g_SDKCallFireEnergyBall;
 Handle g_SDKCallGetProjectileFireSetup;
@@ -21,9 +22,11 @@ public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
 		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
+	} else if (!ReadDHooksDefinitions("tf2.cattr_starterpack")) {
+		SetFailState("Failed to read DHooks definitions (tf2.cattr_starterpack).");
 	}
 	
-	Handle dtBaseGunFireProjectile = DHookCreateFromConf(hGameConf,
+	Handle dtBaseGunFireProjectile = GetDHooksDefinition(hGameConf,
 			"CTFWeaponBaseGun::FireProjectile()");
 	DHookEnableDetour(dtBaseGunFireProjectile, false, OnBaseGunFireProjectilePre);
 	
@@ -54,6 +57,7 @@ public void OnPluginStart() {
 	PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
 	g_SDKCallGetProjectileFireSetup = EndPrepSDKCall();
 	
+	ClearDHooksDefinitions();
 	delete hGameConf;
 }
 

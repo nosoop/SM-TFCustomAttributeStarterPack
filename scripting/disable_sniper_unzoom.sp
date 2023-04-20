@@ -9,6 +9,7 @@
 
 #include <stocksoup/tf/weapon>
 #include <tf_custom_attributes>
+#include <dhooks_gameconf_shim>
 
 Handle g_DHookItemPostFrame;
 
@@ -16,10 +17,13 @@ public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
 		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
+	} else if (!ReadDHooksDefinitions("tf2.cattr_starterpack")) {
+		SetFailState("Failed to read DHooks definitions (tf2.cattr_starterpack).");
 	}
 	
-	g_DHookItemPostFrame = DHookCreateFromConf(hGameConf, "CBaseCombatWeapon::ItemPostFrame()");
+	g_DHookItemPostFrame = GetDHooksDefinition(hGameConf, "CBaseCombatWeapon::ItemPostFrame()");
 	
+	ClearDHooksDefinitions();
 	delete hGameConf;
 }
 

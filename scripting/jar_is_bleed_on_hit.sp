@@ -13,6 +13,8 @@
 #include <tf_custom_attributes>
 #include <tf2utils>
 
+#include <dhooks_gameconf_shim>
+
 #pragma newdecls required
 
 float g_flConditionEnd[MAXPLAYERS + 1];
@@ -23,12 +25,15 @@ public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
 		SetFailState("Failed to load gamedata (tf2.cattr_starterpack).");
+	} else if (!ReadDHooksDefinitions("tf2.cattr_starterpack")) {
+		SetFailState("Failed to read DHooks definitions (tf2.cattr_starterpack).");
 	}
 	
-	Handle dtJarExplode = DHookCreateFromConf(hGameConf, "JarExplode()");
+	Handle dtJarExplode = GetDHooksDefinition(hGameConf, "JarExplode()");
 	DHookEnableDetour(dtJarExplode, false, OnJarExplodePre);
 	DHookEnableDetour(dtJarExplode, true, OnJarExplodePost);
 	
+	ClearDHooksDefinitions();
 	delete hGameConf;
 	
 	HookUserMessage(GetUserMessageId("PlayerJarated"), OnPlayerJarated);
