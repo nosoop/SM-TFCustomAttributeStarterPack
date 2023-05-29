@@ -26,24 +26,15 @@ public void OnPluginStart() {
 		SetFailState("Failed to read DHooks definitions (tf2.cattr_starterpack).");
 	}
 	
-	g_DHookPerformPileOfDesperateGameSpecificFootstepHacks =
-			GetDHooksDefinition(hGameConf, "CBasePlayer::OnEmitFootstepSound()");
+	DynamicDetour dtPerformPileOfDesperateGameSpecificFootstepHacks =
+			DynamicDetour.FromConf(hGameConf, "CTFPlayer::OnEmitFootstepSound()");
+	if (!dtPerformPileOfDesperateGameSpecificFootstepHacks) {
+		SetFailState("Failed to create detour " ... "CTFPlayer::OnEmitFootstepSound()");
+	}
+	dtPerformPileOfDesperateGameSpecificFootstepHacks.Enable(Hook_Post, OnEmitFootstepSound);
 	
 	ClearDHooksDefinitions();
 	delete hGameConf;
-}
-
-public void OnMapStart() {
-	for (int i = 1; i <= MaxClients; i++) {
-		if (IsClientInGame(i)) {
-			OnClientPutInServer(i);
-		}
-	}
-}
-
-public void OnClientPutInServer(int client) {
-	DHookEntity(g_DHookPerformPileOfDesperateGameSpecificFootstepHacks, true, client,
-			.callback = OnEmitFootstepSound);
 }
 
 MRESReturn OnEmitFootstepSound(int client, Handle hParams) {

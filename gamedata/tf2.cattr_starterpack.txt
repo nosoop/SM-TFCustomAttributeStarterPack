@@ -86,9 +86,9 @@
 				"return"		"float"
 				"this"			"entity"
 			}
-			"CBasePlayer::OnEmitFootstepSound()"
+			"CTFPlayer::OnEmitFootstepSound()"
 			{
-				"offset"		"CBasePlayer::OnEmitFootstepSound()"
+				"signature"		"CTFPlayer::OnEmitFootstepSound()"
 				"callconv"		"thiscall"
 				"return"		"void"
 				"this"			"entity"
@@ -96,7 +96,7 @@
 				{
 					"sound_params"
 					{
-						"type"	"int" // ptr
+						"type"	"objectptr" // ptr
 					}
 					"origin"
 					{
@@ -1045,6 +1045,13 @@
 				"library"	"server"
 				"linux"		"@_ZNK9CTFPlayer15GetObjectOfTypeEii"
 				"windows"	"\x55\x8B\xEC\x51\x53\x8B\xC1\x56\x57\x33\xFF\x89\x45\xFC\x8B\x98\x2A\x22\x00\x00"
+			}
+			"CTFPlayer::OnEmitFootstepSound()"
+			{
+				// unique string "add_jingle_to_footsteps"
+				"library"	"server"
+				"linux"		"@_ZN9CTFPlayer19OnEmitFootstepSoundERK16CSoundParametersRK6Vectorf"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x6C\x53\x56\x6A\x01"
 			}
 			"CTFPlayer::RegenThink()"
 			{
