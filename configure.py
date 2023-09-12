@@ -128,6 +128,9 @@ copy_files = [
 	
 	'scripting/include/tf_cattr_buff_override.inc',
 	'scripting/include/tf_cattr_lunch_effect.inc',
+	'scripting/include/tf_cattr_ball_impact_effect.inc',
+
+	'scripting/shared/tf_var_strings.sp',
 ]
 
 include_dirs = [
