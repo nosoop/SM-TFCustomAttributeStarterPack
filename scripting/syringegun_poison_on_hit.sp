@@ -62,7 +62,9 @@ public void OnMapStart() {
 }
 
 public void OnEntityCreated(int entity, const char[] name) {
-	SDKHook(entity, SDKHook_SpawnPost, OnEntitySpawnPost);
+	if (IsMedicWeapon(entity)) {
+		OnMedicWeaponCreated(entity);
+	}
 }
 
 public void OnGameFrame() {
@@ -199,10 +201,6 @@ public Action TF2_OnCalculateMaxSpeed(int client, float &speed) {
 }
 
 bool IsMedicWeapon(int entity) {
-	if (!TF2Util_IsEntityWeapon(entity)) {
-		return false;
-	}
-	
-	int defindex = TF2_GetItemDefinitionIndexSafe(entity);
-	return TF2Econ_GetItemSlot(defindex, TFClass_Medic) == 0;
+	return TF2Util_IsEntityWeapon(entity)
+			&& TF2Util_GetWeaponID(entity) == TF_WEAPON_SYRINGEGUN_MEDIC;
 }
