@@ -76,12 +76,6 @@ public void OnGameFrame() {
 	}
 }
 
-void OnEntitySpawnPost(int entity) {
-	if (IsMedicWeapon(entity)) {
-		OnMedicWeaponCreated(entity);
-	}
-}
-
 void OnMedicWeaponCreated(int weapon) {
 	DHookEntity(g_DHookWeaponSecondaryAttack, true, weapon,
 			.callback = OnWeaponSecondaryAttack);
@@ -201,6 +195,10 @@ public Action TF2_OnCalculateMaxSpeed(int client, float &speed) {
 }
 
 bool IsMedicWeapon(int entity) {
-	return TF2Util_IsEntityWeapon(entity)
-			&& TF2Util_GetWeaponID(entity) == TF_WEAPON_SYRINGEGUN_MEDIC;
+	if (!TF2Util_IsEntityWeapon(entity)) {
+		return false;
+	}
+	
+	int weaponid = TF2Util_GetWeaponID(entity);
+	return weaponid == TF_WEAPON_SYRINGEGUN_MEDIC || weaponid == TF_WEAPON_CROSSBOW;
 }
