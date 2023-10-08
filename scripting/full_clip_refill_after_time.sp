@@ -12,8 +12,6 @@
 #include <custom_status_hud>
 #include <dhooks_gameconf_shim>
 
-Handle g_DHookPrimaryAttack;
-
 float g_flFullClipRefillTime[MAXPLAYERS + 1][3];
 
 public void OnPluginStart() {
@@ -24,7 +22,13 @@ public void OnPluginStart() {
 		SetFailState("Failed to read DHooks definitions (tf2.cattr_starterpack).");
 	}
 	
-	g_DHookPrimaryAttack = GetDHooksDefinition(hGameConf, "CTFWeaponBase::PrimaryAttack()");
+	// this should cover all items with ammo?
+	DynamicDetour dtBaseGunPrimaryAttack = GetDHooksDetourDefinition(hGameConf,
+			"CTFWeaponBaseGun::PrimaryAttack()");
+	if (!dtBaseGunPrimaryAttack) {
+		SetFailState("Failed to create detour " ... "CTFWeaponBaseGun::PrimaryAttack()");
+	}
+	dtBaseGunPrimaryAttack.Enable(Hook_Post, OnWeaponPrimaryAttackPost);
 	
 	ClearDHooksDefinitions();
 	delete hGameConf;
@@ -32,26 +36,10 @@ public void OnPluginStart() {
 	HookEvent("post_inventory_application", OnInventoryAppliedPost);
 }
 
-public void OnMapStart() {
-	int entity = -1;
-	while ((entity = FindEntityByClassname(entity, "*")) != -1) {
-		if (TF2Util_IsEntityWeapon(entity)) {
-			HookWeaponEntity(entity);
-		}
-	}
-	
-}
-
 void OnInventoryAppliedPost(Event event, const char[] name, bool dontBroadcast) {
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	for (int i; i < sizeof(g_flFullClipRefillTime[]); i++) {
 		g_flFullClipRefillTime[client][i] = 0.0;
-	}
-}
-
-public void OnEntityCreated(int entity, const char[] className) {
-	if (TF2Util_IsEntityWeapon(entity)) {
-		HookWeaponEntity(entity);
 	}
 }
 
@@ -62,10 +50,6 @@ public void OnGameFrame() {
 		}
 		OnClientPostThinkPost(i);
 	}
-}
-
-void HookWeaponEntity(int weapon) {
-	DHookEntity(g_DHookPrimaryAttack, true, weapon, .callback = OnWeaponPrimaryAttackPost);
 }
 
 void OnClientPostThinkPost(int client) {

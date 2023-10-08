@@ -615,6 +615,13 @@
 					}
 				}
 			}
+			"CTFWeaponBaseGun::PrimaryAttack()"
+			{
+				"signature"		"CTFWeaponBaseGun::PrimaryAttack()"
+				"callconv"		"thiscall"
+				"return"		"void"
+				"this"			"entity"
+			}
 			"CTraceFilterObject::ShouldHitEntity()"
 			{
 				"signature"		"CTraceFilterObject::ShouldHitEntity()"
@@ -1180,6 +1187,13 @@
 				"library"	"server"
 				"linux"		"@_ZN16CTFWeaponBaseGun14FireProjectileEP9CTFPlayer"
 				"windows"	"\x2A\x2A\x2A\x2A\x2A\x2A\x57\x6A\x01\x6A\x00\x8B\xF1\x56\x68\x2A\x2A\x2A\x2A\x6A\x00\xE8\x2A\x2A\x2A\x2A\x8B\xC8"
+			}
+			"CTFWeaponBaseGun::PrimaryAttack()"
+			{
+				// unique xref "mult_postfiredelay_with_reduced_health"
+				"library"	"server"
+				"linux"		"@_ZN16CTFWeaponBaseGun13PrimaryAttackEv"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x0C\x57\x8B\xF9\x8B\x07\x8B\x80\x2A\x2A\x00\x00\xFF\xD0\xD9\xEE"
 			}
 			"CTFWeaponBaseMelee::DoMeleeDamage()"
 			{
