@@ -14,8 +14,6 @@
 #include <stocksoup/tf/entity_prop_stocks>
 #include <dhooks_gameconf_shim>
 
-Handle g_DHookOnMeleeEntityHit;
-
 float g_flBuffEndTime[MAXPLAYERS + 1];
 
 public void OnPluginStart() {
@@ -26,8 +24,13 @@ public void OnPluginStart() {
 		SetFailState("Failed to read DHooks definitions (tf2.cattr_starterpack).");
 	}
 	
-	g_DHookOnMeleeEntityHit = GetDHooksDefinition(hGameConf,
-			"CTFWeaponBaseMelee::OnEntityHit()");
+	DynamicDetour dtOnMeleeDoDamage = DynamicDetour.FromConf(hGameConf,
+			"CTFWeaponBaseMelee::DoMeleeDamage()");
+	if (!dtOnMeleeDoDamage) {
+		SetFailState("Failed to create detour " ... "CTFWeaponBaseMelee::DoMeleeDamage()");
+	}
+	dtOnMeleeDoDamage.Enable(Hook_Post, OnMeleeDoDamagePost);
+	
 	
 	ClearDHooksDefinitions();
 	delete hGameConf;
@@ -40,29 +43,7 @@ public void OnMapStart() {
 		}
 	}
 	
-	int entity = -1;
-	while ((entity = FindEntityByClassname(entity, "*")) != -1) {
-		if (!IsEntityMeleeWeapon(entity)) {
-			continue;
-		}
-		OnMeleeCreated(entity);
-	}
-	
 	PrecacheSound(")items/powerup_pickup_haste.wav");
-}
-
-public void OnEntityCreated(int entity, const char[] name) {
-	SDKHook(entity, SDKHook_SpawnPost, OnEntitySpawnPost);
-}
-
-void OnEntitySpawnPost(int entity) {
-	if (IsEntityMeleeWeapon(entity)) {
-		OnMeleeCreated(entity);
-	}
-}
-
-void OnMeleeCreated(int meleeWeapon) {
-	DHookEntity(g_DHookOnMeleeEntityHit, true, meleeWeapon, .callback = OnMeleeEntityHitPost);
 }
 
 public void OnClientPutInServer(int client) {
@@ -88,7 +69,7 @@ void OnClientPostThinkPost(int client) {
 	g_flBuffEndTime[client] = 0.0;
 }
 
-MRESReturn OnMeleeEntityHitPost(int weapon, Handle hParams) {
+MRESReturn OnMeleeDoDamagePost(int weapon, Handle hParams) {
 	int entity = DHookGetParam(hParams, 1);
 	if (entity < 1 || entity > MaxClients) {
 		return MRES_Ignored;
@@ -148,9 +129,4 @@ void ClearAttributeCache(int client) {
 void UpdateWeaponResetParity(int weapon) {
 	SetEntProp(weapon, Prop_Send, "m_bResetParity",
 			!GetEntProp(weapon, Prop_Send, "m_bResetParity"));
-}
-
-bool IsEntityMeleeWeapon(int entity) {
-	return TF2Util_IsEntityWeapon(entity)
-			&& TF2Util_GetWeaponSlot(entity) == TFWeaponSlot_Melee;
 }

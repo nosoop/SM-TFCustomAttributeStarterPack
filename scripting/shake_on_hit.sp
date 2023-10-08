@@ -18,8 +18,6 @@
 #include <stocksoup/tf/entity_prop_stocks>
 #include <dhooks_gameconf_shim>
 
-Handle g_DHookMeleeOnEntityHit;
-
 public void OnPluginStart() {
 	Handle hGameConf = LoadGameConfigFile("tf2.cattr_starterpack");
 	if (!hGameConf) {
@@ -28,40 +26,18 @@ public void OnPluginStart() {
 		SetFailState("Failed to read DHooks definitions (tf2.cattr_starterpack).");
 	}
 	
-	g_DHookMeleeOnEntityHit = GetDHooksDefinition(hGameConf,
-			"CTFWeaponBaseMelee::OnEntityHit()");
+	DynamicDetour dtOnMeleeDoDamage = GetDHooksDetourDefinition(hGameConf,
+			"CTFWeaponBaseMelee::DoMeleeDamage()");
+	if (!dtOnMeleeDoDamage) {
+		SetFailState("Failed to create detour " ... "CTFWeaponBaseMelee::DoMeleeDamage()");
+	}
+	dtOnMeleeDoDamage.Enable(Hook_Post, OnMeleeDoDamagePost);
 	
 	ClearDHooksDefinitions();
 	delete hGameConf;
 }
 
-public void OnMapStart() {
-	int ent = -1;
-	while ((ent = FindEntityByClassname(ent, "*")) != -1) {
-		if (TF2Util_IsEntityWeapon(ent) && TF2Util_GetWeaponSlot(ent) == TFWeaponSlot_Melee) {
-			OnMeleeWeaponCreated(ent);
-		}
-	}
-	
-}
-
-public void OnEntityCreated(int entity, const char[] classname) {
-	if (TF2Util_IsEntityWeapon(entity)) {
-		SDKHook(entity, SDKHook_SpawnPost, OnWeaponSpawnPost);
-	}
-}
-
-void OnWeaponSpawnPost(int weapon) {
-	if (TF2Util_GetWeaponSlot(weapon) == TFWeaponSlot_Melee) {
-		OnMeleeWeaponCreated(weapon);
-	}
-}
-
-void OnMeleeWeaponCreated(int weapon) {
-	DHookEntity(g_DHookMeleeOnEntityHit, true, weapon, .callback = MeleeOnEntityHit);
-}
-
-MRESReturn MeleeOnEntityHit(int weapon, Handle hParams) {
+MRESReturn OnMeleeDoDamagePost(int weapon, Handle hParams) {
 	int target = DHookGetParam(hParams, 1);
 	int attacker = TF2_GetEntityOwner(weapon);
 	

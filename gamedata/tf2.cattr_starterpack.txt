@@ -511,6 +511,28 @@
 					}
 				}
 			}
+			"CTFWeaponBaseMelee::DoMeleeDamage()"
+			{
+				"signature"		"CTFWeaponBaseMelee::DoMeleeDamage()"
+				"callconv"		"thiscall"
+				"return"		"void"
+				"this"			"entity"
+				"arguments"
+				{
+					"target"
+					{
+						"type"	"cbaseentity"
+					}
+					"trace"
+					{
+						"type"	"objectptr"
+					}
+					"damage_scale"
+					{
+						"type"	"float"
+					}
+				}
+			}
 			"CTFWeaponBaseMelee::OnEntityHit()"
 			{
 				"offset"		"CTFWeaponBaseMelee::OnEntityHit()"
@@ -1137,6 +1159,13 @@
 				"library"	"server"
 				"linux"		"@_ZN16CTFWeaponBaseGun14FireProjectileEP9CTFPlayer"
 				"windows"	"\x2A\x2A\x2A\x2A\x2A\x2A\x57\x6A\x01\x6A\x00\x8B\xF1\x56\x68\x2A\x2A\x2A\x2A\x6A\x00\xE8\x2A\x2A\x2A\x2A\x8B\xC8"
+			}
+			"CTFWeaponBaseMelee::DoMeleeDamage()"
+			{
+				// xref "crit_forces_victim_to_laugh"
+				"library"	"server"
+				"linux"		"@_ZN18CTFWeaponBaseMelee13DoMeleeDamageEP11CBaseEntityR10CGameTracef"
+				"windows"	"\x55\x89\xE5\x57\x56\x53\x81\xEC\x2A\x2A\x00\x00\x8B\x5D\x08\x8B\x7D\x0C\x89\x1C\x24"
 			}
 			"CWeaponMedigun::AllowedToHealTarget()"
 			{
