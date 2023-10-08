@@ -622,6 +622,20 @@
 				"return"		"void"
 				"this"			"entity"
 			}
+			"CTFWeaponBaseGun::SecondaryAttack()"
+			{
+				"signature"		"CTFWeaponBaseGun::SecondaryAttack()"
+				"callconv"		"thiscall"
+				"return"		"void"
+				"this"			"entity"
+			}
+			"CTFWeaponBaseMelee::SecondaryAttack()"
+			{
+				"signature"		"CTFWeaponBaseMelee::SecondaryAttack()"
+				"callconv"		"thiscall"
+				"return"		"void"
+				"this"			"entity"
+			}
 			"CTraceFilterObject::ShouldHitEntity()"
 			{
 				"signature"		"CTraceFilterObject::ShouldHitEntity()"
@@ -1195,12 +1209,26 @@
 				"linux"		"@_ZN16CTFWeaponBaseGun13PrimaryAttackEv"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x0C\x57\x8B\xF9\x8B\x07\x8B\x80\x2A\x2A\x00\x00\xFF\xD0\xD9\xEE"
 			}
+			"CTFWeaponBaseGun::SecondaryAttack()"
+			{
+				// called first in function with semi-unique xref "minicrit_boost_when_charged"
+				"library"	"server"
+				"linux"		"@_ZN16CTFWeaponBaseGun15SecondaryAttackEv"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x08\x57\x8B\xF9\x80\xBF\x2A\x2A\x00\x00\x00\x0F\x85\x2A\x00\x00\x00\x56\xE8"
+			}
 			"CTFWeaponBaseMelee::DoMeleeDamage()"
 			{
 				// xref "crit_forces_victim_to_laugh"
 				"library"	"server"
 				"linux"		"@_ZN18CTFWeaponBaseMelee13DoMeleeDamageEP11CBaseEntityR10CGameTracef"
 				"windows"	"\x55\x89\xE5\x57\x56\x53\x81\xEC\x2A\x2A\x00\x00\x8B\x5D\x08\x8B\x7D\x0C\x89\x1C\x24"
+			}
+			"CTFWeaponBaseMelee::SecondaryAttack()"
+			{
+				// function in vtable after function containing "air_jump_on_attack" (CTFShovel::PrimaryAttack)
+				"library"	"server"
+				"linux"		"@_ZN18CTFWeaponBaseMelee15SecondaryAttackEv"
+				"windows"	"\x55\x8B\xEC\x51\x56\x8B\xF1\x8B\x06\x8B\x80\x2A\x2A\x00\x00\xFF\xD0\x84\xC0\x74\x7F"
 			}
 			"CWeaponMedigun::AllowedToHealTarget()"
 			{

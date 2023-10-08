@@ -18,7 +18,6 @@
 #include <dhooks_gameconf_shim>
 
 Handle g_SDKCallInitGrenade;
-Handle g_DHookSecondaryAttack;
 Handle g_SDKCallWeaponSwitch;
 
 float g_flGunThrowRegenerateTime[MAXPLAYERS + 1][3];
@@ -41,8 +40,19 @@ public void OnPluginStart() {
 	PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
 	g_SDKCallInitGrenade = EndPrepSDKCall();
 	
-	g_DHookSecondaryAttack = GetDHooksDefinition(hGameConf,
-			"CBaseCombatWeapon::SecondaryAttack()");
+	DynamicDetour dtGunSecondaryAttack = GetDHooksDetourDefinition(hGameConf,
+			"CTFWeaponBaseGun::SecondaryAttack()");
+	if (!dtGunSecondaryAttack) {
+		SetFailState("Failed to create detour " ... "CTFWeaponBaseGun::SecondaryAttack()");
+	}
+	dtGunSecondaryAttack.Enable(Hook_Pre, OnSecondaryAttackPre);
+	
+	DynamicDetour dtMeleeSecondaryAttack = DynamicDetour.FromConf(hGameConf, "CTFWeaponBaseMelee::SecondaryAttack()");
+	if (!dtMeleeSecondaryAttack) {
+		SetFailState("Failed to create detour " ... "CTFWeaponBaseMelee::SecondaryAttack()");
+	}
+	dtMeleeSecondaryAttack.Enable(Hook_Pre, OnSecondaryAttackPre);
+	
 	
 	delete hGameConf;
 	
@@ -62,14 +72,6 @@ public void OnPluginStart() {
 }
 
 public void OnMapStart() {
-	int entity = -1;
-	while ((entity = FindEntityByClassname(entity, "*")) != -1) {
-		if (entity && TF2Util_IsEntityWeapon(entity)
-				&& TF2Util_GetWeaponSlot(entity) < sizeof(g_flGunThrowRegenerateTime[])) {
-			DHookEntity(g_DHookSecondaryAttack, false, entity, .callback = OnSecondaryAttackPre);
-		}
-	}
-	
 	for (int i = 1; i <= MaxClients; i++) {
 		if (IsClientInGame(i)) {
 			OnClientPutInServer(i);
@@ -83,13 +85,6 @@ public void OnClientPutInServer(int client) {
 	
 	for (int i; i < sizeof(g_flGunThrowRegenerateTime[]); i++) {
 		g_flGunThrowRegenerateTime[client][i] = 0.0;
-	}
-}
-
-public void OnEntityCreated(int entity, const char[] className) {
-	if (entity && TF2Util_IsEntityWeapon(entity)
-			&& TF2Util_GetWeaponSlot(entity) < sizeof(g_flGunThrowRegenerateTime[])) {
-		DHookEntity(g_DHookSecondaryAttack, false, entity, .callback = OnSecondaryAttackPre);
 	}
 }
 
