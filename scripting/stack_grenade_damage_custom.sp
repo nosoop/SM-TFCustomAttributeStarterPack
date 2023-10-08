@@ -10,12 +10,12 @@
 
 #pragma newdecls required
 
+#include <stocksoup/memory>
 #include <stocksoup/var_strings>
 #include <stocksoup/tf/entity_prop_stocks>
 #include <tf_custom_attributes>
 #include <dhooks_gameconf_shim>
 
-Handle g_DHookGrenadeExplode;
 int g_nDamageStack[MAXPLAYERS + 1];
 
 public void OnPluginStart() {
@@ -26,51 +26,28 @@ public void OnPluginStart() {
 		SetFailState("Failed to read DHooks definitions (tf2.cattr_starterpack).");
 	}
 	
-	g_DHookGrenadeExplode = GetDHooksDefinition(hGameConf, "CBaseGrenade::Explode()");
+	DynamicDetour dtGameRulesRadiusDamage = DynamicDetour.FromConf(hGameConf,
+			"CTFGameRules::RadiusDamage()");
+	if (!dtGameRulesRadiusDamage) {
+		SetFailState("Failed to create detour " ... "CTFGameRules::RadiusDamage()");
+	}
+	dtGameRulesRadiusDamage.Enable(Hook_Pre, OnRadiusDamagePre);
+	dtGameRulesRadiusDamage.Enable(Hook_Post, OnRadiusDamagePost);
 	
 	ClearDHooksDefinitions();
 	delete hGameConf;
 }
 
-public void OnMapStart() {
-	for (int i = 1; i <= MaxClients; i++) {
-		if (IsClientInGame(i)) {
-			OnClientPutInServer(i);
-		}
-	}
-}
-
-public void OnEntityCreated(int entity, const char[] className) {
-	if (IsValidEdict(entity) && HasEntProp(entity, Prop_Send, "m_bDefensiveBomb")) {
-		HookGrenadeEntity(entity);
-	}
-}
-
-public void OnClientPutInServer(int client) {
-	SDKHook(client, SDKHook_OnTakeDamageAlivePost, OnTakeDamageAlivePost);
-}
-
-static void HookGrenadeEntity(int grenade) {
-	DHookEntity(g_DHookGrenadeExplode, false, grenade, .callback = OnGrendeExplodePre);
-	DHookEntity(g_DHookGrenadeExplode, true, grenade, .callback = OnGrendeExplodePost);
-}
-
-static int s_InflictingGrenade;
-static bool s_bDirectHit;
-static int s_nPlayersDamaged;
-
-MRESReturn OnGrendeExplodePre(int grenade, Handle hParams) {
-	// reset counters
-	s_bDirectHit = !GetEntProp(grenade, Prop_Send, "m_bTouched");
-	s_nPlayersDamaged = 0;
+MRESReturn OnRadiusDamagePre(Address pGameRules, DHookParam hParams) {
+	Address pDamageInfo = hParams.GetObjectVar(1, 0, ObjectValueType_Int);
 	
-	int weapon = GetEntPropEnt(grenade, Prop_Send, "m_hOriginalLauncher");
+	int weapon = LoadEntityHandleFromAddress(pDamageInfo + view_as<Address>(44));
 	if (!IsValidEntity(weapon)) {
 		return MRES_Ignored;
 	}
 	
-	int owner = TF2_GetEntityOwner(weapon);
-	if (!IsValidEntity(owner)) {
+	int owner = EntRefToEntIndex(LoadEntityHandleFromAddress(pDamageInfo + view_as<Address>(40)));
+	if (owner < 1 || owner > MaxClients) {
 		return MRES_Ignored;
 	}
 	
@@ -83,58 +60,56 @@ MRESReturn OnGrendeExplodePre(int grenade, Handle hParams) {
 	float flDamageBonus = ReadFloatVar(attr, "add_dmg");
 	float scale = 1.0 + (g_nDamageStack[owner] * flDamageBonus);
 	
-	s_InflictingGrenade = EntIndexToEntRef(grenade);
-	
-	float damage = GetEntPropFloat(grenade, Prop_Send, "m_flDamage");
-	SetEntPropFloat(grenade, Prop_Send, "m_flDamage", damage * scale);
+	float damage = LoadFromAddress(pDamageInfo + view_as<Address>(48), NumberType_Int32);
+	StoreToAddress(pDamageInfo + view_as<Address>(48), damage * scale, NumberType_Int32);
 	
 	return MRES_Ignored;
 }
 
-void OnTakeDamageAlivePost(int victim, int attacker, int inflictor, float damage,
-		int damagetype, int weapon, const float damageForce[3], const float damagePosition[3]) {
-	if (!IsValidEntity(inflictor) || !IsValidEntity(weapon) || victim == attacker) {
-		return;
-	}
+MRESReturn OnRadiusDamagePost(Address pGameRules, DHookParam hParams) {
+	Address pDamageInfo = hParams.GetObjectVar(1, 0, ObjectValueType_Int);
 	
-	if (!IsValidEntity(s_InflictingGrenade)
-			|| EntIndexToEntRef(inflictor) != s_InflictingGrenade) {
-		return;
-	}
-	
-	// players were hurt (shouldn't be ubered?)
-	s_nPlayersDamaged++;
-}
-
-MRESReturn OnGrendeExplodePost(int grenade, Handle hParams) {
-	// there shouldn't be any nested grenade calls... right?
-	s_InflictingGrenade = INVALID_ENT_REFERENCE;
-	
-	int weapon = GetEntPropEnt(grenade, Prop_Send, "m_hOriginalLauncher");
+	int weapon = LoadEntityHandleFromAddress(pDamageInfo + view_as<Address>(44));
 	if (!IsValidEntity(weapon)) {
-		return;
+		return MRES_Ignored;
 	}
 	
 	char attr[128];
 	if (!TF2CustAttr_GetString(weapon, "stack grenade damage custom", attr, sizeof(attr))) {
-		return;
+		return MRES_Ignored;
 	}
 	
-	int owner = TF2_GetEntityOwner(weapon);
-	if (!IsValidEntity(owner)) {
-		return;
+	int inflictor = LoadEntityHandleFromAddress(pDamageInfo + view_as<Address>(36));
+	if (!IsValidEntity(inflictor)) {
+		// ???
+		return MRES_Ignored;
 	}
 	
-	// update stack based on how many players we hit
+	int attacker = EntRefToEntIndex(LoadEntityHandleFromAddress(pDamageInfo + view_as<Address>(40)));
+	if (attacker < 1 || attacker > MaxClients) {
+		return MRES_Ignored;
+	}
+	
+	int iDamagedOtherPlayers = LoadFromAddress(pDamageInfo + view_as<Address>(76), NumberType_Int32);
+	
+	// inflictor is implied to be a grenade since we assume the attribute is applied on a grenade launcher
+	bool bDirectHit = GetEntProp(inflictor, Prop_Send, "m_bTouched") == 0;
+	
+	/**
+	 * Update stack based on how many players we hit.  If no enemies were damaged (including
+	 * invuln'd targets), the counter is reset.  The counter is only incremented if players
+	 * were injured on a direct hit.
+	 */
 	int maxStack = ReadIntVar(attr, "max_stack", 10);
-	
-	if (s_nPlayersDamaged == 0) {
-		g_nDamageStack[owner] = 0;
-	} else if (s_bDirectHit) {
-		if (++g_nDamageStack[owner] > maxStack) {
-			g_nDamageStack[owner] = maxStack;
+	if (iDamagedOtherPlayers == 0) {
+		g_nDamageStack[attacker] = 0;
+	} else if (bDirectHit) {
+		if (++g_nDamageStack[attacker] > maxStack) {
+			g_nDamageStack[attacker] = maxStack;
 		}
 	}
+	
+	return MRES_Ignored;
 }
 
 public Action OnCustomStatusHUDUpdate(int client, StringMap entries) {

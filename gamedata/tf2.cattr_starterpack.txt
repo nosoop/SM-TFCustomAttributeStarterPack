@@ -214,6 +214,20 @@
 					}
 				}
 			}
+			"CTFGameRules::RadiusDamage()"
+			{
+				"signature"		"CTFGameRules::RadiusDamage()"
+				"callconv"		"thiscall"
+				"return"		"void"
+				"this"			"address"
+				"arguments"
+				{
+					"damage_info"
+					{
+						"type"	"objectptr"
+					}
+				}
+			}
 			"CTFLunchBox::ApplyBiteEffects()"
 			{
 				"signature"		"CTFLunchBox::ApplyBiteEffects()"
@@ -975,6 +989,13 @@
 				// signature with ApplyOnDamageAliveModifyRules starting with MULSS operation
 				"library"	"server"
 				"linux"		"\xF3\x0F\x59\x2A\x2A\x2A\x2A\x2A\xF3\x0F\x11\x2A\x2A\x2A\x2A\x2A\xE9\x2A\x2A\x2A\x2A\x83\x3D\x2A\x2A\x2A\x2A\x00"
+			}
+			"CTFGameRules::RadiusDamage()"
+			{
+				// xref unique "add_health_on_radius_damage"
+				"library"	"server"
+				"linux"		"@_ZN12CTFGameRules12RadiusDamageER19CTFRadiusDamageInfo"
+				"windows"	"\x55\x8B\xEC\x81\xEC\x24\x08\x00\x00\x53"
 			}
 			"CTFLunchBox::ApplyBiteEffects()"
 			{
