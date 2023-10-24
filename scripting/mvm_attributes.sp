@@ -131,7 +131,12 @@ void OnClientWeaponSwitchPost(int client, int weapon) {
 		TF2_RemoveCondition(client, TFCond_CritOnKill);
 	}
 	
+	if (!IsValidEntity(weapon)) {
+		return;
+	}
+	
 	// vaccinator: preset resist type
+	// note: it doesn't matter if this is actually the active weapon
 	int itemdef = GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex");
 	if (itemdef == 998 & g_iMvMFlags[client] & MVMATTR_VACCINATOR_FORCE) {
 		// TODO block CWeaponMedigun::CycleResistType
