@@ -197,8 +197,17 @@ void OnClientPostThinkPost(int client) {
 
 static bool s_bPrimaryAttackAvailableInPre;
 MRESReturn OnPrimaryAttackPre(int weapon) {
-	float flNextPrimaryAttack = GetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack");
-	s_bPrimaryAttackAvailableInPre = flNextPrimaryAttack <= GetGameTime();
+	if (TF2Util_GetWeaponID(weapon) == TF_WEAPON_FLAME_BALL) {
+		int owner = TF2_GetEntityOwner(weapon);
+		if (IsValidEntity(owner)) {
+			s_bPrimaryAttackAvailableInPre = GetEntPropFloat(owner, Prop_Send, "m_flItemChargeMeter", TFWeaponSlot_Primary) >= 100.0;
+		}
+	} else {
+		float flNextPrimaryAttack = GetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack");
+		s_bPrimaryAttackAvailableInPre = flNextPrimaryAttack <= GetGameTime();
+	}
+	
+	return MRES_Ignored;
 }
 
 MRESReturn OnPrimaryAttackPost(int weapon) {
@@ -214,7 +223,7 @@ MRESReturn OnPrimaryAttackPost(int weapon) {
 	OverheatParams params;
 	params.Parse(buffer);
 	
-	float overheat = ApplyOverheat(weapon, params);
+	float overheat = ApplyOverheat(weapon, params, TF2Util_GetWeaponID(weapon) == TF_WEAPON_FLAME_BALL ? true : false);
 	
 	if (params.m_flSpreadScale != 1.0) {
 		// this needs to be lag compensated so we do need to apply this modifier
@@ -233,14 +242,23 @@ static bool s_bSecondaryAttackAvailableInPre;
 
 static bool s_bShockAttackActivated;
 MRESReturn OnSecondaryAttackPre(int weapon) {
-	float flNextSecondaryAttack = GetEntPropFloat(weapon, Prop_Send, "m_flNextSecondaryAttack");
-	s_bSecondaryAttackAvailableInPre = flNextSecondaryAttack <= GetGameTime();
-	s_bShockAttackActivated = false;
+	if (TF2Util_GetWeaponID(weapon) == TF_WEAPON_FLAME_BALL) {
+		int owner = TF2_GetEntityOwner(weapon);
+		if (IsValidEntity(owner)) {
+			s_bSecondaryAttackAvailableInPre = GetEntPropFloat(owner, Prop_Send, "m_flItemChargeMeter", TFWeaponSlot_Primary) >= 100.0 && GetEntPropFloat(weapon, Prop_Send, "m_flNextSecondaryAttack") <= GetGameTime();
+		}
+	} else {
+		float flNextSecondaryAttack = GetEntPropFloat(weapon, Prop_Send, "m_flNextSecondaryAttack");
+		s_bSecondaryAttackAvailableInPre = flNextSecondaryAttack <= GetGameTime();
+		s_bShockAttackActivated = false;
+	}
+	return MRES_Ignored;
 }
 
 MRESReturn OnMechanicalArmShockAttackPost(int weapon, Handle hReturn) {
 	bool success = DHookGetReturn(hReturn);
 	s_bShockAttackActivated = success;
+	return MRES_Ignored;
 }
 
 MRESReturn OnSecondaryAttackPost(int weapon) {
@@ -285,6 +303,7 @@ MRESReturn OnSecondaryAttackPost(int weapon) {
 MRESReturn OnMinigunAttackPre(int weapon) {
 	float flNextPrimaryAttack = GetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack");
 	s_bPrimaryAttackAvailableInPre = flNextPrimaryAttack <= GetGameTime();
+	return MRES_Ignored;
 }
 
 MRESReturn OnMinigunAttackPost(int weapon) {
