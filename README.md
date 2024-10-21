@@ -133,6 +133,21 @@ Includes are bundled in the `third_party/` subdirectory to ensure builds are con
 [smlib]: https://github.com/bcserv/smlib
 [TF2 DamageInfo Tools]: https://github.com/nosoop/SM-TFDamageInfo
 
+## Contributing
+
+As stated before, I don't run a Custom Weapon server.  All plugins here are provided on an as-is
+basis and has the potential of breaking whenever TF2 gets an update.
+
+- Issues:  You may post bug reports or other issues related to plugins currently in the project.
+I cannot guarantee that I will address them in a timely manner, or even at all, but opening a
+report makes an issue known to me and other potential and current users of the plugin.
+- Pull Requests:  You are welcome to create pull requests that make backwards-compatible changes
+to plugins currently in the project, or to fix gamedata.  Again, I can't promise I'll get to
+them, but it's useful for end users to discover.  Please test your changes; if they are not
+ready for merging, mark them as drafts.
+
+I can't accept ideas nor implementations for new plugins here.
+
 ## License
 
 This project uses the MIT license.  Do note that once compiled, SourceMod plugins are still
