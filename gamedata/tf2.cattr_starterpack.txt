@@ -675,6 +675,20 @@
 				"return"		"void"
 				"this"			"entity"
 			}
+			"CWeaponMedigun::DrainCharge().part.0"
+			{
+				"signature"		"CWeaponMedigun::DrainCharge().part.0"
+				"callconv"		"cdecl"
+				"return"		"void"
+				"arguments"
+				{
+					"this"
+					{
+						"type"	"cbaseentity"
+						"register"	"ebx"
+					}
+				}
+			}
 			"CWeaponMedigun::HealTargetThink()"
 			{
 				"signature"		"CWeaponMedigun::HealTargetThink()"
@@ -1297,8 +1311,12 @@
 			{
 				// contains non-unique xref to "add_uber_time", but references only this string and has no arguments
 				"library"	"server"
-				"linux"		"@_ZN14CWeaponMedigun11DrainChargeEv"
 				"windows"	"\x2A\x2A\x2A\x2A\x2A\x2A\x56\x8B\xF1\x80\xBE\x2A\x2A\x2A\x2A\x2A\x0F\x84\x2A\x2A\x2A\x2A\x8B\x8E\x2A\x2A\x2A\x2A\x85\xC9"
+			}
+			"CWeaponMedigun::DrainCharge().part.0"
+			{
+				"library"	"server"
+				"linux"		"@_ZN14CWeaponMedigun11DrainChargeEv.part.0"
 			}
 		}
 		

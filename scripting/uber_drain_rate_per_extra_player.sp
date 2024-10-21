@@ -27,10 +27,16 @@ public void OnPluginStart() {
 	
 	Handle dtMedigunDrainCharge = GetDHooksDefinition(hGameConf,
 			"CWeaponMedigun::DrainCharge()");
-	if (!dtMedigunDrainCharge) {
-		SetFailState("Failed to create detour " ... "CWeaponMedigun::DrainCharge()");
+	if (dtMedigunDrainCharge) {
+		DHookEnableDetour(dtMedigunDrainCharge, false, OnMedigunDrainCharge);
+	} else {
+		dtMedigunDrainCharge = GetDHooksDefinition(hGameConf,
+				"CWeaponMedigun::DrainCharge().part.0");
+		if (!dtMedigunDrainCharge) {
+			SetFailState("Failed to create detour " ... "CWeaponMedigun::DrainCharge()");
+		}
+		DHookEnableDetour(dtMedigunDrainCharge, false, OnMedigunDrainChargeInline);
 	}
-	DHookEnableDetour(dtMedigunDrainCharge, false, OnMedigunDrainCharge);
 	
 	MemoryPatch patchExtraDrainRate = MemoryPatch.CreateFromConf(hGameConf,
 			"CWeaponMedigun::DrainCharge()::PatchExtraDrainRate");
@@ -63,4 +69,9 @@ MRESReturn OnMedigunDrainCharge(int medigun) {
 				"ubercharge drain rate per extra player", BASE_UBER_DRAIN_RATE);
 	}
 	return MRES_Ignored;
+}
+
+MRESReturn OnMedigunDrainChargeInline(DHookParam hParams) {
+	int medigun = hParams.Get(1);
+	return OnMedigunDrainCharge(medigun);
 }
