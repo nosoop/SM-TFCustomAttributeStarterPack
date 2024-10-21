@@ -879,15 +879,17 @@
 				"signature"		"CTFPlayerShared::UpdateCloakMeter()"
 				"linux"
 				{
-					"offset"		"123h"
-					"verify"		"\xF3\x0F\x10\x1D\x2A\x2A\x2A\x2A"
-					"patch"			"\xF3\x0F\x10\x1D\x00\x00\x00\x00"
+					"offset"		"B7h"
+					"verify"		"\xF3\x0F\x10\x2A\x2A\x2A\x2A\x2A"
+					"patch"			"\xF3\x0F\x10\x05\x00\x00\x00\x00"
+					"preserve"		"\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF"
 				}
 				"windows"
 				{
 					"offset"		"256h"
 					"verify"		"\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A"
 					"patch"			"\xF3\x0F\x59\x05\x00\x00\x00\x00"
+					"preserve"		"\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF"
 				}
 			}
 			"HandleRageGain()::NoHeavyRageGain"
