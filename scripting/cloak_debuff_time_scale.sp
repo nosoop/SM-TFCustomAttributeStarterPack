@@ -65,7 +65,17 @@ public void OnPluginStart() {
 	
 	Handle dtUpdateCloakMeter = GetDHooksDefinition(hGameConf,
 			"CTFPlayerShared::UpdateCloakMeter()");
-	DHookEnableDetour(dtUpdateCloakMeter, false, OnUpdateCloakMeterPre);
+	if (dtUpdateCloakMeter) {
+		DHookEnableDetour(dtUpdateCloakMeter, false, OnUpdateCloakMeterPre);
+	} else {
+		Handle dtUpdateCloakMeterInline = DHookCreateFromConf(hGameConf,
+				"CTFPlayerShared::UpdateCloakMeter().part.0");
+		if (!dtUpdateCloakMeterInline) {
+			SetFailState("Failed to create detour "
+					... "CTFPlayerShared::UpdateCloakMeter().part.0");
+		}
+		DHookEnableDetour(dtUpdateCloakMeterInline, false, OnUpdateCloakMeterInlinePre);
+	}
 	
 	ClearDHooksDefinitions();
 	
@@ -99,6 +109,14 @@ MRESReturn OnUpdateCloakMeterPre(Address pShared) {
 	int client = TF2Util_GetPlayerFromSharedAddress(pShared);
 	UpdateCloakDebuffAmount(g_flComputedDefuffRates[client]);
 	return MRES_Ignored;
+}
+
+/**
+ * Patches the per-client unique reduction rate into the function.
+ */
+MRESReturn OnUpdateCloakMeterInlinePre(DHookParam hParams) {
+	Address pShared = hParams.GetAddress(1);
+	return OnUpdateCloakMeterPre(pShared);
 }
 
 // the value that is injected into the game is the amount of time each debuff is reduced per

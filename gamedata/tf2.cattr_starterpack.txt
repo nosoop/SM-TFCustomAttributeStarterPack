@@ -468,6 +468,20 @@
 				"return"		"void"
 				"this"			"address"
 			}
+			"CTFPlayerShared::UpdateCloakMeter().part.0"
+			{
+				"signature"		"CTFPlayerShared::UpdateCloakMeter().part.0"
+				"callconv"		"cdecl"
+				"return"		"void"
+				"arguments"
+				{
+					"this"
+					{
+						"type"	"objectptr"
+						"register"	"eax"
+					}
+				}
+			}
 			"CTFProjectile_Flare::Explode_Air()"
 			{
 				"signature"		"CTFProjectile_Flare::Explode_Air()"
@@ -876,9 +890,9 @@
 			}
 			"CTFPlayerShared::UpdateCloakMeter()::ModifyDebuffReduction"
 			{
-				"signature"		"CTFPlayerShared::UpdateCloakMeter()"
 				"linux"
 				{
+					"signature"		"CTFPlayerShared::UpdateCloakMeter().part.0"
 					"offset"		"B7h"
 					"verify"		"\xF3\x0F\x10\x2A\x2A\x2A\x2A\x2A"
 					"patch"			"\xF3\x0F\x10\x05\x00\x00\x00\x00"
@@ -886,6 +900,7 @@
 				}
 				"windows"
 				{
+					"signature"		"CTFPlayerShared::UpdateCloakMeter()"
 					"offset"		"256h"
 					"verify"		"\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A"
 					"patch"			"\xF3\x0F\x59\x05\x00\x00\x00\x00"
@@ -928,18 +943,21 @@
 			}
 			"CWeaponMedigun::DrainCharge()::PatchExtraDrainRate"
 			{
-				"signature"			"CWeaponMedigun::DrainCharge()"
 				"linux"
 				{
-					"offset"		"CFh"
-					"verify"		"\xF3\x0F\x59\x15\x2A\x2A\x2A\x2A"
-					"patch"			"\xF3\x0F\x59\x15\x00\x00\x00\x00"
+					"signature"		"CWeaponMedigun::DrainCharge().part.0"
+					"offset"		"BBh"
+					"verify"		"\xF3\x0F\x59\x0D\x2A\x2A\x2A\x2A"
+					"patch"			"\xF3\x0F\x59\x0D\x00\x00\x00\x00"
+					"preserve"		"\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF"
 				}
 				"windows"
 				{
+					"signature"		"CWeaponMedigun::DrainCharge()"
 					"offset"		"C1h"
 					"verify"		"\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A"
 					"patch"			"\xF3\x0F\x59\x05\x00\x00\x00\x00"
+					"preserve"		"\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF"
 				}
 			}
 		}
@@ -1196,8 +1214,12 @@
 				//Naydef's instructions: Find function UpdateRageBuffsAndRage "Invalid rage buff type %i for entindex %i\n", then look for the functions that call it, one of the functions should contain 5 consecutive "call"s, the second of those calls is CTFPlayerShared::UpdateCloakMeter()
 				// find raw contents of g_aDebuffConditions and jump to xref function with most references
 				"library"	"server"
-				"linux"		"@_ZN15CTFPlayerShared16UpdateCloakMeterEv"
 				"windows"	"\x2A\x2A\x2A\x2A\x2A\x2A\x56\x8B\xF1\x6A\x08\x8B"
+			}
+			"CTFPlayerShared::UpdateCloakMeter().part.0"
+			{
+				"library"	"server"
+				"linux"		"@_ZN15CTFPlayerShared16UpdateCloakMeterEv.part.0"
 			}
 			"CTFProjectile_Flare::Explode_Air()"
 			{
