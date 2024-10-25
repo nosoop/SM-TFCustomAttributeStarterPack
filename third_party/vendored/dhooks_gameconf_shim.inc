@@ -3,8 +3,8 @@
  * (c) 2023 nosoop
  * 
  * DHooks stores the hook definitions in-extension.  Because it's keyed globally, it has the
- * annoying property of conflicting if multiple game config files use the same name for
- * different hook definitions, no matter which plugin is loading them.
+ * side effect of conflicting if multiple game config files use the same name for different
+ * hook definitions, no matter which plugin is loading them.
  * 
  * This issue is tracked here: https://github.com/alliedmodders/sourcemod/issues/1879
  * 
@@ -24,7 +24,8 @@
  * 2. Replace every instance of `DHookCreateFromConf` with `GetDHooksDefinition`.  If you are
  *    using the `FromConf` methods, replace such instances with `GetDHooksHookDefinition` and
  *    `GetDHooksDetourDefinition` depending on the type.
- * 3. Call `ClearDHooksDefinitions` when you delete the gameconf handle.
+ * 3. Call `ClearDHooksDefinitions` when you delete the gameconf handle and no longer need to
+ *    call `GetDHooksDefinition`.  This frees up the associated resources.
  * 
  * Those are the only external-facing symbols.
  */
@@ -83,6 +84,8 @@ enum struct DHookSetupParamDefinition {
 			return true;
 		} else if (StrEqual(key, "flags")) {
 			return GetPassFlagsFromString(value, this.m_PassFlags);
+		} else if (StrEqual(key, "register")) {
+			return GetRegisterFromString(value, this.m_CustomRegister);
 		}
 		return false;
 	}
@@ -188,6 +191,7 @@ enum struct DHookSetupDefinition {
  * @param section    Section to read definitions from.  By default, this reads from the same
  *                   section as DHooks does, but may be changed to prevent DHooks from reading
  *                   them itself.
+ * @return           True if the file exists and was successfully parsed, false otherwise.
  */
 stock bool ReadDHooksDefinitions(const char[] file, const char[] section = "Functions") {
 	if (!s_DHooksDefinitions) {
@@ -201,16 +205,16 @@ stock bool ReadDHooksDefinitions(const char[] file, const char[] section = "Func
 	BuildPath(Path_SM, gameconf, sizeof(gameconf), "gamedata/%s.txt", file);
 	
 	if (!FileExists(gameconf)) {
-		ThrowError("Game config file %s not found", file);
+		LogError("Game config file %s not found", file);
 		return false;
 	}
 	
 	strcopy(s_CurrentHookListSectionName, sizeof(s_CurrentHookListSectionName), section);
-	gameConfigParser.ParseFile(gameconf);
+	SMCError parseResult = gameConfigParser.ParseFile(gameconf);
 	
 	delete gameConfigParser;
 	
-	return true;
+	return parseResult == SMCError_Okay;
 }
 
 /**
@@ -590,5 +594,69 @@ static bool GetPassFlagsFromString(const char[] value, DHookPassFlag &flags) {
 		flags |= DHookPass_OASSIGNOP;
 	}
 	// "ocopyctor" and "ounalign" do not have flags defined in SM
+	return true;
+}
+
+static bool GetRegisterFromString(const char[] value, DHookRegister &register) {
+	if (StrEqual(value, "al")) {
+		register = DHookRegister_AL;
+	} else if (StrEqual(value, "cl")) {
+		register = DHookRegister_CL;
+	} else if (StrEqual(value, "dl")) {
+		register = DHookRegister_DL;
+	} else if (StrEqual(value, "bl")) {
+		register = DHookRegister_BL;
+	} else if (StrEqual(value, "ah")) {
+		register = DHookRegister_AH;
+	} else if (StrEqual(value, "ch")) {
+		register = DHookRegister_CH;
+	} else if (StrEqual(value, "dh")) {
+		register = DHookRegister_DH;
+	} else if (StrEqual(value, "bh")) {
+		register = DHookRegister_BH;
+	} else if (StrEqual(value, "eax")) {
+		register = DHookRegister_EAX;
+	} else if (StrEqual(value, "ecx")) {
+		register = DHookRegister_ECX;
+	} else if (StrEqual(value, "edx")) {
+		register = DHookRegister_EDX;
+	} else if (StrEqual(value, "ebx")) {
+		register = DHookRegister_EBX;
+	} else if (StrEqual(value, "esp")) {
+		register = DHookRegister_ESP;
+	} else if (StrEqual(value, "ebp")) {
+		register = DHookRegister_EBP;
+	} else if (StrEqual(value, "esi")) {
+		register = DHookRegister_ESI;
+	} else if (StrEqual(value, "edi")) {
+		register = DHookRegister_EDI;
+	} else if (StrEqual(value, "xmm0")) {
+		register = DHookRegister_XMM0;
+	} else if (StrEqual(value, "xmm1")) {
+		register = DHookRegister_XMM1;
+	} else if (StrEqual(value, "xmm2")) {
+		register = DHookRegister_XMM2;
+	} else if (StrEqual(value, "xmm3")) {
+		register = DHookRegister_XMM3;
+	} else if (StrEqual(value, "xmm4")) {
+		register = DHookRegister_XMM4;
+	} else if (StrEqual(value, "xmm5")) {
+		register = DHookRegister_XMM5;
+	} else if (StrEqual(value, "xmm6")) {
+		register = DHookRegister_XMM6;
+	} else if (StrEqual(value, "xmm7")) {
+		register = DHookRegister_XMM7;
+	} else if (StrEqual(value, "st0")) {
+		register = DHookRegister_ST0;
+	} else {
+		/**
+		 * The following registers are processed by the extension, but don't have SP
+		 * equivalents:
+		 * - [asdb]x, sp, bp, si, di
+		 * - mm[0-7]
+		 * - [csdefg]s
+		 */
+		return false;
+	}
 	return true;
 }
