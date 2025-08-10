@@ -1,9 +1,26 @@
 # TF2 Custom Attribute Starter Pack
 
-A collection of (mostly) production-ready custom attributes written for
-[the Custom Attribute framework][custattr].
+A collection of () custom attributes written for [the Custom Attribute framework][custattr].
 
 I'll move the other ones eventually&hellip;
+
+> [!NOTE]
+> The plugin suite is struggling to stay current with TF2 releases now &mdash; the April 2024
+> game compiler toolchain update really took the wind out of the sails, and various issues with
+> update tracking tooling made it a hassle to even start work up until recently (when I wrote
+> my own Steam library).
+>
+> Consider these plugins in a rather unmaintained state as a result.
+>
+> If you do intend try running these plugins, please do the following:
+>
+> 1. Only install the plugins you are interested in using.  If the server crashes, start
+> removing them one by one to see if you can isolate the cause.
+> 2. If you can narrow down the cause, file an issue, if you'd like.  That said, while the
+> initial plugins were work-for-hire, maintenance is mostly performed under my free time (and I
+> also have other compelling projects that I'd rather work on).
+>
+> All that said, I appreciate everyone that was inspired in some way to use these plugins.
 
 [custattr]: https://github.com/nosoop/SM-TFCustAttr
 
