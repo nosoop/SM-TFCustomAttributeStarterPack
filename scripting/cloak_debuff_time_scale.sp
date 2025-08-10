@@ -40,7 +40,10 @@ public void OnPluginStart() {
 	g_PatchCloakTimer = MemoryPatch.CreateFromConf(hGameConf,
 			"CTFPlayerShared::UpdateCloakMeter()::ModifyDebuffReduction");
 	
-	{
+	if (!g_PatchCloakTimer.Validate()) {
+		SetFailState("Failed to validate patch "
+				... "CTFPlayerShared::UpdateCloakMeter()::ModifyDebuffReduction");
+	} else {
 		// the address is a float pointer, so we need to deref once to get the pointer, then
 		// a second to get the float value
 		Address ppFloat = g_PatchCloakTimer.Address + view_as<Address>(0x04);
