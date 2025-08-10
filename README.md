@@ -10,8 +10,7 @@ I'll move the other ones eventually&hellip;
 ## About
 
 This repository contains attributes I've written.  I don't run a Custom Weapon server, so most
-of the plugins are made through work-for-hire.  If you'd like a custom attribute created, feel
-free to [contact me on AlliedModders][am-prof] &mdash; I'm open to inquiries.
+of the plugins were made through work-for-hire.
 
 The [wiki][] documents the available custom attributes.
 
